@@ -3,50 +3,65 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://bgstieber.github.io/post/my-first-post/</loc>
+    <loc>/blog/my-first-post/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/page/about/</loc>
-  </url>
-  
-  <url>
-    <loc>https://bgstieber.github.io/categories/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://bgstieber.github.io/</loc>
+    <loc>/page/my-first-post/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/about/about/</loc>
+  </url>
+  
+  <url>
+    <loc>/page/about/</loc>
+  </url>
+  
+  <url>
+    <loc>/about/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/page/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://bgstieber.github.io/post/</loc>
+    <loc>/blog/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/categories/python/</loc>
+    <loc>/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/categories/r/</loc>
+    <loc>/page/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/</loc>
+    <loc>/categories/python/</loc>
+    <lastmod>2018-05-26T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/r/</loc>
+    <lastmod>2018-05-26T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
     <priority>0</priority>
   </url>
   
