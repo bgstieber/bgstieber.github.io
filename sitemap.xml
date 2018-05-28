@@ -3,93 +3,81 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-for-strategy/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/post/an-introduction-to-the-kmeans-algorithm/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/post/my-first-post/</loc>
+    <loc>/post/my-first-post/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/about/</loc>
+    <loc>/about/</loc>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/categories/</loc>
+    <loc>/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/data-analysis/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/data-science/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/tags/data-analysis/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/tags/data-science/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/golf/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/post/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/post/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://bgstieber.github.io/categories/python/</loc>
+    <loc>/categories/python/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/r/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/tags/r/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/categories/r/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/categories/r/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/strategy/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/tags/rmarkdown/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/tags/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://bgstieber.github.io/tags/tidy-data/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://bgstieber.github.io/tags/web-scraping/</loc>
-    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <loc>/tags/unsupervised-learning/</loc>
+    <lastmod>2018-05-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>An Introduction to the kmeans Algorithm</title>
+  <meta property="og:title" content="An Introduction to the kmeans Algorithm" />
+  <meta name="twitter:title" content="An Introduction to the kmeans Algorithm" />
+  <meta name="description" content="This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components of the kmeans fit, and displays some methods for selecting k. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.
+kmeans clustering is an example of unsupervised learning, where we do not have an output we’re explicitly trying to predict.">
+  <meta property="og:description" content="This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components of the kmeans fit, and displays some methods for selecting k. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.
+kmeans clustering is an example of unsupervised learning, where we do not have an output we’re explicitly trying to predict.">
+  <meta name="twitter:description" content="This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components …">
+  <meta name="author" content="Brad Stieber"/>
+  <meta property="og:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="/post/an-introduction-to-the-kmeans-algorithm/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Brad Stieber" />
+
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="canonical" href="/post/an-introduction-to-the-kmeans-algorithm/" />
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Brad Stieber">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="/css/highlight.min.css" /><link rel="stylesheet" href="/css/codeblock.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-119936954-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Brad Stieber</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Brad Stieber" href="/">
+            <img class="avatar-img" src="/img/brad-avatar.png" alt="Brad Stieber" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>An Introduction to the kmeans Algorithm</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on May 28, 2018
+  
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>This post will provide an <code>R</code> code-heavy, math-light introduction to selecting the <span class="math inline">\(k\)</span> in <strong>k</strong> means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in <code>R</code>, provides some components of the kmeans fit, and displays some methods for selecting <code>k</code>. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.</p>
+<p>kmeans clustering is an example of <a href="https://en.wikipedia.org/wiki/Unsupervised_learning">unsupervised learning</a>, where we do not have an output we’re explicitly trying to predict. We may have reasons to believe that there are latent groups within a dataset, so a clustering method can be a useful way to explore and describe pockets of similar observations within a dataset.</p>
+<div id="the-algorithm" class="section level2">
+<h2>The Algorithm</h2>
+<p>Here’s basically what kmeans (the algorithm) does (taken from <a href="https://www.r-statistics.com/2013/08/k-means-clustering-from-r-in-action/">K-means Clustering</a>):</p>
+<ol style="list-style-type: decimal">
+<li>Selects K centroids (K rows chosen at random)</li>
+<li>Assigns each data point to its closest centroid</li>
+<li><strong>Recalculates the centroids as the average of all data points in a cluster (i.e., the centroids are p-length mean vectors, where p is the number of variables)</strong></li>
+<li>Assigns data points to their closest centroids</li>
+<li>Continues steps 3 and 4 until the observations are not reassigned or the <strong>maximum number of iterations</strong> (<code>R</code> uses 10 as a default) is reached.</li>
+</ol>
+<p>Here it is in gif form (taken from <a href="http://simplystatistics.org/2014/02/18/k-means-clustering-in-a-gif/">k-means clustering in a GIF</a>):</p>
+<center>
+<img src="post_images/kmeans.gif" />
+</center>
+<div id="a-balls-and-urns-explanation" class="section level3">
+<h3>A balls and urns explanation</h3>
+<p>As a statistician, I have hard time avoiding resorting to using balls and urns to describe statistical concepts.</p>
+<p>Suppose we have <span class="math inline">\(n\)</span> balls, and each ball has <span class="math inline">\(p\)</span> characteristics, like <span class="math inline">\(shape\)</span>, <span class="math inline">\(size\)</span>, <span class="math inline">\(density\)</span>, <span class="math inline">\(\ldots\)</span>, and we want to put those <span class="math inline">\(n\)</span> balls into <span class="math inline">\(k\)</span> urns (clusters) according to the <span class="math inline">\(p\)</span> characteristics.</p>
+<p>First, we randomly select <span class="math inline">\(k\)</span> balls (<span class="math inline">\(balls_{init}\)</span>), and assign the rest of the balls (<span class="math inline">\(n-k\)</span>) to whichever <span class="math inline">\(balls_{init}\)</span> it is closest to. After this first assignment, we calculate the centroid of each (<span class="math inline">\(k\)</span>) collection of balls. The centroids are the averages of the <span class="math inline">\(p\)</span> characteristics of the balls in each cluster. So, for each cluster, there will be a vector of length <span class="math inline">\(p\)</span> with the means of the characteristics of the balls <em>in that cluster</em>.</p>
+<p>After the calculation of the centroid, we then calculate (for each ball) the distances between its <span class="math inline">\(p\)</span> characteristics and the centroids for each cluster. We assign the ball to the cluster with the centroid it is closest to. Then, we recalculate the centroids and repeat the process. We leave the number of clusters (<span class="math inline">\(k\)</span>) fixed, but we allow the balls to move between the clusters, depending on which cluster they are closest to.</p>
+<p>Either the algorithm will “converge” and between time <span class="math inline">\(t\)</span> and <span class="math inline">\(t+1\)</span> no reassignments will occur, or we’ll reach the maximum number of iterations allowed by the algorithm.</p>
+</div>
+</div>
+<div id="kmeans-in-r" class="section level2">
+<h2><code>kmeans</code> in <code>R</code></h2>
+<p>Here’s how we use the <code>kmeans</code> function in <code>R</code>:</p>
+<pre class="r"><code>kmeans(x, centers, iters.max, nstart)</code></pre>
+<div id="arguments" class="section level3">
+<h3>arguments</h3>
+<ul>
+<li><code>x</code> is our data</li>
+<li><code>centers</code> is the <strong>k</strong> in kmeans</li>
+<li><code>iters.max</code> controls the <strong>maximum number of iterations</strong>, if the algorithm has not converged, it’s good to bump this number up</li>
+<li><code>nstart</code> controls the initial configurations (step 1 in the algorithm), bumping this number up is a good idea, since kmeans tends to be sensitive to initial conditions (which may remind you of <a href="https://en.wikipedia.org/wiki/Chaos_theory#Sensitivity_to_initial_conditions">sensitivity to initial conditions in chaos theory</a>)</li>
+</ul>
+</div>
+<div id="values-it-returns" class="section level3">
+<h3>values it returns</h3>
+<p><code>kmeans</code> returns an object of class “kmeans” which has a <code>print</code> and a <code>fitted</code> method. It is a list with at least the following components:</p>
+<p><strong>cluster</strong> - A vector of integers (from 1:k) indicating the cluster to which each point is allocated.</p>
+<p><strong>centers</strong> - A matrix of cluster centers <strong>these are the centroids for each cluster</strong></p>
+<p><strong>totss</strong> - The total sum of squares.</p>
+<p><strong>withinss</strong> - Vector of within-cluster sum of squares, one component per cluster.</p>
+<p><strong>tot.withinss</strong> - Total within-cluster sum of squares, i.e. sum(withinss).</p>
+<p><strong>betweenss</strong> - The between-cluster sum of squares, i.e. totss-tot.withinss.</p>
+<p><strong>size</strong> - The number of points in each cluster.</p>
+<p>To use <code>kmeans</code>, we first need to specify the <code>k</code>. How should we do this?</p>
+</div>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>For this post, we’ll be using the <a href="https://archive.ics.uci.edu/ml/datasets/Housing">Boston housing data set</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.</p>
+<pre><code>##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
+## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
+## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14
+## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03
+## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94
+## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33
+## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21
+##   medv
+## 1 24.0
+## 2 21.6
+## 3 34.7
+## 4 33.4
+## 5 36.2
+## 6 28.7</code></pre>
+</div>
+<div id="visualize-within-cluster-error" class="section level2">
+<h2>Visualize within Cluster Error</h2>
+<p>Use a scree plot to visualize the reduction in within-cluster error:</p>
+<pre class="r"><code>ss_kmeans &lt;- t(sapply(2:14, 
+                  FUN = function(k) 
+                  kmeans(x = b_housing, 
+                         centers = k, 
+                         nstart = 20, 
+                         iter.max = 25)[c(&#39;tot.withinss&#39;,&#39;betweenss&#39;)]))
+
+plot(2:14, unlist(ss_kmeans[,1]), xlab = &#39;Clusters&#39;, ylab = &#39;Within Cluster SSE&#39;)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>When we look at the scree plot, we’re looking for the “elbow”. We can see the SSE dropping, but at some point it discontinues its rapid dropping. At what cluster does it stop dropping abruptly?</p>
+<p>Stated more verbosely from <a href="https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set">Wikipedia</a>:</p>
+<blockquote>
+<p>The elbow method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn’t give much better modeling of the data. More precisely, if one plots the percentage of variance explained by the clusters against the number of clusters, the first clusters will add much information (explain a lot of variance), but at some point the marginal gain will drop, giving an angle in the graph. The number of clusters is chosen at this point, hence the “elbow criterion”. This “elbow” cannot always be unambiguously identified. Percentage of variance explained is the ratio of the between-group variance to the total variance, also known as an F-test. A slight variation of this method plots the curvature of the within group variance.</p>
+</blockquote>
+<p>We can get the percentage of variance explained by typing:</p>
+<pre class="r"><code>tot.ss &lt;- sum(apply(b_housing, 2, var)) * (nrow(b_housing) - 1)
+
+var_explained &lt;- unlist(ss_kmeans[,2]) / tot.ss
+
+plot(2:14, var_explained, xlab = &#39;Clusters&#39;, ylab = &#39;% of Total Variation Explained&#39;)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Where does the elbow occur in the above plot? That’s pretty subjective (a common theme in unsupervised learning), but for our task we would prefer to have <span class="math inline">\(\leq 10\)</span> clusters, probably.</p>
+</div>
+<div id="visualize-aic" class="section level2">
+<h2>Visualize AIC</h2>
+<p>We could also opt for the AIC, which basically looks at how well the clusters are fitting to the data, while also penalizing how many clusters are in the final fit. The general rule with AIC is that lower values are better.</p>
+<p>First, we define a <a href="http://stackoverflow.com/questions/15839774/how-to-calculate-bic-for-k-means-clustering-in-r">function which calculates the AIC</a> from the output of <code>kmeans</code>.</p>
+<pre class="r"><code>kmeansAIC &lt;- function(fit){
+
+  m = ncol(fit$centers) 
+  k = nrow(fit$centers)
+  D = fit$tot.withinss
+  return(D + 2*m*k)
+  
+}</code></pre>
+<pre class="r"><code>aic_k &lt;- sapply(2:14, FUN = 
+         function(k) 
+           kmeansAIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
+
+plot(2:14, aic_k, xlab = &#39;Clusters&#39;, ylab = &#39;AIC from kmeans&#39;)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Look familiar? It is remarkably similar to looking at the SSE. This is because the main component in calculating AIC is the within-cluster sum of squared errors. Once again, we’re looking for an elbow in the plot, indicating that the decrease in AIC is not happening so rapidly.</p>
+</div>
+<div id="visualize-bic" class="section level2">
+<h2>Visualize BIC</h2>
+<p>BIC is related to AIC in that BIC is AIC’s conservative cousin. When we evaluate models using BIC rather than AIC as our metric, we tend to select smaller models. Calculating BIC is rather similar to that of AIC (we replaced 2 in the AIC calculation with <code>log(n)</code>):</p>
+<pre class="r"><code>kmeansBIC &lt;- function(fit){
+  m = ncol(fit$centers) 
+  n = length(fit$cluster)
+  k = nrow(fit$centers)
+  D = fit$tot.withinss
+  return(D + log(n) * m * k) # using log(n) instead of 2, penalize model complexity
+}</code></pre>
+<pre class="r"><code>bic_k &lt;- sapply(2:14, FUN = 
+         function(k) 
+           kmeansBIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
+
+plot(2:14, aic_k, xlab = &#39;Clusters&#39;, ylab = &#39;BIC from kmeans&#39;)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Once again, the plots are rather similar for this toy example.</p>
+</div>
+<div id="wrap-it-all-together-in-kmeans2" class="section level2">
+<h2>Wrap it all together in <code>kmeans2</code></h2>
+<p>We can wrap all the previous parts together in a function to get a broad look at the fit of <code>kmeans</code>.</p>
+<p>We’ll fit <code>kmeans</code> across a range of centers (<code>center_range</code>). Using the results from these fits, we’ll look at AIC, BIC, within cluster variation, and the % of total variation explained. We can choose to spit out a table to the user (<code>plot = FALSE</code>) or we’ll plot each of the four metrics by the number of clusters (<code>plot = TRUE</code>).</p>
+<pre class="r"><code>kmeans2 &lt;- function(data, center_range, iter.max, nstart, plot = TRUE){
+  
+  #fit kmeans for each center
+  all_kmeans &lt;- lapply(center_range, 
+                       FUN = function(k) 
+                         kmeans(data, center = k, iter.max = iter.max, nstart = nstart))
+  
+  #extract AIC from each
+  all_aic &lt;- sapply(all_kmeans, kmeansAIC)
+  #extract BIC from each
+  all_bic &lt;- sapply(all_kmeans, kmeansBIC)
+  #extract tot.withinss
+  all_wss &lt;- sapply(all_kmeans, FUN = function(fit) fit$tot.withinss)
+  #extract between ss
+  btwn_ss &lt;- sapply(all_kmeans, FUN = function(fit) fit$betweenss)
+  #extract totall sum of squares
+  tot_ss &lt;- all_kmeans[[1]]$totss
+  #put in data.frame
+  clust_res &lt;- 
+    data.frame(&#39;Clusters&#39; = center_range, 
+             &#39;AIC&#39; = all_aic, 
+             &#39;BIC&#39; = all_bic, 
+             &#39;WSS&#39; = all_wss,
+             &#39;BSS&#39; = btwn_ss,
+             &#39;TSS&#39; = tot_ss)
+  #plot or no plot?
+  if(plot){
+    par(mfrow = c(2,2))
+    with(clust_res,{
+      plot(Clusters, AIC)
+      plot(Clusters, BIC)
+      plot(Clusters, WSS, ylab = &#39;Within Cluster SSE&#39;)
+      plot(Clusters, BSS / TSS, ylab = &#39;Prop of Var. Explained&#39;)
+    })
+  }else{
+    return(clust_res)
+  }
+  
+}
+
+
+kmeans2(data = b_housing, center_range = 2:15, iter.max = 20, nstart = 25)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-9-1.png" width="768" /></p>
+</div>
+<div id="use-a-package-to-determine-k" class="section level2">
+<h2>Use a package to determine <code>k</code></h2>
+<p>This is <code>R</code> after all, so surely there must be at least one package to help in determining the “best” number of clusters. <a href="https://cran.r-project.org/web/packages/NbClust/index.html"><strong><code>NbClust</code></strong></a> is a viable option.</p>
+<pre class="r"><code>library(NbClust)
+
+best.clust &lt;- NbClust(data = b_housing, 
+                      min.nc = 2, 
+                      max.nc = 15, 
+                      method = &#39;kmeans&#39;)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-1.png" width="768" /></p>
+<pre><code>## *** : The Hubert index is a graphical method of determining the number of clusters.
+##                 In the plot of Hubert index, we seek a significant knee that corresponds to a 
+##                 significant increase of the value of the measure i.e the significant peak in Hubert
+##                 index second differences plot. 
+## </code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-2.png" width="768" /></p>
+<pre><code>## *** : The D index is a graphical method of determining the number of clusters. 
+##                 In the plot of D index, we seek a significant knee (the significant peak in Dindex
+##                 second differences plot) that corresponds to a significant increase of the value of
+##                 the measure. 
+##  
+## ******************************************************************* 
+## * Among all indices:                                                
+## * 7 proposed 2 as the best number of clusters 
+## * 2 proposed 3 as the best number of clusters 
+## * 12 proposed 4 as the best number of clusters 
+## * 1 proposed 5 as the best number of clusters 
+## * 1 proposed 8 as the best number of clusters 
+## * 1 proposed 15 as the best number of clusters 
+## 
+##                    ***** Conclusion *****                            
+##  
+## * According to the majority rule, the best number of clusters is  4 
+##  
+##  
+## *******************************************************************</code></pre>
+<p><strong><code>NbClust</code></strong> returns a big object with some information that may or may not be useless for this use case (I stored the rest of the output in <code>best.clust</code>, but the package still spit out a bunch of stuff). But, it does tell you the best number of clusters as selected by a slew of indices. This function must iterate through all the possible clusters from <code>min.nc</code> to <code>max.nc</code>, <strong>so it may not be very quick</strong>, but it does give another way of selecting the number of clusters.</p>
+<p>You may want to find a <em>reasonable</em> range for <code>min.nc</code> and <code>max.nc</code> before resorting to the <code>NbClust</code> function. If you know that 3 clusters won’t be enough, don’t make <code>NbClust</code> even consider it as an option.</p>
+<p>There’s also an argument called <code>index</code> in the <code>NbClust</code> function. This value controls which indices are used to determine the best number of clusters. The calculation methods differ between indices and if your data isn’t so nice (e.g. variables with few unique values), the function may fail. The default value is <code>all</code>, which is a collection of 30 (!) indices all used to help determine the best number of clusters.</p>
+<p>It may be helpful to try different indices such as <code>tracew</code>, <code>kl</code>, <code>dindex</code> or <code>duda</code>. Unfortunately, you’ll need to specify only one index for each <code>NbClust</code> call (unless you use <code>index = 'all'</code> or <code>index = 'alllong'</code>).</p>
+<p>For more details look at the <a href="https://www.rdocumentation.org/packages/NbClust/versions/3.0/topics/NbClust">function’s documentation</a>.</p>
+</div>
+<div id="visualizing-the-centroids" class="section level2">
+<h2>Visualizing the centroids</h2>
+<p>This function helps to visualize the centroids for each cluster. It can allow for interpretation of clusters.</p>
+<p>The arguments for this function are <code>fit</code>, <code>levels</code>, and <code>show_N</code>:</p>
+<ul>
+<li><code>fit</code>: object returned from a call to <code>kmeans</code></li>
+<li><code>levels</code>: a character vector representing the levels of the variables in the data set used to fit <code>kmeans</code>, this vector will allow a user to control the order in which variables are plotted</li>
+<li><code>show_N</code>: a logical value, if TRUE, the plot will contain information about the size of each cluster, if FALSE, a table of counts will be printed prior to the plot</li>
+</ul>
+<p>To use the <code>levels</code> argument, the character vector you supply must have the same number of elements as the number of unique variables in the data set used to fit the <code>kmeans</code>. If you specify <code>levels = c('a','b','c')</code> the plotting device will display (from top to bottom) <code>'c','b','a'</code>. If you are not satisfied with the plotting order, the <code>rev</code> function may come in handy.</p>
+<pre class="r"><code>kmeans_viz &lt;- function(fit, levels = NULL, show_N = TRUE){
+  require(ggplot2)
+  require(dplyr)
+  #extract number of clusters
+  clusts &lt;- length(unique(fit$cluster))
+  #centroids
+  kmeans.table &lt;- as.data.frame(t(fit$center), stringsAsFactors = FALSE)
+  #variable names
+  kmeans.table$Variable &lt;- row.names(kmeans.table)
+  #name clusters
+  names(kmeans.table)[1:clusts] &lt;- paste0(&#39;cluster&#39;, 1:clusts)
+  #reshape from wide table to long (makes plotting easier)
+  kmeans.table &lt;- reshape(kmeans.table, direction = &#39;long&#39;,
+                        idvar = &#39;Variable&#39;, 
+                        varying = paste0(&#39;cluster&#39;, 1:clusts),
+                        v.names = &#39;cluster&#39;)
+  
+  #number of observations in each cluster
+  #should we show N in the graph or just print it?
+  if(show_N){
+    #show it in the graph
+  kmeans.table$time &lt;- paste0(kmeans.table$time,
+                             &#39; (N = &#39;,
+                             fit$size[kmeans.table$time],
+                             &#39;)&#39;)
+  }else{
+    #just print it
+    print(rbind(&#39;Cluster&#39; = 1:clusts,
+          &#39;N&#39; = fit$size))
+  }
+  #standardize the cluster means to make a nice plot
+  kmeans.table %&gt;%
+    group_by(Variable) %&gt;%
+    mutate(cluster_stdzd = (cluster - mean(cluster)) / sd(cluster)) -&gt; kmeans.table
+  #did user specify a variable levels vector?
+  if(length(levels) == length(unique(kmeans.table$Variable))){
+    kmeans.table$Variable &lt;- factor(kmeans.table$Variable, levels = levels)
+  }
+  
+  #make the plot
+  ggplot(kmeans.table, aes(x = Variable, y = time))+
+    geom_tile(colour = &#39;black&#39;, aes(fill = cluster_stdzd))+
+    geom_text(aes(label = round(cluster,2)))+
+    coord_flip()+
+    xlab(&#39;&#39;)+ylab(&#39;Cluster&#39;)+
+    scale_fill_gradient(low = &#39;white&#39;, high = &#39;grey60&#39;)+
+    theme_bw()+
+    theme(legend.position = &#39;none&#39;,
+          axis.title.y = element_blank(),
+          axis.title.x = element_text(size = 16),
+          panel.grid = element_blank(),
+          axis.text = element_text(size = 14),
+          axis.ticks = element_blank())
+
+}
+
+opt.kmeans &lt;- kmeans(b_housing, centers = 4, nstart = 50, iter.max = 50)
+
+kmeans_viz(opt.kmeans)</code></pre>
+<p><img src="/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="using-kmeans-to-predict" class="section level2">
+<h2>Using <code>kmeans</code> to predict</h2>
+<p>We can predict cluster membership using a few techniques. For the simple plug-and-play method, we can use the <code>cl_predict</code> function from the <a href="https://cran.r-project.org/web/packages/clue/index.html"><strong><code>clue</code></strong></a> package. For those interested in a more manual approach, we can calculate the centroid distances for the new data, and select whichever cluster is the shortest distance away.</p>
+<p>I will demonstrate both techniques.</p>
+<p>First, we’re going to select a subset of the Boston dataset to fit a <code>kmeans</code> on. Using the result of <code>kmeans</code> fit on <code>b_hous.train</code>, we’ll try to predict the clusters for a “new” dataset, <code>b_hous.test</code>.</p>
+<pre class="r"><code>#rows to select
+set.seed(123)
+train_samps &lt;- sample(nrow(b_housing), .7 * nrow(b_housing), replace = F)
+#create training and testing set
+b_hous.train &lt;- b_housing[train_samps,]
+b_hous.test &lt;- b_housing[-train_samps,]
+
+#fit our new kmeans
+train.kmeans &lt;- kmeans(b_hous.train, centers = 4, nstart = 50, iter.max = 50)</code></pre>
+<div id="use-cl_predict" class="section level3">
+<h3>Use <code>cl_predict</code></h3>
+<p>The interface is fairly simple to get the predicted values.</p>
+<p>We’re going to use <code>system.time</code> to time how long it takes <code>R</code> to do what we want it to.</p>
+<pre class="r"><code>library(clue)
+
+system.time(
+  test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
+  )</code></pre>
+<pre><code>##    user  system elapsed 
+##    0.01    0.00    0.01</code></pre>
+<pre class="r"><code>table(test_clusters.clue)</code></pre>
+<pre><code>## test_clusters.clue
+##  1  2  3  4 
+## 84 15 27 26</code></pre>
+</div>
+<div id="by-hand" class="section level3">
+<h3>By hand</h3>
+<p>Taken from <a href="http://stats.stackexchange.com/questions/78322/is-there-a-function-in-r-that-takes-the-centers-of-clusters-that-were-found-and">this nice CrossValidated solution</a>.</p>
+<pre class="r"><code>clusters &lt;- function(x, centers) {
+  # compute squared euclidean distance from each sample to each cluster center
+  tmp &lt;- sapply(seq_len(nrow(x)),
+                function(i) apply(centers, 1,
+                                  function(v) sum((x[i, ]-v)^2)))
+  max.col(-t(tmp))  # find index of min distance
+}
+
+system.time(
+  test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
+  )</code></pre>
+<pre><code>##    user  system elapsed 
+##    0.81    0.00    0.81</code></pre>
+<pre class="r"><code>table(test_clusters.hand)</code></pre>
+<pre><code>## test_clusters.hand
+##  1  2  3  4 
+## 84 15 27 26</code></pre>
+<pre class="r"><code>all(test_clusters.hand == test_clusters.clue) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>We see that <code>clusters</code> is slower than <code>cl_predict</code>, but they return the same result. It would be prudent to use <code>cl_predict</code>.</p>
+</div>
+<div id="wrapping-up" class="section level3">
+<h3>Wrapping Up</h3>
+<p>In this post I walked through the kmeans algorithm, and its implementation in <code>R</code>. Additionally, I discussed some of the ways to select the <code>k</code> in kmeans. The process of selecting and evaluating choices of <code>k</code> will vary from project to project and depend strongly on the goals of an analysis.</p>
+<p>It is worth noting that one of the drawbacks of kmeans clustering is that it must put <em>every</em> observation into a cluster. There may be anomalies or outliers present in a dataset, so it may not always make sense to enforce the condition that each observation is assigned to a cluster. A different unsupervised learning technique, such as <a href="https://en.wikipedia.org/wiki/DBSCAN">dbscan</a> (density-based spatial clustering of applications with noise) may be more appropriate for tasks in which anomaly detection is necessary. I hope to explore this technique in a future post. In the meantime, <a href="https://medium.com/netflix-techblog/tracking-down-the-villains-outlier-detection-at-netflix-40360b31732">here’s an example</a> of Netflix applying dbscan for anomaly detection.</p>
+</div>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="//tags/data-analysis/">data-analysis</a>&nbsp;
+            
+              <a href="//tags/data-science/">data-science</a>&nbsp;
+            
+              <a href="//tags/r/">r</a>&nbsp;
+            
+              <a href="//tags/unsupervised-learning/">unsupervised-learning</a>&nbsp;
+            
+              <a href="//tags/rmarkdown/">rmarkdown</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <ul class="list-inline footer-links">
+                
+
+
+<li>
+    <a href="//twitter.com/share?url=%2fpost%2fan-introduction-to-the-kmeans-algorithm%2f&amp;text=An%20Introduction%20to%20the%20kmeans%20Algorithm&amp;via="
+       target="_blank" alt="" title="Share on Twitter">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.facebook.com/sharer/sharer.php?u=%2fpost%2fan-introduction-to-the-kmeans-algorithm%2f" target="_blank" title="Share on Facebook">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.linkedin.com/shareArticle?url=%2fpost%2fan-introduction-to-the-kmeans-algorithm%2f&amp;title=An%20Introduction%20to%20the%20kmeans%20Algorithm" target="_blank"
+       title="Share on LinkedIn">
+         <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+              </ul>
+            </section>
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="/post/my-first-post/" data-toggle="tooltip" data-placement="top" title="My First Post">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "bgstieber-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:bgstieber@gmail.com" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/bgstieber" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/brad-stieber-2227b2131" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/5619526/bouncyball" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://open.spotify.com/user/12102534356?si=_IgBxYLORrG5sy5wQxUEog" title="Spotify">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-spotify fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Brad Stieber
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="/">Brad Stieber</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.41</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,350 @@
+<p>This post will provide an <code>R</code> code-heavy, math-light introduction to selecting the <span class="math inline">\(k\)</span> in <strong>k</strong> means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in <code>R</code>, provides some components of the kmeans fit, and displays some methods for selecting <code>k</code>. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.</p>
+<p>kmeans clustering is an example of <a href="https://en.wikipedia.org/wiki/Unsupervised_learning">unsupervised learning</a>, where we do not have an output we’re explicitly trying to predict. We may have reasons to believe that there are latent groups within a dataset, so a clustering method can be a useful way to explore and describe pockets of similar observations within a dataset.</p>
+<div id="the-algorithm" class="section level2">
+<h2>The Algorithm</h2>
+<p>Here’s basically what kmeans (the algorithm) does (taken from <a href="https://www.r-statistics.com/2013/08/k-means-clustering-from-r-in-action/">K-means Clustering</a>):</p>
+<ol style="list-style-type: decimal">
+<li>Selects K centroids (K rows chosen at random)</li>
+<li>Assigns each data point to its closest centroid</li>
+<li><strong>Recalculates the centroids as the average of all data points in a cluster (i.e., the centroids are p-length mean vectors, where p is the number of variables)</strong></li>
+<li>Assigns data points to their closest centroids</li>
+<li>Continues steps 3 and 4 until the observations are not reassigned or the <strong>maximum number of iterations</strong> (<code>R</code> uses 10 as a default) is reached.</li>
+</ol>
+<p>Here it is in gif form (taken from <a href="http://simplystatistics.org/2014/02/18/k-means-clustering-in-a-gif/">k-means clustering in a GIF</a>):</p>
+<center>
+<img src="post_images/kmeans.gif" />
+</center>
+<div id="a-balls-and-urns-explanation" class="section level3">
+<h3>A balls and urns explanation</h3>
+<p>As a statistician, I have hard time avoiding resorting to using balls and urns to describe statistical concepts.</p>
+<p>Suppose we have <span class="math inline">\(n\)</span> balls, and each ball has <span class="math inline">\(p\)</span> characteristics, like <span class="math inline">\(shape\)</span>, <span class="math inline">\(size\)</span>, <span class="math inline">\(density\)</span>, <span class="math inline">\(\ldots\)</span>, and we want to put those <span class="math inline">\(n\)</span> balls into <span class="math inline">\(k\)</span> urns (clusters) according to the <span class="math inline">\(p\)</span> characteristics.</p>
+<p>First, we randomly select <span class="math inline">\(k\)</span> balls (<span class="math inline">\(balls_{init}\)</span>), and assign the rest of the balls (<span class="math inline">\(n-k\)</span>) to whichever <span class="math inline">\(balls_{init}\)</span> it is closest to. After this first assignment, we calculate the centroid of each (<span class="math inline">\(k\)</span>) collection of balls. The centroids are the averages of the <span class="math inline">\(p\)</span> characteristics of the balls in each cluster. So, for each cluster, there will be a vector of length <span class="math inline">\(p\)</span> with the means of the characteristics of the balls <em>in that cluster</em>.</p>
+<p>After the calculation of the centroid, we then calculate (for each ball) the distances between its <span class="math inline">\(p\)</span> characteristics and the centroids for each cluster. We assign the ball to the cluster with the centroid it is closest to. Then, we recalculate the centroids and repeat the process. We leave the number of clusters (<span class="math inline">\(k\)</span>) fixed, but we allow the balls to move between the clusters, depending on which cluster they are closest to.</p>
+<p>Either the algorithm will “converge” and between time <span class="math inline">\(t\)</span> and <span class="math inline">\(t+1\)</span> no reassignments will occur, or we’ll reach the maximum number of iterations allowed by the algorithm.</p>
+</div>
+</div>
+<div id="kmeans-in-r" class="section level2">
+<h2><code>kmeans</code> in <code>R</code></h2>
+<p>Here’s how we use the <code>kmeans</code> function in <code>R</code>:</p>
+<pre class="r"><code>kmeans(x, centers, iters.max, nstart)</code></pre>
+<div id="arguments" class="section level3">
+<h3>arguments</h3>
+<ul>
+<li><code>x</code> is our data</li>
+<li><code>centers</code> is the <strong>k</strong> in kmeans</li>
+<li><code>iters.max</code> controls the <strong>maximum number of iterations</strong>, if the algorithm has not converged, it’s good to bump this number up</li>
+<li><code>nstart</code> controls the initial configurations (step 1 in the algorithm), bumping this number up is a good idea, since kmeans tends to be sensitive to initial conditions (which may remind you of <a href="https://en.wikipedia.org/wiki/Chaos_theory#Sensitivity_to_initial_conditions">sensitivity to initial conditions in chaos theory</a>)</li>
+</ul>
+</div>
+<div id="values-it-returns" class="section level3">
+<h3>values it returns</h3>
+<p><code>kmeans</code> returns an object of class “kmeans” which has a <code>print</code> and a <code>fitted</code> method. It is a list with at least the following components:</p>
+<p><strong>cluster</strong> - A vector of integers (from 1:k) indicating the cluster to which each point is allocated.</p>
+<p><strong>centers</strong> - A matrix of cluster centers <strong>these are the centroids for each cluster</strong></p>
+<p><strong>totss</strong> - The total sum of squares.</p>
+<p><strong>withinss</strong> - Vector of within-cluster sum of squares, one component per cluster.</p>
+<p><strong>tot.withinss</strong> - Total within-cluster sum of squares, i.e. sum(withinss).</p>
+<p><strong>betweenss</strong> - The between-cluster sum of squares, i.e. totss-tot.withinss.</p>
+<p><strong>size</strong> - The number of points in each cluster.</p>
+<p>To use <code>kmeans</code>, we first need to specify the <code>k</code>. How should we do this?</p>
+</div>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>For this post, we’ll be using the <a href="https://archive.ics.uci.edu/ml/datasets/Housing">Boston housing data set</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.</p>
+<pre><code>##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
+## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
+## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14
+## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03
+## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94
+## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33
+## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21
+##   medv
+## 1 24.0
+## 2 21.6
+## 3 34.7
+## 4 33.4
+## 5 36.2
+## 6 28.7</code></pre>
+</div>
+<div id="visualize-within-cluster-error" class="section level2">
+<h2>Visualize within Cluster Error</h2>
+<p>Use a scree plot to visualize the reduction in within-cluster error:</p>
+<pre class="r"><code>ss_kmeans &lt;- t(sapply(2:14, 
+                  FUN = function(k) 
+                  kmeans(x = b_housing, 
+                         centers = k, 
+                         nstart = 20, 
+                         iter.max = 25)[c(&#39;tot.withinss&#39;,&#39;betweenss&#39;)]))
+
+plot(2:14, unlist(ss_kmeans[,1]), xlab = &#39;Clusters&#39;, ylab = &#39;Within Cluster SSE&#39;)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>When we look at the scree plot, we’re looking for the “elbow”. We can see the SSE dropping, but at some point it discontinues its rapid dropping. At what cluster does it stop dropping abruptly?</p>
+<p>Stated more verbosely from <a href="https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set">Wikipedia</a>:</p>
+<blockquote>
+<p>The elbow method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn’t give much better modeling of the data. More precisely, if one plots the percentage of variance explained by the clusters against the number of clusters, the first clusters will add much information (explain a lot of variance), but at some point the marginal gain will drop, giving an angle in the graph. The number of clusters is chosen at this point, hence the “elbow criterion”. This “elbow” cannot always be unambiguously identified. Percentage of variance explained is the ratio of the between-group variance to the total variance, also known as an F-test. A slight variation of this method plots the curvature of the within group variance.</p>
+</blockquote>
+<p>We can get the percentage of variance explained by typing:</p>
+<pre class="r"><code>tot.ss &lt;- sum(apply(b_housing, 2, var)) * (nrow(b_housing) - 1)
+
+var_explained &lt;- unlist(ss_kmeans[,2]) / tot.ss
+
+plot(2:14, var_explained, xlab = &#39;Clusters&#39;, ylab = &#39;% of Total Variation Explained&#39;)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Where does the elbow occur in the above plot? That’s pretty subjective (a common theme in unsupervised learning), but for our task we would prefer to have <span class="math inline">\(\leq 10\)</span> clusters, probably.</p>
+</div>
+<div id="visualize-aic" class="section level2">
+<h2>Visualize AIC</h2>
+<p>We could also opt for the AIC, which basically looks at how well the clusters are fitting to the data, while also penalizing how many clusters are in the final fit. The general rule with AIC is that lower values are better.</p>
+<p>First, we define a <a href="http://stackoverflow.com/questions/15839774/how-to-calculate-bic-for-k-means-clustering-in-r">function which calculates the AIC</a> from the output of <code>kmeans</code>.</p>
+<pre class="r"><code>kmeansAIC &lt;- function(fit){
+
+  m = ncol(fit$centers) 
+  k = nrow(fit$centers)
+  D = fit$tot.withinss
+  return(D + 2*m*k)
+  
+}</code></pre>
+<pre class="r"><code>aic_k &lt;- sapply(2:14, FUN = 
+         function(k) 
+           kmeansAIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
+
+plot(2:14, aic_k, xlab = &#39;Clusters&#39;, ylab = &#39;AIC from kmeans&#39;)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Look familiar? It is remarkably similar to looking at the SSE. This is because the main component in calculating AIC is the within-cluster sum of squared errors. Once again, we’re looking for an elbow in the plot, indicating that the decrease in AIC is not happening so rapidly.</p>
+</div>
+<div id="visualize-bic" class="section level2">
+<h2>Visualize BIC</h2>
+<p>BIC is related to AIC. BIC is AIC’s conservative cousin. When we fit models using BIC rather than AIC as our statistic, we tend to select smaller models. Calculating BIC is rather similar to that of AIC (we replaced 2 in the AIC calculation with <code>log(n)</code>):</p>
+<pre class="r"><code>kmeansBIC &lt;- function(fit){
+  m = ncol(fit$centers) 
+  n = length(fit$cluster)
+  k = nrow(fit$centers)
+  D = fit$tot.withinss
+  return(D + log(n) * m * k)
+}</code></pre>
+<pre class="r"><code>bic_k &lt;- sapply(2:14, FUN = 
+         function(k) 
+           kmeansBIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
+
+plot(2:14, aic_k, xlab = &#39;Clusters&#39;, ylab = &#39;BIC from kmeans&#39;)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Once again, the plots are rather similar for this toy example.</p>
+</div>
+<div id="wrap-it-all-together-in-kmeans2" class="section level2">
+<h2>Wrap it all together in <code>kmeans2</code></h2>
+<p>We can wrap all the previous parts together to get a broad look at the fit of <code>kmeans</code>:</p>
+<pre class="r"><code>kmeans2 &lt;- function(data, center_range, iter.max, nstart, plot = TRUE){
+  
+  #fit kmeans for each center
+  all_kmeans &lt;- lapply(center_range, 
+                       FUN = function(k) 
+                         kmeans(data, center = k, iter.max = iter.max, nstart = nstart))
+  
+  #extract AIC from each
+  all_aic &lt;- sapply(all_kmeans, kmeansAIC)
+  #extract BIC from each
+  all_bic &lt;- sapply(all_kmeans, kmeansBIC)
+  #extract tot.withinss
+  all_wss &lt;- sapply(all_kmeans, FUN = function(fit) fit$tot.withinss)
+  #extract between ss
+  btwn_ss &lt;- sapply(all_kmeans, FUN = function(fit) fit$betweenss)
+  #extract totall sum of squares
+  tot_ss &lt;- all_kmeans[[1]]$totss
+  #put in data.frame
+  clust_res &lt;- 
+    data.frame(&#39;Clusters&#39; = center_range, 
+             &#39;AIC&#39; = all_aic, 
+             &#39;BIC&#39; = all_bic, 
+             &#39;WSS&#39; = all_wss,
+             &#39;BSS&#39; = btwn_ss,
+             &#39;TSS&#39; = tot_ss)
+  #plot or no plot?
+  if(plot){
+    par(mfrow = c(2,2))
+    with(clust_res,{
+      plot(Clusters, AIC)
+      plot(Clusters, BIC)
+      plot(Clusters, WSS, ylab = &#39;Within Cluster SSE&#39;)
+      plot(Clusters, BSS / TSS, ylab = &#39;Prop of Var. Explained&#39;)
+    })
+  }else{
+    return(clust_res)
+  }
+  
+}
+
+
+kmeans2(data = b_housing, center_range = 2:15, iter.max = 20, nstart = 25)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-9-1.png" width="768" /></p>
+</div>
+<div id="use-a-package-to-determine-k" class="section level2">
+<h2>Use a package to determine <code>k</code></h2>
+<p>This is <code>R</code> after all, so surely there must be at least one package to help in determining the “best” number of clusters. <a href="https://cran.r-project.org/web/packages/NbClust/index.html"><strong><code>NbClust</code></strong></a> is a viable option.</p>
+<pre class="r"><code>library(NbClust)
+
+best.clust &lt;- NbClust(data = b_housing, 
+                      min.nc = 2, max.nc = 15, method = &#39;kmeans&#39;)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-1.png" width="768" /></p>
+<pre><code>## *** : The Hubert index is a graphical method of determining the number of clusters.
+##                 In the plot of Hubert index, we seek a significant knee that corresponds to a 
+##                 significant increase of the value of the measure i.e the significant peak in Hubert
+##                 index second differences plot. 
+## </code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-2.png" width="768" /></p>
+<pre><code>## *** : The D index is a graphical method of determining the number of clusters. 
+##                 In the plot of D index, we seek a significant knee (the significant peak in Dindex
+##                 second differences plot) that corresponds to a significant increase of the value of
+##                 the measure. 
+##  
+## ******************************************************************* 
+## * Among all indices:                                                
+## * 7 proposed 2 as the best number of clusters 
+## * 2 proposed 3 as the best number of clusters 
+## * 12 proposed 4 as the best number of clusters 
+## * 1 proposed 5 as the best number of clusters 
+## * 1 proposed 8 as the best number of clusters 
+## * 1 proposed 15 as the best number of clusters 
+## 
+##                    ***** Conclusion *****                            
+##  
+## * According to the majority rule, the best number of clusters is  4 
+##  
+##  
+## *******************************************************************</code></pre>
+<p><strong><code>NbClust</code></strong> returns a big object with some information that may or may not be useless for this use case (I stored the rest of the output in <code>best.clust</code>, but the package still spit out a bunch of stuff). But, it does tell you the best number of clusters as selected by a slew of indices. This function must iterate through all the possible clusters from <code>min.nc</code> to <code>max.nc</code>, <strong>so it may not be very quick</strong>, but it does give another way of selecting the number of clusters.</p>
+<p>You may want to find a <em>reasonable</em> range for <code>min.nc</code> and <code>max.nc</code> before resorting to the <code>NbClust</code> function. If you know that 3 clusters won’t be enough, don’t make <code>NbClust</code> even consider it as an option.</p>
+<p>There’s also an argument called <code>index</code> in the <code>NbClust</code> function. This value controls which indices are used to determine the best number of clusters. The calculation methods differ between indices and if your data isn’t so nice (e.g. variables with few unique values), the function may fail. The default value is <code>all</code>, which is a collection of 30 (!) indices all used to help determine the best number of clusters.</p>
+<p>It may be helpful to try different indices such as <code>tracew</code>, <code>kl</code>, <code>dindex</code> or <code>duda</code>. Unfortunately, you’ll need to specify only one index for each <code>NbClust</code> call (unless you use <code>index = 'all'</code> or <code>index = 'alllong'</code>).</p>
+</div>
+<div id="visualizing-the-centroids" class="section level2">
+<h2>Visualizing the centroids</h2>
+<p>This function helps to visualize the centroids for each cluster. It can allow for interpretation of clusters.</p>
+<p>The arguments for this function are <code>fit</code>, <code>levels</code>, and <code>show_N</code>:</p>
+<ul>
+<li><code>fit</code>: object returned from a call to <code>kmeans</code></li>
+<li><code>levels</code>: a character vector representing the levels of the variables in the data set used to fit <code>kmeans</code>, this vector will allow a user to control the order in which variables are plotted</li>
+<li><code>show_N</code>: a logical value, if TRUE, the plot will contain information about the size of each cluster, if FALSE, a table of counts will be printed prior to the plot</li>
+</ul>
+<p>To use the <code>levels</code> argument, the character vector you supply must have the same number of elements as the number of unique variables in the data set used to fit the <code>kmeans</code>. If you specify <code>levels = c('a','b','c')</code> the plotting device will display (from top to bottom) <code>'c','b','a'</code>. If you are not satisfied with the plotting order, the <code>rev</code> function may come in handy.</p>
+<pre class="r"><code>kmeans_viz &lt;- function(fit, levels = NULL, show_N = TRUE){
+  require(ggplot2)
+  require(dplyr)
+  #extract number of clusters
+  clusts &lt;- length(unique(fit$cluster))
+  #centroids
+  kmeans.table &lt;- as.data.frame(t(fit$center), stringsAsFactors = FALSE)
+  #variable names
+  kmeans.table$Variable &lt;- row.names(kmeans.table)
+  #name clusters
+  names(kmeans.table)[1:clusts] &lt;- paste0(&#39;cluster&#39;, 1:clusts)
+  #reshape from wide table to long (makes plotting easier)
+  kmeans.table &lt;- reshape(kmeans.table, direction = &#39;long&#39;,
+                        idvar = &#39;Variable&#39;, 
+                        varying = paste0(&#39;cluster&#39;, 1:clusts),
+                        v.names = &#39;cluster&#39;)
+  
+  #number of observations in each cluster
+  #should we show N in the graph or just print it?
+  if(show_N){
+    #show it in the graph
+  kmeans.table$time &lt;- paste0(kmeans.table$time,
+                             &#39; (N = &#39;,
+                             fit$size[kmeans.table$time],
+                             &#39;)&#39;)
+  }else{
+    #just print it
+    print(rbind(&#39;Cluster&#39; = 1:clusts,
+          &#39;N&#39; = fit$size))
+  }
+  #standardize the cluster means to make a nice plot
+  kmeans.table %&gt;%
+    group_by(Variable) %&gt;%
+    mutate(cluster_stdzd = (cluster - mean(cluster)) / sd(cluster)) -&gt; kmeans.table
+  #did user specify a variable levels vector?
+  if(length(levels) == length(unique(kmeans.table$Variable))){
+    kmeans.table$Variable &lt;- factor(kmeans.table$Variable, levels = levels)
+  }
+  
+  
+  #make the plot
+  ggplot(kmeans.table, aes(x = Variable, y = time))+
+    geom_tile(colour = &#39;black&#39;, aes(fill = cluster_stdzd))+
+    geom_text(aes(label = round(cluster,2)))+
+    coord_flip()+
+    xlab(&#39;&#39;)+ylab(&#39;Cluster&#39;)+
+    scale_fill_gradient(low = &#39;white&#39;, high = &#39;grey60&#39;)+
+    theme_bw()+
+    theme(legend.position = &#39;none&#39;,
+          axis.title.y = element_blank(),
+          axis.title.x = element_text(size = 16),
+          panel.grid = element_blank(),
+          axis.text = element_text(size = 14),
+          axis.ticks = element_blank())
+
+}
+
+opt.kmeans &lt;- kmeans(b_housing, centers = 4, nstart = 50, iter.max = 50)
+
+kmeans_viz(opt.kmeans)</code></pre>
+<p><img src="2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="using-kmeans-to-predict" class="section level2">
+<h2>Using <code>kmeans</code> to predict</h2>
+<p>We can predict cluster membership using a few techniques. For the simple plug-and-play method, we can use the <code>cl_predict</code> function from the <a href="https://cran.r-project.org/web/packages/clue/index.html"><strong><code>clue</code></strong></a> package. For those interested in a more manual approach, we can calculate the centroid distances for the new data, and select whichever cluster is the shortest distance away.</p>
+<p>I will demonstrate both techniques</p>
+<pre class="r"><code>#rows to select
+set.seed(123)
+train_samps &lt;- sample(nrow(b_housing), .7 * nrow(b_housing), replace = F)
+#create training and testing set
+b_hous.train &lt;- b_housing[train_samps,]
+b_hous.test &lt;- b_housing[-train_samps,]
+
+#fit our new kmeans
+train.kmeans &lt;- kmeans(b_hous.train, centers = 4, nstart = 50, iter.max = 50)</code></pre>
+<div id="use-cl_predict" class="section level3">
+<h3>Use <code>cl_predict</code></h3>
+<p>The interface is fairly simple to get the predicted values.</p>
+<p>We’re going to use <code>system.time</code> to time how long it takes <code>R</code> to do what we want it to.</p>
+<pre class="r"><code>library(clue)
+
+system.time(
+  test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
+  )</code></pre>
+<pre><code>##    user  system elapsed 
+##       0       0       0</code></pre>
+<pre class="r"><code>table(test_clusters.clue)</code></pre>
+<pre><code>## test_clusters.clue
+##  1  2  3  4 
+## 84 15 27 26</code></pre>
+</div>
+<div id="by-hand" class="section level3">
+<h3>By hand</h3>
+<p>Taken from <a href="http://stats.stackexchange.com/questions/78322/is-there-a-function-in-r-that-takes-the-centers-of-clusters-that-were-found-and">this nice CrossValidated solution</a>.</p>
+<pre class="r"><code>clusters &lt;- function(x, centers) {
+  # compute squared euclidean distance from each sample to each cluster center
+  tmp &lt;- sapply(seq_len(nrow(x)),
+                function(i) apply(centers, 1,
+                                  function(v) sum((x[i, ]-v)^2)))
+  max.col(-t(tmp))  # find index of min distance
+}
+
+system.time(
+  test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
+  )</code></pre>
+<pre><code>##    user  system elapsed 
+##    0.78    0.00    0.78</code></pre>
+<pre class="r"><code>table(test_clusters.hand)</code></pre>
+<pre><code>## test_clusters.hand
+##  1  2  3  4 
+## 84 15 27 26</code></pre>
+<pre class="r"><code>all(test_clusters.hand == test_clusters.clue) #TRUE</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>We see that <code>clusters</code> is slower than <code>cl_predict</code>, but they return the same result. It would be prudent to use <code>cl_predict</code>.</p>
+</div>
+<div id="wrapping-up" class="section level3">
+<h3>Wrapping Up</h3>
+<p>In this post I walked through the kmeans algorithm, and its implementation in <code>R</code>. Additionally, I discussed some of the ways to select the <code>k</code> in kmeans. The process of selecting and evaluating choices of <code>k</code> will vary from project to project and depend strongly on the goals of an analysis.</p>
+<p>It is worth noting that one of the drawbacks of kmeans clustering is that it must put <em>every</em> observation into a cluster. There may be anomalies or outliers present in a dataset, so it may not always make sense to ensure each observation is assigned to a cluster. A different unsupervised learning technique, such as <a href="https://en.wikipedia.org/wiki/DBSCAN">dbscan</a> (density-based spatial clustering of applications with noise) may be more appropriate for tasks in which anomaly detection is necessary. I hope to explore this technique in a future post. In the meantime, <a href="https://medium.com/netflix-techblog/tracking-down-the-villains-outlier-detection-at-netflix-40360b31732">here’s an example</a> of Netflix applying dbscan for anomaly detection.</p>
+</div>
+</div>

@@ -1,43 +1,44 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Deeper Data Digressions</title>
-    <link>https://bgstieber.github.io/</link>
-    <description>Recent content on Deeper Data Digressions</description>
+    <title>Brad Stieber</title>
+    <link>/</link>
+    <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Sun, 27 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 28 May 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://bgstieber.github.io/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>POST IN PROGRESS-Golf, Tidy Data, and Using Data Analysis for Strategy</title>
-      <link>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-for-strategy/</link>
-      <pubDate>Sun, 27 May 2018 00:00:00 +0000</pubDate>
+      <title>An Introduction to the kmeans Algorithm</title>
+      <link>/post/an-introduction-to-the-kmeans-algorithm/</link>
+      <pubDate>Mon, 28 May 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-for-strategy/</guid>
-      <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (using data to guide strategy and tidy data). First, I’m going to look at acquiring data from a webpage. In my opinion, this data isn’t in a tidy format, and needs to be reshaped a bit. Once we get the data into a tidy form, we can
-Getting the datalibrary(tidyverse)library(rvest)library(scales)theme_set(theme_bw())I wrote the full_scrape function to pull in the data.</description>
+      <guid>/post/an-introduction-to-the-kmeans-algorithm/</guid>
+      <description>This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components of the kmeans fit, and displays some methods for selecting k. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.
+kmeans clustering is an example of unsupervised learning, where we do not have an output we’re explicitly trying to predict.</description>
     </item>
     
     <item>
       <title>My First Post</title>
-      <link>https://bgstieber.github.io/post/my-first-post/</link>
+      <link>/post/my-first-post/</link>
       <pubDate>Sat, 26 May 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/post/my-first-post/</guid>
+      <guid>/post/my-first-post/</guid>
       <description>Welcome to my blog!I plan to use this website to present data explorations and analyses in a way that’s understandable to a broad audience. I hope to demonstrate the utility of applying ideas like machine learning, data visualization, and exploratory data analysis to day-to-day life to improve decision-making processes.
-I’m a big believer in treating data analysis as an iterative process, and I hope this blog will reinforce the idea that nearly anyone can learn the skills to do data analysis.</description>
+I was inspired to create a blog after reading this post by David Robinson.
+New blog post: &amp;quot;Advice to aspiring data scientists: start a blog&amp;quot; https://t.</description>
     </item>
     
     <item>
       <title>About me</title>
-      <link>https://bgstieber.github.io/about/</link>
+      <link>/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/about/</guid>
+      <guid>/about/</guid>
       <description>Work: I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.
 Education: I graduated with an MS in Statistics from the University of Wisconsin in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from St.</description>
     </item>

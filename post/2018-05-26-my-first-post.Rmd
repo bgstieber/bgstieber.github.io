@@ -14,6 +14,12 @@ subtitle: ''
 
 I plan to use this website to present data explorations and analyses in a way that's understandable to a broad audience. I hope to demonstrate the utility of applying ideas like [machine learning](https://en.wikipedia.org/wiki/Machine_learning), [data visualization](https://en.wikipedia.org/wiki/Data_visualization), and [exploratory data analysis](https://en.wikipedia.org/wiki/Exploratory_data_analysis) to day-to-day life to improve decision-making processes.
 
+I was inspired to create a blog after reading [this post](http://varianceexplained.org/r/start-blog/) by David Robinson.
+
+```{r echo=FALSE}
+blogdown::shortcode('tweet', '930492543187513345')
+```
+
 I'm a big believer in treating data analysis as an iterative process, and I hope this blog will reinforce the idea that nearly anyone can learn the skills to do data analysis. I'm going to try as hard as I can to avoid the buzzwords and esoteric language that unnecessarily obfuscate data science discussions, so that this blog is accessible to an audience with varying levels of mathematical and statistical sophistication. That being said, I'll still try to sneak a few data science nuggets for the hardcore data nerds out there!
 
 

@@ -2,7 +2,9 @@
 title: POST IN PROGRESS-Golf, Tidy Data, and Using Data Analysis for Strategy
 author: ''
 date: '2018-05-27'
+publishdate: "2018-06-01"
 slug: golf-tidy-data-and-using-data-analysis-for-strategy
+draft: true
 categories:
   - R
 tags:
@@ -96,7 +98,8 @@ course_tables <- do.call('rbind',
 # clean up results
 
 course_tables <- course_tables[!is.na(course_tables$`1`),] %>%
-  filter(TOT != 'DQ')
+  filter(TOT != 'DQ') %>% 
+  mutate(NAME = paste0('A', row_number())) # ids
 
 
 ```
