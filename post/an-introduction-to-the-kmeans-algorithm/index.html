@@ -14,6 +14,7 @@ kmeans clustering is an example of unsupervised learning, where we do not have a
 kmeans clustering is an example of unsupervised learning, where we do not have an output we’re explicitly trying to predict.">
   <meta name="twitter:description" content="This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components …">
   <meta name="author" content="Brad Stieber"/>
+  <link href='/img/favicon2.ico' rel='icon' type='image/x-icon'/>
   <meta property="og:image" content="/img/brad-avatar.png" />
   <meta name="twitter:image" content="/img/brad-avatar.png" />
   <meta name="twitter:card" content="summary" />
@@ -115,6 +116,12 @@ if (!doNotTrack) {
           
             <li>
               <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Blogroll" href="/blogroll">Blogroll</a>
             </li>
           
         
@@ -510,7 +517,7 @@ system.time(
   test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.01    0.00    0.01</code></pre>
+##    0.02    0.00    0.02</code></pre>
 <pre class="r"><code>table(test_clusters.clue)</code></pre>
 <pre><code>## test_clusters.clue
 ##  1  2  3  4 
@@ -531,7 +538,7 @@ system.time(
   test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.81    0.00    0.81</code></pre>
+##    1.14    0.00    1.14</code></pre>
 <pre class="r"><code>table(test_clusters.hand)</code></pre>
 <pre><code>## test_clusters.hand
 ##  1  2  3  4 

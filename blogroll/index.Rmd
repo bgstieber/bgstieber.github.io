@@ -1,0 +1,35 @@
+---
+title: "Blogroll"
+author: "Brad Stieber"
+date: ""
+output: html_document
+---
+
+## Blogs I'm reading:
+
+[R-bloggers](https://www.r-bloggers.com/)
+    - Blog aggregator of content contributed by bloggers who write about R (in English). 
+
+[Revolutions](http://blog.revolutionanalytics.com/)
+    - Blog dedicated to news and information of interest to members of the R community.
+    
+[Statistical Modeling, Causal Inference, and Social Science](http://andrewgelman.com/)
+
+[eagereyes](https://eagereyes.org/)
+    - Robert Kosara's website, mostly about data visualization
+    
+[Julia Silge's blog](https://juliasilge.com/blog/)
+    - Great blog about a wide array of data science topics
+    
+[Variance Explained](http://varianceexplained.org/)
+    - David Robinson's (the data scientist, not the [basketball player](https://en.wikipedia.org/wiki/David_Robinson_(basketball))) blog on data science.
+    
+[FlowingData](https://flowingdata.com/)
+    - Nathan Yau's blog, mostly about data visualization
+    
+[Analytics Vidhya](https://www.analyticsvidhya.com/blog/)
+    - Good blog with data science tutorials
+
+
+
+...more to come

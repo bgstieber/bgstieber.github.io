@@ -43,5 +43,19 @@ New blog post: &amp;quot;Advice to aspiring data scientists: start a blog&amp;qu
 Education: I graduated with an MS in Statistics from the University of Wisconsin in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from St.</description>
     </item>
     
+    <item>
+      <title>Blogroll</title>
+      <link>/blogroll/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>/blogroll/</guid>
+      <description>Blogs I’m reading:R-bloggers - Blog aggregator of content contributed by bloggers who write about R (in English).
+Revolutions - Blog dedicated to news and information of interest to members of the R community.
+Statistical Modeling, Causal Inference, and Social Science
+eagereyes - Robert Kosara’s website, mostly about data visualization
+Julia Silge’s blog - Great blog about a wide array of data science topics
+Variance Explained - David Robinson’s (the data scientist, not the basketball player) blog on data science.</description>
+    </item>
+    
   </channel>
 </rss>
