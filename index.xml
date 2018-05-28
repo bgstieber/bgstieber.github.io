@@ -2,42 +2,42 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Deeper Data Digressions</title>
-    <link>/</link>
+    <link>https://bgstieber.github.io/</link>
     <description>Recent content on Deeper Data Digressions</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     <lastBuildDate>Sun, 27 May 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bgstieber.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>POST IN PROGRESS-Golf, Tidy Data, and Using Data Analysis for Strategy</title>
-      <link>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</link>
+      <link>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-for-strategy/</link>
       <pubDate>Sun, 27 May 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</guid>
+      <guid>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-for-strategy/</guid>
       <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (using data to guide strategy and tidy data). First, I’m going to look at acquiring data from a webpage. In my opinion, this data isn’t in a tidy format, and needs to be reshaped a bit. Once we get the data into a tidy form, we can
 Getting the datalibrary(tidyverse)library(rvest)library(scales)theme_set(theme_bw())I wrote the full_scrape function to pull in the data.</description>
     </item>
     
     <item>
       <title>My First Post</title>
-      <link>/post/my-first-post/</link>
+      <link>https://bgstieber.github.io/post/my-first-post/</link>
       <pubDate>Sat, 26 May 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/my-first-post/</guid>
+      <guid>https://bgstieber.github.io/post/my-first-post/</guid>
       <description>Welcome to my blog!I plan to use this website to present data explorations and analyses in a way that’s understandable to a broad audience. I hope to demonstrate the utility of applying ideas like machine learning, data visualization, and exploratory data analysis to day-to-day life to improve decision-making processes.
 I’m a big believer in treating data analysis as an iterative process, and I hope this blog will reinforce the idea that nearly anyone can learn the skills to do data analysis.</description>
     </item>
     
     <item>
       <title>About me</title>
-      <link>/about/</link>
+      <link>https://bgstieber.github.io/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/about/</guid>
+      <guid>https://bgstieber.github.io/about/</guid>
       <description>Work: I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.
 Education: I graduated with an MS in Statistics from the University of Wisconsin in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from St.</description>
     </item>
