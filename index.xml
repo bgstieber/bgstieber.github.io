@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Sat, 26 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 27 May 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>POST IN PROGRESS-Golf, Tidy Data, and Using Data Analysis for Strategy</title>
+      <link>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</link>
+      <pubDate>Sun, 27 May 2018 00:00:00 +0000</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</guid>
+      <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (using data to guide strategy and tidy data). First, I’m going to look at acquiring data from a webpage. In my opinion, this data isn’t in a tidy format, and needs to be reshaped a bit. Once we get the data into a tidy form, we can
+Getting the datalibrary(tidyverse)library(rvest)library(scales)theme_set(theme_bw())I wrote the full_scrape function to pull in the data.</description>
+    </item>
     
     <item>
       <title>My First Post</title>
@@ -24,12 +34,12 @@ I’m a big believer in treating data analysis as an iterative process, and I ho
     
     <item>
       <title>About me</title>
-      <link>/about/about/</link>
+      <link>/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/about/about/</guid>
+      <guid>/about/</guid>
       <description>Work: I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.
-Education: I graduated with an MS in Statistics from the University of Wisconsin in 2017. Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from St.</description>
+Education: I graduated with an MS in Statistics from the University of Wisconsin in 2017 (go Badgers! 👐. Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from St.</description>
     </item>
     
   </channel>

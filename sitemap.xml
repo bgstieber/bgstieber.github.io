@@ -3,17 +3,17 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/my-first-post/</loc>
     <lastmod>2018-05-26T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>/about/about/</loc>
-  </url>
-  
-  <url>
     <loc>/about/</loc>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -22,14 +22,32 @@
   </url>
   
   <url>
+    <loc>/tags/data-analysis/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/data-science/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/</loc>
-    <lastmod>2018-05-26T00:00:00+00:00</lastmod>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/golf/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-05-26T00:00:00+00:00</lastmod>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -40,13 +58,38 @@
   </url>
   
   <url>
+    <loc>/tags/r/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/categories/r/</loc>
-    <lastmod>2018-05-26T00:00:00+00:00</lastmod>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/strategy/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/tidy-data/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/web-scraping/</loc>
+    <lastmod>2018-05-27T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
