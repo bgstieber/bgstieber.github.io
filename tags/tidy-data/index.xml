@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tidy Data on Deeper Data Digressions</title>
-    <link>/tags/tidy-data/</link>
-    <description>Recent content in Tidy Data on Deeper Data Digressions</description>
+    <title>Tidy Data on Brad Stieber</title>
+    <link>https://bgstieber.github.io/tags/tidy-data/</link>
+    <description>Recent content in Tidy Data on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Sun, 27 May 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 24 Jun 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/tidy-data/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bgstieber.github.io/tags/tidy-data/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>POST IN PROGRESS-Golf, Tidy Data, and Using Data Analysis for Strategy</title>
-      <link>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</link>
-      <pubDate>Sun, 27 May 2018 00:00:00 +0000</pubDate>
+      <title>Golf, Tidy Data, and Using Data Analysis to Guide Strategy</title>
+      <link>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
+      <pubDate>Sun, 24 Jun 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/golf-tidy-data-and-using-data-analysis-for-strategy/</guid>
-      <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (using data to guide strategy and tidy data). First, I’m going to look at acquiring data from a webpage. In my opinion, this data isn’t in a tidy format, and needs to be reshaped a bit. Once we get the data into a tidy form, we can
-Getting the datalibrary(tidyverse)library(rvest)library(scales)theme_set(theme_bw())I wrote the full_scrape function to pull in the data.</description>
+      <guid>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
+      <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.
+I’m going to take a little bit of time to talk about tidy data. When I scraped the data used for this analysis, it wasn’t really stored in a tidy format, and there’s a good reason for that.</description>
     </item>
     
   </channel>
