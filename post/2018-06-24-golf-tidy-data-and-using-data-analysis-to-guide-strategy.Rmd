@@ -97,8 +97,6 @@ Let's take a peek at the first few rows of each data set. The first data set we'
 untidy_scores %>% head %>% kable()
 ```
 
-<br>
-
 This is an example of a "wide" data set.
 
 Now let's take a look at the first few rows of the tidy data.
