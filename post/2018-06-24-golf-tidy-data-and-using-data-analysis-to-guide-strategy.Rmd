@@ -74,7 +74,7 @@ theme_set(theme_bw())
 ```
 
 ```{r echo = FALSE, warning=FALSE, message=FALSE}
-library(DT)
+library(knitr)
 ```
 
 
@@ -94,14 +94,14 @@ The data is comprised of `r nrow(untidy_scores)` golfers with scores for each of
 Let's take a peek at the first few rows of each data set. The first data set we'll look at is the untidy data, this is fairly close to what the WIAA provides on the webpages for each of the tournaments.
 
 ```{r echo = FALSE}
-untidy_scores %>% head %>% datatable()
+untidy_scores %>% head %>% kable()
 ```
 This is an example of a "wide" data set.
 
 Now let's take a look at the first few rows of the tidy data.
 
 ```{r echo = FALSE}
-tidy_scores %>% head %>% datatable()
+tidy_scores %>% head %>% kable()
 ```
 
 On inspection, there are some clear differences between the tidy and untidy data sets.

@@ -199,15 +199,7 @@ if (!doNotTrack) {
   <div class="row">
     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
       <article role="main" class="blog-post">
-        <script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
-<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
-<script src="/rmarkdown-libs/datatables-binding/datatables.js"></script>
-<link href="/rmarkdown-libs/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="/rmarkdown-libs/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
-<script src="/rmarkdown-libs/dt-core/js/jquery.dataTables.min.js"></script>
-
-
-<div id="introduction" class="section level2">
+        <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>I’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.</p>
 <p>I’m going to take a little bit of time to talk about <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html"><strong>tidy data</strong></a>. When I scraped the data used for this analysis, it wasn’t really stored in a tidy format, and there’s a good reason for that. I’ll briefly discuss what makes the original data “untidy”, and what we can do to whip it into tidy shape.</p>
@@ -251,11 +243,347 @@ untidy_scores &lt;- read_csv(paste0(gh, &#39;/untidy_golf_scores.csv&#39;)) %&gt
   filter(tot &lt;= 120)</code></pre>
 <p>The data is comprised of 472 golfers with scores for each of the 18 holes they played. In total, there are 8496 scores in this data set.</p>
 <p>Let’s take a peek at the first few rows of each data set. The first data set we’ll look at is the untidy data, this is fairly close to what the WIAA provides on the webpages for each of the tournaments.</p>
-<p><div id="htmlwidget-1" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1">{"x":{"filter":"none","data":[["1","2","3","4","5","6"],["A1","A2","A3","A4","A5","A6"],[12,12,12,11,11,11],[7,5,7,8,14,6],[4,5,5,5,4,4],[4,5,6,5,5,4],[4,5,6,5,4,6],[5,4,5,7,3,5],[4,3,6,7,6,4],[5,5,5,5,7,5],[6,5,5,5,4,4],[6,4,4,4,4,3],[45,41,49,51,51,41],[6,5,6,6,6,4],[5,6,6,7,6,5],[5,5,6,5,11,7],[5,5,4,4,9,4],[7,5,7,5,7,6],[4,7,6,4,8,5],[5,5,7,5,5,6],[4,3,4,4,5,3],[5,5,5,5,7,4],[46,46,52,45,64,44],[91,87,101,96,115,85],["sectionals","sectionals","sectionals","sectionals","sectionals","sectionals"],[2011,2011,2011,2011,2011,2011]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>name<\/th>\n      <th>year<\/th>\n      <th>1<\/th>\n      <th>2<\/th>\n      <th>3<\/th>\n      <th>4<\/th>\n      <th>5<\/th>\n      <th>6<\/th>\n      <th>7<\/th>\n      <th>8<\/th>\n      <th>9<\/th>\n      <th>out<\/th>\n      <th>10<\/th>\n      <th>11<\/th>\n      <th>12<\/th>\n      <th>13<\/th>\n      <th>14<\/th>\n      <th>15<\/th>\n      <th>16<\/th>\n      <th>17<\/th>\n      <th>18<\/th>\n      <th>in<\/th>\n      <th>tot<\/th>\n      <th>tourn_type<\/th>\n      <th>tourn_year<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script> This is an example of a “wide” data set.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">name</th>
+<th align="right">year</th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+<th align="right">5</th>
+<th align="right">6</th>
+<th align="right">7</th>
+<th align="right">8</th>
+<th align="right">9</th>
+<th align="right">out</th>
+<th align="right">10</th>
+<th align="right">11</th>
+<th align="right">12</th>
+<th align="right">13</th>
+<th align="right">14</th>
+<th align="right">15</th>
+<th align="right">16</th>
+<th align="right">17</th>
+<th align="right">18</th>
+<th align="right">in</th>
+<th align="right">tot</th>
+<th align="left">tourn_type</th>
+<th align="right">tourn_year</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">A1</td>
+<td align="right">12</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">6</td>
+<td align="right">45</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">46</td>
+<td align="right">91</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+</tr>
+<tr class="even">
+<td align="left">A2</td>
+<td align="right">12</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">41</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">3</td>
+<td align="right">5</td>
+<td align="right">46</td>
+<td align="right">87</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">A3</td>
+<td align="right">12</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">49</td>
+<td align="right">6</td>
+<td align="right">6</td>
+<td align="right">6</td>
+<td align="right">4</td>
+<td align="right">7</td>
+<td align="right">6</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">52</td>
+<td align="right">101</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+</tr>
+<tr class="even">
+<td align="left">A4</td>
+<td align="right">11</td>
+<td align="right">8</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">51</td>
+<td align="right">6</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">45</td>
+<td align="right">96</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">A5</td>
+<td align="right">11</td>
+<td align="right">14</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">6</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">51</td>
+<td align="right">6</td>
+<td align="right">6</td>
+<td align="right">11</td>
+<td align="right">9</td>
+<td align="right">7</td>
+<td align="right">8</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">64</td>
+<td align="right">115</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+</tr>
+<tr class="even">
+<td align="left">A6</td>
+<td align="right">11</td>
+<td align="right">6</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">41</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">7</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="right">6</td>
+<td align="right">3</td>
+<td align="right">4</td>
+<td align="right">44</td>
+<td align="right">85</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">This is</td>
+<td align="right">an exa</td>
+<td align="right">mple</td>
+<td align="right">of a</td>
+<td align="right">“wide</td>
+<td align="right">&quot; dat</td>
+<td align="right">a set</td>
+<td align="right">.</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="right"></td>
+</tr>
+</tbody>
+</table>
 <p>Now let’s take a look at the first few rows of the tidy data.</p>
-<div id="htmlwidget-2" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-2">{"x":{"filter":"none","data":[["1","2","3","4","5","6"],["A1","A2","A3","A4","A5","A6"],[12,12,12,11,11,11],[45,41,49,51,51,41],[46,46,52,45,64,44],[91,87,101,96,115,85],["sectionals","sectionals","sectionals","sectionals","sectionals","sectionals"],[2011,2011,2011,2011,2011,2011],[1,1,1,1,1,1],[7,5,7,8,14,6],[5,5,5,5,5,5],[true,true,true,true,true,true],[true,true,true,true,true,true],["front","front","front","front","front","front"],[2,0,2,3,9,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>name<\/th>\n      <th>year<\/th>\n      <th>out<\/th>\n      <th>in<\/th>\n      <th>tot<\/th>\n      <th>tourn_type<\/th>\n      <th>tourn_year<\/th>\n      <th>hole<\/th>\n      <th>score<\/th>\n      <th>par<\/th>\n      <th>ob<\/th>\n      <th>water<\/th>\n      <th>side<\/th>\n      <th>rel_to_par<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[2,3,4,5,7,8,9,10,14]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<table>
+<thead>
+<tr class="header">
+<th align="left">name</th>
+<th align="right">year</th>
+<th align="right">out</th>
+<th align="right">in</th>
+<th align="right">tot</th>
+<th align="left">tourn_type</th>
+<th align="right">tourn_year</th>
+<th align="right">hole</th>
+<th align="right">score</th>
+<th align="right">par</th>
+<th align="left">ob</th>
+<th align="left">water</th>
+<th align="left">side</th>
+<th align="right">rel_to_par</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">A1</td>
+<td align="right">12</td>
+<td align="right">45</td>
+<td align="right">46</td>
+<td align="right">91</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">front</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">A2</td>
+<td align="right">12</td>
+<td align="right">41</td>
+<td align="right">46</td>
+<td align="right">87</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+<td align="right">1</td>
+<td align="right">5</td>
+<td align="right">5</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">front</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">A3</td>
+<td align="right">12</td>
+<td align="right">49</td>
+<td align="right">52</td>
+<td align="right">101</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+<td align="right">1</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">front</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">A4</td>
+<td align="right">11</td>
+<td align="right">51</td>
+<td align="right">45</td>
+<td align="right">96</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+<td align="right">1</td>
+<td align="right">8</td>
+<td align="right">5</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">front</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">A5</td>
+<td align="right">11</td>
+<td align="right">51</td>
+<td align="right">64</td>
+<td align="right">115</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+<td align="right">1</td>
+<td align="right">14</td>
+<td align="right">5</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">front</td>
+<td align="right">9</td>
+</tr>
+<tr class="even">
+<td align="left">A6</td>
+<td align="right">11</td>
+<td align="right">41</td>
+<td align="right">44</td>
+<td align="right">85</td>
+<td align="left">sectionals</td>
+<td align="right">2011</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">5</td>
+<td align="left">TRUE</td>
+<td align="left">TRUE</td>
+<td align="left">front</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
 <p>On inspection, there are some clear differences between the tidy and untidy data sets.</p>
 </div>
 <div id="putting-practice-what-makes-data-tidy" class="section level2">
