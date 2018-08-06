@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
+  <meta property="og:title" content="Everything I Know About Machine Learning I Learned from Making Soup" />
+  <meta name="twitter:title" content="Everything I Know About Machine Learning I Learned from Making Soup" />
+  <meta name="description" content="IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
+Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.">
+  <meta property="og:description" content="IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
+Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.">
+  <meta name="twitter:description" content="IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data …">
+  <meta name="author" content="Brad Stieber"/>
+  <link href='/img/favicon2.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Brad Stieber" />
+
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="canonical" href="/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/" />
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Brad Stieber">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="/css/highlight.min.css" /><link rel="stylesheet" href="/css/codeblock.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-119936954-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Brad Stieber</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Blogroll" href="/blogroll">Blogroll</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Brad Stieber" href="/">
+            <img class="avatar-img" src="/img/brad-avatar.png" alt="Brad Stieber" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Everything I Know About Machine Learning I Learned from Making Soup</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on August 6, 2018
+  
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.</p>
+<p>Relying on some insight from the <a href="https://en.wikipedia.org/wiki/Cross-industry_standard_process_for_data_mining">CRISP-DM framework</a>, my own experience as an amateur chef, and the well-known <a href="https://archive.ics.uci.edu/ml/datasets/iris">iris data set</a>, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</p>
+<p>This post is pretty light on code, with just a few code chunks for illustrative purposes. These are the packages we’ll need.</p>
+<pre class="r"><code>library(tidyverse)
+library(glmnet)
+library(caret) # caret or carrot? :)</code></pre>
+<p>The code for this post can be found on <a href="https://github.com/bgstieber/files_for_blog/tree/master/soup-machine-learning">my GitHub</a>.</p>
+</div>
+<div id="some-background" class="section level1">
+<h1>Some Background</h1>
+<p>
+<a href="https://commons.wikimedia.org/wiki/File:CRISP-DM_Process_Diagram.png#/media/File:CRISP-DM_Process_Diagram.png"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/CRISP-DM_Process_Diagram.png" alt="CRISP-DM Process Diagram.png" height="400" width="400"></a><br> <strong>The CRISP-DM Framework (Kenneth Jensen)</strong> <a href="https://creativecommons.org/licenses/by-sa/3.0" title="Creative Commons Attribution-Share Alike 3.0">CC BY-SA 3.0</a>, <a href="https://commons.wikimedia.org/w/index.php?curid=24930610">Link</a>
+</p>
+<p>I recently gave a presentation on the <a href="https://en.wikipedia.org/wiki/Cross-industry_standard_process_for_data_mining">CRISP-DM framework</a> to the various teams that make up the IT Department at my organization. While I was discussing the Modeling phase of CRISP-DM, I got some questions that come up when you talk about data science with software-minded audiences.</p>
+<p><em>When you’re building a model, what are you doing? Where are you spending your time? How long does that take?</em></p>
+<p>The people in IT know that data, machine learning, and artificial intelligence are impacting their daily lives, from <a href="https://www.kdnuggets.com/2017/08/deep-learning-train-chatbot-talk-like-me.html">chat bots</a> to <a href="https://en.wikipedia.org/wiki/Naive_Bayes_spam_filtering">spam email detection</a> to the <a href="http://fortune.com/facebook-machine-learning/">curation of news feeds</a>. While they have awareness of the <em>impact</em> of data science, they may not have as much awareness of the <em>processes</em> of data science. I think the responsibility of demystifying machine learning rests on data scientists, and it’s imperative to have comprehensible mental models that can be employed to describe and de-clutter the machine learning process.</p>
+<p>In my response to the questions, I thought I did a fairly good job of breaking down the three components of machine learning and the typical amount of iteration within each component by mirroring the CRISP-DM breakdown:</p>
+<ul>
+<li>Problem type and associated modeling technique
+<ul>
+<li>Iteration level: low</li>
+</ul></li>
+<li>Parameter tuning
+<ul>
+<li>Iteration level: high</li>
+</ul></li>
+<li>Feature engineering and selection
+<ul>
+<li>Iteration level: high</li>
+</ul></li>
+</ul>
+<p>Of course, I was in a room full of very smart people, trying to extemporaneously explain parameter tuning and feature engineering in a coherent way, so I probably could have done a better job.</p>
+<p>A few minutes after the meeting, I realized I could have used a simple analogy to explain the machine learning process.</p>
+<p><strong>Machine learning is like making a soup. First, you pick the type of soup you want to make. Second, you figure out the ingredients that are going to be in the soup and how they should be prepared. Third, you determine how you’re going to cook the soup. Finally, you taste the soup and iterate to make it taste better.</strong></p>
+</div>
+<div id="making-a-soup-machine-learning" class="section level1">
+<h1>Making a Soup = Machine Learning</h1>
+<p>While I’m certainly not an expert chef, I think you can boil down making a soup into a few simple components.</p>
+<iframe src="https://giphy.com/embed/xT9DPhWvvzbSI5vrYQ" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen>
+</iframe>
+<p>
+<a href="https://giphy.com/gifs/cravetvcanada-seinfeld-xT9DPhWvvzbSI5vrYQ">via GIPHY</a>
+</p>
+<div id="picking-the-soup-selecting-a-modeling-technique" class="section level2">
+<h2>Picking the Soup = Selecting a Modeling Technique</h2>
+<p>In this step, we’re just trying to figure out what we want to make. In the machine learning world, this is where we need to think carefully about the problem we’re trying to solve, and which of the many machine learning algorithms can be used to attack it.</p>
+<p><strong>Soup Making:</strong> what type of soup are we trying to make? are there external characteristics (season, weather, mood) we should consider? what soup will we enjoy? how difficult is this soup to make?</p>
+<p><strong>Machine Learning:</strong> what type of question(s) are we trying to answer? what type of model will allow us to answer this question? how is this model implemented? what are its assumptions?</p>
+</div>
+<div id="ingredients-feature-engineering-selection" class="section level2">
+<h2>Ingredients = Feature Engineering &amp; Selection</h2>
+<p>Now that we’ve decided what we’re going to make, we need to head to the grocery store and pick up the ingredients. After that we’ll need to prepare the ingredients for cooking. Similarly, we’ll need to understand the variables and context for our data set, and create/transform/aggregate our variables to get them into a useful form for modeling.</p>
+<p><strong>Soup Making:</strong> what vegetables are needed and how should they be prepped? what type of protein will we be using? do we need some type of stock for the soup?</p>
+<p><strong>Machine Learning:</strong> what variables are needed for this model? do we need to standardize any of the variables? are there non-numeric variables? if so, how should those be handled?</p>
+</div>
+<div id="cooking-methods-parameter-tuning" class="section level2">
+<h2>Cooking Methods = Parameter Tuning</h2>
+<p>Once we’ve decided upon the type of soup and the ingredient, it comes time to make the soup. This step involves select the best combination of different cooking methods to make the optimal (i.e. most tasty) soup. When we perform parameter tuning, we’re trying to pick the best combination of values to make our machine learning algorithms reach optimal performance. These values are different from the variables we previously discussed, as the variables are the <em>inputs</em> for our ML algorithms, while the tuning parameters describe the algorithm itself.</p>
+<p><strong>Soup Making:</strong> what heat are we cooking at and for how long? is the pot covered or uncovered? will the pot be on the stove top for the entirety of cooking or will we move it to the oven? how long will we let the soup simmer? how big of a batch are we making?</p>
+<p><strong>Machine Learning:</strong> what is our loss function? is there a learning rate? what’s the k in our k-fold cross validation? how many trees in our random forest? how much should we penalize complexity? what is the training/validation split? does an ensemble model outperform a single model?</p>
+</div>
+</div>
+<div id="building-a-model" class="section level1">
+<h1>Building a Model</h1>
+<p>Let’s see this framework in action. I’m going to pick a straightforward classification task to demonstrate. I’m going to use the <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">iris dataset</a> and try to predict whether a flower is from the setosa species.</p>
+<p>Here’s a quick look at the data:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Sepal.Length</th>
+<th align="left">Sepal.Width</th>
+<th align="left">Petal.Length</th>
+<th align="left">Petal.Width</th>
+<th align="left">Species</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">5.0</td>
+<td align="left">2.3</td>
+<td align="left">3.3</td>
+<td align="left">1.0</td>
+<td align="left">versicolor</td>
+</tr>
+<tr class="even">
+<td align="left">5.1</td>
+<td align="left">3.7</td>
+<td align="left">1.5</td>
+<td align="left">0.4</td>
+<td align="left">setosa</td>
+</tr>
+<tr class="odd">
+<td align="left">4.4</td>
+<td align="left">3.2</td>
+<td align="left">1.3</td>
+<td align="left">0.2</td>
+<td align="left">setosa</td>
+</tr>
+<tr class="even">
+<td align="left">4.6</td>
+<td align="left">3.2</td>
+<td align="left">1.4</td>
+<td align="left">0.2</td>
+<td align="left">setosa</td>
+</tr>
+<tr class="odd">
+<td align="left">6.1</td>
+<td align="left">2.6</td>
+<td align="left">5.6</td>
+<td align="left">1.4</td>
+<td align="left">virginica</td>
+</tr>
+<tr class="even">
+<td align="left">6.7</td>
+<td align="left">3.0</td>
+<td align="left">5.2</td>
+<td align="left">2.3</td>
+<td align="left">virginica</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Just looking at the <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/scatterb.htm">scatterplot matrix</a> above, we can see that trying to classify flowers into the setosa species is a bit of a toy problem (the red points are well-separated from the blue and green). In fact, just by examining if the petal length of a flower is smaller than 2.45, we can determine if the flower is from the setosa species.</p>
+<pre class="r"><code>table(&#39;Petal Cut&#39; = iris$Petal.Length &gt;= 2.45,&#39;Setosa&#39; = iris$Species == &#39;setosa&#39;)</code></pre>
+<pre><code>##          Setosa
+## Petal Cut FALSE TRUE
+##     FALSE     0   50
+##     TRUE    100    0</code></pre>
+<p>The iris data is used as a <a href="https://en.wikipedia.org/wiki/%22Hello,_World!%22_program">“hello, world”</a> in data science. It has nice applications across a broad spectrum of applications: <a href="https://cran.r-project.org/web/packages/dendextend/vignettes/Cluster_Analysis.html">clustering</a>, <a href="https://warwick.ac.uk/fac/sci/moac/people/students/peter_cock/r/iris_lm/">regression</a>, <a href="http://michael.hahsler.net/SMU/EMIS7332/R/logistic_regression.html">classification</a>, and <a href="https://bl.ocks.org/mbostock/4063663">visualization</a>. It’s worth getting <a href="https://eagereyes.org/blog/2018/how-to-get-excited-about-standard-datasets">excited</a> about!</p>
+<div id="picking-the-soup" class="section level2">
+<h2>Picking the Soup</h2>
+<p>As discussed earlier, the problem we’re trying to tackle is predicting if a flower is from the setosa species. Since we already know that there is something we’re trying to predict, we only have to explore supervised machine learning algorithms. We also know that we’re not interested in building a model which generates predictions on a continuous range. We only want the answer a <em>binary</em> question: is this a setosa or not?</p>
+<p>This narrows the set of algorithms even further, and we only need to explore models which will either generate a classification for a flower, or will generate a probability of the flower’s species being setosa.</p>
+<p>For this post, I’m going to use <a href="https://en.wikipedia.org/wiki/Elastic_net_regularization">elastic net</a> logistic regression. Elastic net fits a logistic regression while also penalizing the complexity of the model. The excellent <a href="https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html"><strong><code>glmnet</code></strong></a> package allows us to build models in this fashion. I’m going to use ridge regression (elastic net with <span class="math inline">\(\alpha=0\)</span>), which penalizes the <span class="math inline">\(L_2\)</span> norm of the coefficients. Fitting an elastic net with <span class="math inline">\(\alpha=1\)</span> generates a LASSO model, which can also be useful for variable selection, but I’m using a different technique to do variable selection in this post, so I’m sticking with ridge here.</p>
+</div>
+<div id="ingredients" class="section level2">
+<h2>Ingredients</h2>
+<p>Feature engineering and selection is one of the most time-consuming parts of the machine learning process. To keep this post brief, I’m going to go through just a few feature engineering steps.</p>
+<p>First, we split the data into <a href="https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets">training and testing</a> sets. After this, I extract only the numeric predictor variables for the model, and then add squared terms as well as interactions between each of the first order effects. These two steps transform the predictor matrix from four columns into fourteen. Finally, we use the <code>preProcess</code> function from the <a href="https://topepo.github.io/caret/index.html"><strong><code>caret</code></strong></a> package to center and scale each variable so that it has mean = 0 and variance = 1.</p>
+<pre class="r"><code>set.seed(123)
+# create training and testing split
+training_index &lt;- sample(nrow(iris), 0.7 * nrow(iris))
+iris_train &lt;- iris[training_index,]
+iris_test &lt;- iris[-training_index,]
+# grab X data add squared term for each column
+iris_X_train &lt;- iris_train[,-5] %&gt;% mutate_all(funs(&#39;sq&#39; = . ^ 2))
+iris_X_test &lt;- iris_test[,-5] %&gt;% mutate_all(funs(&#39;sq&#39; = . ^ 2))
+# all two way interactions with first order terms
+iris_X_train &lt;- 
+  model.matrix(~-1 + . + (Sepal.Length+Sepal.Width+Petal.Length+Petal.Width) ^ 2,
+               data = iris_X_train)
+iris_X_test &lt;-
+  model.matrix(~-1 + . + (Sepal.Length+Sepal.Width+Petal.Length+Petal.Width) ^ 2,
+               data = iris_X_test)
+# fit center and scale processor on training data
+preProc &lt;- preProcess(iris_X_train)
+iris_X_train_cs &lt;- predict(preProc, iris_X_train)
+iris_X_test_cs &lt;- predict(preProc, iris_X_test)
+# labels, convert to factor for glmnet
+iris_y_train &lt;- as.factor(as.numeric(iris_train$Species == &#39;setosa&#39;))
+iris_y_test &lt;- as.factor(iris_test$Species == &#39;setosa&#39;)</code></pre>
+<p>The data augmentation steps I went through created numeric variables, but we could use decision trees or similar techniques to create categorical variables from numeric. We use those methods when it’s unnecessary to retain the continuous nature of a numeric variable (often the case with age or physiological measurements like height or weight).</p>
+<p>After we’ve gone through the feature engineering step, we can think about which variables we’ll actually want to use in our model. There can be considerable back-and-forth between feature engineering and feature selection, just like iterating on a recipe may involve different ingredients and different ways of preparing those ingredients.</p>
+<p>To do feature selection, I’m going to once again turn to the <strong><code>caret</code></strong> package and use the <code>rfe</code> function. We could also use the infrastructure of the <strong><code>glmnet</code></strong> package to do some feature selection, as the <a href="https://en.wikipedia.org/wiki/Lasso_(statistics)">LASSO</a> helps us perform variable selection.</p>
+<pre class="r"><code>set.seed(123)
+rf_control &lt;- rfeControl(rfFuncs, method = &#39;cv&#39;, number = 5)
+
+iris_rfe &lt;- rfe(x = iris_X_train_cs, 
+                y = iris_y_train,
+                sizes = 2:14, # select at least two variables
+                rfeControl = rf_control)
+
+iris_rfe$optVariables</code></pre>
+<pre><code>## [1] &quot;Petal.Length:Petal.Width&quot; &quot;Petal.Length_sq&quot;</code></pre>
+<p>The procedure we used for variable selection suggested an interaction between the petal length and petal width variables, and petal length squared. It’s usually a bad idea to include higher ordered terms without also including the lower order terms, so our final model will have three variables: petal width, petal length, and petal width * petal length interaction.</p>
+</div>
+<div id="cooking-methods" class="section level2">
+<h2>Cooking Methods</h2>
+<p>In elastic net regression, we have two parameters to select: <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\lambda\)</span>. <span class="math inline">\(\alpha\)</span> controls the weight we give to the <span class="math inline">\(L_1\)</span> and <span class="math inline">\(L_2\)</span> penalties (with <span class="math inline">\(\alpha\)</span> being placed on the <span class="math inline">\(L_1\)</span> norm, and <span class="math inline">\(1-\alpha\)</span> being placed on the <span class="math inline">\(L_2\)</span> norm). Putting all the weight on <span class="math inline">\(L_2\)</span> norm is better known as <a href="https://en.wikipedia.org/wiki/Tikhonov_regularization">Tikhonov regularization or ridge regression</a>. I’ve already made my choice of <span class="math inline">\(\alpha\)</span> for this post, so we don’t have to tune it.</p>
+<p>The other parameter we need to tune is <span class="math inline">\(\lambda\)</span>, which controls the strength of the penalty we’ll place on the <span class="math inline">\(L_2\)</span> norm of the coefficients. A higher <span class="math inline">\(\lambda\)</span> value will “shrink” the model’s coefficients, whereas a smaller <span class="math inline">\(\lambda\)</span> value will result in a model more similar to the standard unregularized logistic regression fit.</p>
+<p>The <code>cv.glmnet</code> function allows us to use cross-validation to tune <span class="math inline">\(\lambda\)</span>.</p>
+<pre class="r"><code>vv &lt;- c(&quot;Petal.Width&quot;, &quot;Petal.Length&quot;, &quot;Petal.Length:Petal.Width&quot;)
+
+iris_X_train_cs_sub &lt;- iris_X_train_cs[, colnames(iris_X_train_cs) %in% vv]
+iris_X_test_cs_sub &lt;- iris_X_test_cs[, colnames(iris_X_test_cs) %in% vv]</code></pre>
+<pre class="r"><code>cv_glm1 &lt;- cv.glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                     alpha = 0, family = &#39;binomial&#39;,
+                     nfolds = length(iris_y_train) - 1,# LOOCV
+                     standardize = FALSE, intercept = FALSE) 
+
+lambda_1se_1 &lt;- cv_glm1$lambda.1se # store &quot;best&quot; lambda for now
+
+plot(cv_glm1)</code></pre>
+<p><img src="/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>We can explore <span class="math inline">\(\lambda\)</span> a bit more to improve the model fit.</p>
+<pre class="r"><code>cv_glm2 &lt;- cv.glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                     alpha = 0, lambda = exp(seq(-10, log(lambda_1se_1), length.out = 500)),
+                     family = &#39;binomial&#39;, nfolds = length(iris_y_train) - 1,# LOOCV
+                     standardize = FALSE, intercept = FALSE)
+
+lambda_2 &lt;- exp(-6.5)
+plot(cv_glm2)</code></pre>
+<p><img src="/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Cross-validation suggests a rather small value of <span class="math inline">\(\lambda\)</span>, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of <span class="math inline">\(\lambda\)</span> to fit the model (<span class="math inline">\(\lambda_1\)</span> = 0.0775, <span class="math inline">\(\lambda_2\)</span> = 0.0015), and then investigate the results.</p>
+</div>
+<div id="tasting-the-soup" class="section level2">
+<h2>Tasting the soup</h2>
+<p>After we fit the model (or make the soup), we have to determine how good it is. For this example, I’m going to use a simple method for determining the classification accuracy and check the % of time the classifier got the species correct. Using this metric implies that we’re treating false positive and false negatives as equally bad errors. In most real world situations, this is not the case.</p>
+<pre class="r"><code># naive classification accuracy
+class_acc &lt;- function(preds, labels, thresh = 0.5){
+  tt &lt;- table(preds &gt; thresh, labels)
+  sum(diag(tt)) / sum(tt)
+}</code></pre>
+<p>In addition to the two models fit using regularization, I’m going to fit an unregularized model with the selected features along with an unregularized model with only the variables that were present in the original dataset.</p>
+<pre class="r"><code># regularized models
+ridge_1 &lt;- glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                  family = &#39;binomial&#39;, lambda = lambda_1se_1, alpha = 0,
+                  standardize = FALSE, intercept = FALSE)
+ridge_2 &lt;- glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                  family = &#39;binomial&#39;, lambda = lambda_2, alpha = 0,
+                  standardize = FALSE, intercept = FALSE)
+# unregularized
+glm1 &lt;- glm(iris_y_train ~ -1 + ., data = data.frame(iris_X_train_cs_sub), 
+            family = &#39;binomial&#39;)
+glm2 &lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.Width,
+            data = data.frame(iris_X_train_cs), 
+            family = &#39;binomial&#39;) </code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-12">Table 1: </span>Table of Model Accuracy</caption>
+<thead>
+<tr class="header">
+<th align="left">model</th>
+<th align="left">type</th>
+<th align="left">class accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ridge_1</td>
+<td align="left">regularized-lambda1</td>
+<td align="left">91.11%</td>
+</tr>
+<tr class="even">
+<td align="left">ridge_2</td>
+<td align="left">regularized-lambda2</td>
+<td align="left">95.56%</td>
+</tr>
+<tr class="odd">
+<td align="left">glm1</td>
+<td align="left">full</td>
+<td align="left">100.00%</td>
+</tr>
+<tr class="even">
+<td align="left">glm2</td>
+<td align="left">original</td>
+<td align="left">100.00%</td>
+</tr>
+</tbody>
+</table>
+<p>In the table above, we can see that the unregularized models resulted in better predictions on our test set. This shouldn’t be too surprising, as this classification example is somewhat contrived. In more realistic settings, we may see better predictive performance from models fit using regularization.</p>
+</div>
+</div>
+<div id="wrapping-up" class="section level1">
+<h1>Wrapping Up</h1>
+<p>When we compare making a soup to machine learning, we get a simple and understandable lens through which we can look at machine learning. Just like making soup or cooking in general, iteration is a key component of machine learning. If you ask anyone that’s trying to develop a recipe, they probably won’t get it right the first time. If they do get it right the first time, maybe that’s because</p>
+<ul>
+<li>they got lucky</li>
+<li>they aren’t trying to make too difficult of a dish</li>
+<li>they’re an experienced cook</li>
+</ul>
+<p>These situations have clear parallels to machine learning. Maybe you got lucky and your prediction task is fairly easy or maybe all you need is a simple model or maybe you’re an experienced data scientist.</p>
+<p>I feel like this analogy is a pretty straightforward way to explain machine learning to a broad audience of people that are interested in the topic. I found a <a href="https://www.becomingadatascientist.com/2017/07/17/introductory-machine-learning-terminology-with-food/">similar article</a> which discussed ideas that are related to the ones I talked about in my post. If you know of any other posts with similar sentiments, I hope you’ll share them with me!</p>
+<p>Thanks for reading my post and leave a comment below if you have any thoughts or feedback!</p>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="//tags/data-analysis/">data-analysis</a>&nbsp;
+            
+              <a href="//tags/data-science/">data-science</a>&nbsp;
+            
+              <a href="//tags/r/">r</a>&nbsp;
+            
+              <a href="//tags/machine-learning/">machine-learning</a>&nbsp;
+            
+              <a href="//tags/supervised-learning/">supervised-learning</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <ul class="list-inline footer-links">
+                
+
+
+<li>
+    <a href="//twitter.com/share?url=%2fpost%2feverything-i-know-about-machine-learning-i-learned-from-making-soup%2f&amp;text=Everything%20I%20Know%20About%20Machine%20Learning%20I%20Learned%20from%20Making%20Soup&amp;via="
+       target="_blank" alt="" title="Share on Twitter">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.facebook.com/sharer/sharer.php?u=%2fpost%2feverything-i-know-about-machine-learning-i-learned-from-making-soup%2f" target="_blank" title="Share on Facebook">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.linkedin.com/shareArticle?url=%2fpost%2feverything-i-know-about-machine-learning-i-learned-from-making-soup%2f&amp;title=Everything%20I%20Know%20About%20Machine%20Learning%20I%20Learned%20from%20Making%20Soup" target="_blank"
+       title="Share on LinkedIn">
+         <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+              </ul>
+            </section>
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/" data-toggle="tooltip" data-placement="top" title="Golf, Tidy Data, and Using Data Analysis to Guide Strategy">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "bgstieber-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:bgstieber@gmail.com" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/bgstieber" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/brad-stieber-2227b2131" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/5619526/bouncyball" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://open.spotify.com/user/12102534356?si=_IgBxYLORrG5sy5wQxUEog" title="Spotify">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-spotify fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Brad Stieber
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="/">Brad Stieber</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.41</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+

@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on Brad Stieber</title>
-    <link>https://bgstieber.github.io/categories/</link>
+    <link>/categories/</link>
     <description>Recent content in Categories on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     
-	<atom:link href="https://bgstieber.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Python</title>
-      <link>https://bgstieber.github.io/categories/python/</link>
+      <link>/categories/python/</link>
       <pubDate>Sat, 26 May 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/categories/python/</guid>
+      <guid>/categories/python/</guid>
       <description></description>
     </item>
     
     <item>
       <title>R</title>
-      <link>https://bgstieber.github.io/categories/r/</link>
-      <pubDate>Sun, 24 Jun 2018 00:00:00 +0000</pubDate>
+      <link>/categories/r/</link>
+      <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/categories/r/</guid>
+      <guid>/categories/r/</guid>
       <description></description>
     </item>
     
