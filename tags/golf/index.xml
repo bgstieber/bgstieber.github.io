@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Golf on Brad Stieber</title>
-    <link>/tags/golf/</link>
+    <link>https://bgstieber.github.io/tags/golf/</link>
     <description>Recent content in Golf on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     <lastBuildDate>Sun, 24 Jun 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/golf/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bgstieber.github.io/tags/golf/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Golf, Tidy Data, and Using Data Analysis to Guide Strategy</title>
-      <link>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
+      <link>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
       <pubDate>Sun, 24 Jun 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
+      <guid>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
       <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.
 I’m going to take a little bit of time to talk about tidy data. When I scraped the data used for this analysis, it wasn’t really stored in a tidy format, and there’s a good reason for that.</description>
     </item>

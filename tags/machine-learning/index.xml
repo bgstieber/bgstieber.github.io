@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Machine Learning on Brad Stieber</title>
-    <link>/tags/machine-learning/</link>
+    <link>https://bgstieber.github.io/tags/machine-learning/</link>
     <description>Recent content in Machine Learning on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     <lastBuildDate>Mon, 06 Aug 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bgstieber.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
-      <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
+      <link>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
+      <guid>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
 Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</description>
     </item>

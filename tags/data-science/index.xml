@@ -2,42 +2,53 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Data Science on Brad Stieber</title>
-    <link>/tags/data-science/</link>
+    <link>https://bgstieber.github.io/tags/data-science/</link>
     <description>Recent content in Data Science on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Mon, 06 Aug 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 03 Oct 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/data-science/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bgstieber.github.io/tags/data-science/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Iterating on a 2016 Election Analysis</title>
+      <link>https://bgstieber.github.io/post/iterating-on-a-2016-election-analysis/</link>
+      <pubDate>Wed, 03 Oct 2018 00:00:00 +0000</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>https://bgstieber.github.io/post/iterating-on-a-2016-election-analysis/</guid>
+      <description>Jake Low wrote a really interesting piece that presented a few data visualizations that went beyond the typical 2016 election maps we’ve all gotten used to seeing.
+I liked a lot of things about Jake’s post, here are three I was particularly fond of:
+His color palette choicesEach color palette that was used had solid perceptual properties and made sense for the data being visualized (i.e. diverging versus sequential)He made residuals from a model interesting by visualizing and interpreting themHe explained the usage of a log-scale transformation in an intuitive way, putting it in terms of the data set being used for the analysis.</description>
+    </item>
+    
+    <item>
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
-      <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
+      <link>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
+      <guid>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
 Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</description>
     </item>
     
     <item>
       <title>Golf, Tidy Data, and Using Data Analysis to Guide Strategy</title>
-      <link>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
+      <link>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
       <pubDate>Sun, 24 Jun 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
+      <guid>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
       <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.
 I’m going to take a little bit of time to talk about tidy data. When I scraped the data used for this analysis, it wasn’t really stored in a tidy format, and there’s a good reason for that.</description>
     </item>
     
     <item>
       <title>An Introduction to the kmeans Algorithm</title>
-      <link>/post/an-introduction-to-the-kmeans-algorithm/</link>
+      <link>https://bgstieber.github.io/post/an-introduction-to-the-kmeans-algorithm/</link>
       <pubDate>Mon, 28 May 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>/post/an-introduction-to-the-kmeans-algorithm/</guid>
+      <guid>https://bgstieber.github.io/post/an-introduction-to-the-kmeans-algorithm/</guid>
       <description>This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components of the kmeans fit, and displays some methods for selecting k. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.
 kmeans clustering is an example of unsupervised learning, where we do not have an output we’re explicitly trying to predict.</description>
     </item>
