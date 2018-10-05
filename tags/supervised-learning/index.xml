@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Supervised Learning on Brad Stieber</title>
-    <link>https://bgstieber.github.io/tags/supervised-learning/</link>
+    <link>/tags/supervised-learning/</link>
     <description>Recent content in Supervised Learning on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     <lastBuildDate>Wed, 03 Oct 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="https://bgstieber.github.io/tags/supervised-learning/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/supervised-learning/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Iterating on a 2016 Election Analysis</title>
-      <link>https://bgstieber.github.io/post/iterating-on-a-2016-election-analysis/</link>
+      <link>/post/iterating-on-a-2016-election-analysis/</link>
       <pubDate>Wed, 03 Oct 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/post/iterating-on-a-2016-election-analysis/</guid>
+      <guid>/post/iterating-on-a-2016-election-analysis/</guid>
       <description>Jake Low wrote a really interesting piece that presented a few data visualizations that went beyond the typical 2016 election maps we’ve all gotten used to seeing.
 I liked a lot of things about Jake’s post, here are three I was particularly fond of:
 His color palette choicesEach color palette that was used had solid perceptual properties and made sense for the data being visualized (i.e. diverging versus sequential)He made residuals from a model interesting by visualizing and interpreting themHe explained the usage of a log-scale transformation in an intuitive way, putting it in terms of the data set being used for the analysis.</description>
@@ -25,10 +25,10 @@ I liked a lot of things about Jake’s post, here are three I was particularly f
     
     <item>
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
-      <link>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
+      <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
-      <guid>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
+      <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
 Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</description>
     </item>
