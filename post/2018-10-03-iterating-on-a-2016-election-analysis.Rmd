@@ -170,7 +170,7 @@ county_map_with_fips %>%
       guides(fill = guide_colorbar(barwidth = 10, 
                                    barheight = 1,
                                    direction = 'horizontal'))+
-  ggtitle('Count Level Population Density')
+  ggtitle('County Level Population Density')
 ```
 
 If you look between the two maps, you might get a sense of the correlation between population density and the 2016 election results. It's reasonable to expect that we might be able to do a decent job at predicting election results just using population density.
