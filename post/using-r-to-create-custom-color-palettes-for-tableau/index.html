@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Using R to Create Custom Color Palettes for Tableau</title>
+  <meta property="og:title" content="Using R to Create Custom Color Palettes for Tableau" />
+  <meta name="twitter:title" content="Using R to Create Custom Color Palettes for Tableau" />
+  <meta name="description" content="Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use R to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!
+This is going to be a short post, with just a little bit of R code.
+At the end of the post, you’ll see how to use R to generate custom color palettes to add to Tableau.">
+  <meta property="og:description" content="Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use R to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!
+This is going to be a short post, with just a little bit of R code.
+At the end of the post, you’ll see how to use R to generate custom color palettes to add to Tableau.">
+  <meta name="twitter:description" content="Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use R to programmatically generate custom palettes in Tableau. …">
+  <meta name="author" content="Brad Stieber"/>
+  <link href='/img/favicon2.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="/post/using-r-to-create-custom-color-palettes-for-tableau/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Brad Stieber" />
+
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="canonical" href="/post/using-r-to-create-custom-color-palettes-for-tableau/" />
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Brad Stieber">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="/css/highlight.min.css" /><link rel="stylesheet" href="/css/codeblock.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-119936954-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Brad Stieber</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Blogroll" href="/blogroll">Blogroll</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Brad Stieber" href="/">
+            <img class="avatar-img" src="/img/brad-avatar.png" alt="Brad Stieber" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Using R to Create Custom Color Palettes for Tableau</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on October 31, 2018
+  
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use <code>R</code> to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!</p>
+<p>This is going to be a short post, with just a little bit of <code>R</code> code.</p>
+<p>At the end of the post, you’ll see how to use <code>R</code> to generate custom color palettes to add to Tableau. We’ll show how to add palettes from the viridis color palette and ColorBrewer to Tableau.</p>
+<div id="defining-custom-color-palettes" class="section level2">
+<h2>Defining Custom Color Palettes</h2>
+<p>Tableau already has a <a href="https://onlinehelp.tableau.com/current/pro/desktop/en-us/formatting_create_custom_colors.htm">pretty good tutorial</a> and <a href="http://www.tableauexpert.co.in/2015/11/how-to-create-custom-color-palette-in.html">this tutorial</a> is pretty good too, but I thought I’d share some <code>R</code> code that helps to make it easier to define custom palettes.</p>
+<p>The basics of defining custom palettes in Tableau is that you have to modify the <code>Preferences.tps</code> file that comes with Tableau. This file can be found in your <strong>My Tableau Repository</strong>. It’s an <code>XML</code> file, which makes it pretty easy to hack around in the text editor of your choice (I prefer <a href="https://www.sublimetext.com/">Sublime Text</a>).</p>
+<p>If we wanted to define a custom palette, based on the <a href="http://colorbrewer2.org/#type=qualitative&amp;scheme=Set1&amp;n=3">three color Set1 palette</a> from <a href="http://colorbrewer2.org">ColorBrewer</a>, we would just add this to our <code>Preferences.tps</code> file:</p>
+<pre class="xml"><code>&lt;color-palette name=&quot;Set1 3 Color Qual Palette&quot; type=&quot;regular&quot;&gt;
+&lt;color&gt;#E41A1C&lt;/color&gt;
+&lt;color&gt;#377EB8&lt;/color&gt;
+&lt;color&gt;#4DAF4A&lt;/color&gt;
+&lt;/color-palette&gt;</code></pre>
+<p>In it, we defined the <code>name</code>, the <code>type</code> (regular, ordered-diverging, or ordered-sequential), and the <code>color</code>s (HEX codes).</p>
+<p>If you wanted to hand-edit this file, it might be tedious and you’d need to do a lot of copying-and-pasting.</p>
+<p>So, why not write a quick function in <code>R</code> to generate this?</p>
+<p>Or, maybe you’d just like a pre-filled <code>Preferences.tps</code> file with many useful palettes added already. If so, check out <a href="https://github.com/bgstieber/files_for_blog/blob/master/custom-tableau-color-palette/Preferences.tps">my GitHub repository</a> which has a fairly complete <code>Preferences.tps</code> file.</p>
+</div>
+<div id="the-create_tableau_palette-function" class="section level2">
+<h2>The <code>create_tableau_palette</code> function</h2>
+<p>The following function takes three arguments:</p>
+<ul>
+<li><strong><code>palette_name</code></strong>: this is what you want the name to be in your file. In the example above, it was <em>Set1 3 Color Qual Palette</em>. Make sure you name it something descriptive enough to be found easily in Tableau.</li>
+<li><strong><code>palette_colors</code></strong>: this is a character vector of colors which will be added to the palette. You should use HEX codes (e.g. <code>&quot;#E41A1C&quot;</code>, <code>&quot;#377EB8&quot;</code>)</li>
+<li><strong><code>palette_type</code></strong>: this is one of the three palette types described above. In the previous example, it was <em>regular</em>.</li>
+</ul>
+<p>The function will then print the resulting color palette to the console, so you can copy and paste the results. It uses the <code>cat</code> function, so it <strong>only</strong> prints stuff to the console, it isn’t necessary to store the result in a variable.</p>
+<pre class="r"><code>create_tableau_palette &lt;- function(palette_name,
+                                   palette_colors,
+                                   palette_type) {
+  # check palette type
+  p_type = match.arg(palette_type,
+                     choices = c(&#39;ordered-diverging&#39;,
+                                 &#39;ordered-sequential&#39;,
+                                 &#39;regular&#39;))
+  # starting line
+  line_start &lt;- paste0(&#39;&lt;color-palette name=&quot;&#39;,
+                       palette_name,
+                       &#39;&quot; type=&quot;&#39;,
+                       p_type,
+                       &#39;&quot;&gt;\n&#39;)
+  # define colors
+  colors &lt;- paste0(&#39;&lt;color&gt;&#39;,
+                   palette_colors,
+                   &#39;&lt;/color&gt;\n&#39;)
+  # ending line
+  line_end &lt;- &quot;&lt;/color-palette&gt;\n&quot;
+  # push together
+  cat(paste0(c(line_start, colors, line_end)))
+}</code></pre>
+<p>Here’s an example:</p>
+<pre class="r"><code># character vector of first four Set2 color values
+brewer_4 &lt;- RColorBrewer::brewer.pal(4, &#39;Set2&#39;)
+# use the function
+create_tableau_palette(palette_name = &quot;Color Brewer Set2 4&quot;,
+                       palette_colors = brewer_4,
+                       palette_type = &#39;regular&#39;)</code></pre>
+<pre><code>## &lt;color-palette name=&quot;Color Brewer Set2 4&quot; type=&quot;regular&quot;&gt;
+##  &lt;color&gt;#66C2A5&lt;/color&gt;
+##  &lt;color&gt;#FC8D62&lt;/color&gt;
+##  &lt;color&gt;#8DA0CB&lt;/color&gt;
+##  &lt;color&gt;#E78AC3&lt;/color&gt;
+##  &lt;/color-palette&gt;</code></pre>
+<p>You could take the result above (remove the <code>##</code> that results from printing) and copy and paste it into the <code>Preferences.tps</code> file.</p>
+<p>Of course, we could loop through different specifications to create many custom palettes rather quickly.</p>
+</div>
+<div id="generating-viridis-palettes-for-tableau" class="section level2">
+<h2>Generating Viridis Palettes for Tableau</h2>
+<p>Let’s use this function to generate custom Tableau color palettes for the popular <a href="https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html">viridis palette</a>.</p>
+<p><img src="/post/2018-10-31-using-r-to-create-custom-color-palettes-for-tableau_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>We’re using the <a href="https://purrr.tidyverse.org/"><strong><code>purrr</code></strong></a> package to do our “looping”.</p>
+<pre class="r"><code># need to store result for better printing, result is just a list of NULL
+x&lt;-purrr::map(4:7,
+           ~create_tableau_palette(palette_name = paste(&#39;Viridis&#39;, .x),
+                                   palette_colors = viridis::viridis(.x),
+                                   palette_type = &#39;ordered-sequential&#39;))</code></pre>
+<pre><code>## &lt;color-palette name=&quot;Viridis 4&quot; type=&quot;ordered-sequential&quot;&gt;
+##  &lt;color&gt;#440154FF&lt;/color&gt;
+##  &lt;color&gt;#31688EFF&lt;/color&gt;
+##  &lt;color&gt;#35B779FF&lt;/color&gt;
+##  &lt;color&gt;#FDE725FF&lt;/color&gt;
+##  &lt;/color-palette&gt;
+## &lt;color-palette name=&quot;Viridis 5&quot; type=&quot;ordered-sequential&quot;&gt;
+##  &lt;color&gt;#440154FF&lt;/color&gt;
+##  &lt;color&gt;#3B528BFF&lt;/color&gt;
+##  &lt;color&gt;#21908CFF&lt;/color&gt;
+##  &lt;color&gt;#5DC863FF&lt;/color&gt;
+##  &lt;color&gt;#FDE725FF&lt;/color&gt;
+##  &lt;/color-palette&gt;
+## &lt;color-palette name=&quot;Viridis 6&quot; type=&quot;ordered-sequential&quot;&gt;
+##  &lt;color&gt;#440154FF&lt;/color&gt;
+##  &lt;color&gt;#414487FF&lt;/color&gt;
+##  &lt;color&gt;#2A788EFF&lt;/color&gt;
+##  &lt;color&gt;#22A884FF&lt;/color&gt;
+##  &lt;color&gt;#7AD151FF&lt;/color&gt;
+##  &lt;color&gt;#FDE725FF&lt;/color&gt;
+##  &lt;/color-palette&gt;
+## &lt;color-palette name=&quot;Viridis 7&quot; type=&quot;ordered-sequential&quot;&gt;
+##  &lt;color&gt;#440154FF&lt;/color&gt;
+##  &lt;color&gt;#443A83FF&lt;/color&gt;
+##  &lt;color&gt;#31688EFF&lt;/color&gt;
+##  &lt;color&gt;#21908CFF&lt;/color&gt;
+##  &lt;color&gt;#35B779FF&lt;/color&gt;
+##  &lt;color&gt;#8FD744FF&lt;/color&gt;
+##  &lt;color&gt;#FDE725FF&lt;/color&gt;
+##  &lt;/color-palette&gt;</code></pre>
+<p>And then you can copy and paste that right into your <code>Preferences.tps</code> file! You’ll need to remove those <code>##</code> symbols, but that shouldn’t be an issue if you’re using this function in your own <code>R</code> session. After you’ve added that to your file, restart Tableau, and then you should find the new palettes in your color choices.</p>
+</div>
+<div id="wrapping-up" class="section level2">
+<h2>Wrapping Up</h2>
+<p>This was a short post illustrating one way to use <code>R</code> to generate custom palettes for Tableau. I really like Tableau as a way to build interactive dashboards, but I have found the default color palettes to be somewhat lacking (or maybe I just have high color palette standards). Hopefully this post will show you how easy it is to add new palettes to Tableau without having to do too much tedious copying-and-pasting.</p>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="//tags/data-science/">data-science</a>&nbsp;
+            
+              <a href="//tags/r/">r</a>&nbsp;
+            
+              <a href="//tags/tableau/">tableau</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <ul class="list-inline footer-links">
+                
+
+
+<li>
+    <a href="//twitter.com/share?url=%2fpost%2fusing-r-to-create-custom-color-palettes-for-tableau%2f&amp;text=Using%20R%20to%20Create%20Custom%20Color%20Palettes%20for%20Tableau&amp;via="
+       target="_blank" alt="" title="Share on Twitter">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.facebook.com/sharer/sharer.php?u=%2fpost%2fusing-r-to-create-custom-color-palettes-for-tableau%2f" target="_blank" title="Share on Facebook">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.linkedin.com/shareArticle?url=%2fpost%2fusing-r-to-create-custom-color-palettes-for-tableau%2f&amp;title=Using%20R%20to%20Create%20Custom%20Color%20Palettes%20for%20Tableau" target="_blank"
+       title="Share on LinkedIn">
+         <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+              </ul>
+            </section>
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="/post/iterating-on-a-2016-election-analysis/" data-toggle="tooltip" data-placement="top" title="Iterating on a 2016 Election Analysis">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "bgstieber-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:bgstieber@gmail.com" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/bgstieber" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/brad-stieber-2227b2131" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/5619526/bouncyball" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://open.spotify.com/user/12102534356?si=_IgBxYLORrG5sy5wQxUEog" title="Spotify">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-spotify fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Brad Stieber
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2018
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="/">Brad Stieber</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.41</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+

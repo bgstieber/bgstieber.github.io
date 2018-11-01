@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/post/using-r-to-create-custom-color-palettes-for-tableau/</loc>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/post/iterating-on-a-2016-election-analysis/</loc>
     <lastmod>2018-10-03T00:00:00+00:00</lastmod>
   </url>
@@ -37,7 +42,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -54,7 +59,7 @@
   
   <url>
     <loc>/tags/data-science/</loc>
-    <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -72,7 +77,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -84,13 +89,13 @@
   
   <url>
     <loc>/tags/r/</loc>
-    <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/categories/r/</loc>
-    <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -109,6 +114,18 @@
   <url>
     <loc>/tags/supervised-learning/</loc>
     <lastmod>2018-10-03T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/tableau/</loc>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/tableau/</loc>
+    <lastmod>2018-10-31T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

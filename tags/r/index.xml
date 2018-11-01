@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Wed, 03 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 31 Oct 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Using R to Create Custom Color Palettes for Tableau</title>
+      <link>/post/using-r-to-create-custom-color-palettes-for-tableau/</link>
+      <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>/post/using-r-to-create-custom-color-palettes-for-tableau/</guid>
+      <description>Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use R to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!
+This is going to be a short post, with just a little bit of R code.
+At the end of the post, you’ll see how to use R to generate custom color palettes to add to Tableau.</description>
+    </item>
     
     <item>
       <title>Iterating on a 2016 Election Analysis</title>
