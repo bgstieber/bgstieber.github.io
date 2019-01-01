@@ -218,12 +218,12 @@ if (!doNotTrack) {
 <div id="the-math-cosine-similarity" class="section level2">
 <h2>The Math: Cosine Similarity</h2>
 <p>Cosine similarity is built on the geometric definition of the <a href="https://en.wikipedia.org/wiki/Dot_product"><strong>dot product</strong></a> of two vectors:</p>
-<p><span class="math display">\[\text{dot_product}(a, b) =a \cdot b = a^{T}b = \sum_{i=1}^{n} a_i b_i \]</span></p>
+<p><span class="math display">\[\text{dot product}(a, b) =a \cdot b = a^{T}b = \sum_{i=1}^{n} a_i b_i \]</span></p>
 <p>You may be wondering what <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> actually represent. If we’re trying to recommend certain products, <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> might be the collection of ratings for two products based on the input from <span class="math inline">\(n\)</span> customers. For example, if <span class="math inline">\(a =[5, 0, 1]\)</span> and <span class="math inline">\(b = [0, 1, 2]\)</span>, the first customer rated <span class="math inline">\(a\)</span> a 5 and did not rate <span class="math inline">\(b\)</span>, the second customer did not rate <span class="math inline">\(a\)</span> and gave <span class="math inline">\(b\)</span> a 1, and the third customer rated <span class="math inline">\(a\)</span> a 1 and <span class="math inline">\(b\)</span> a 2.</p>
 <p>With that out of the way, we can layer in geometric information</p>
-<p><span class="math display">\[a \cdot b = ||a|| \, ||b|| \text{cos}(\theta)\]</span></p>
-<p>where <span class="math inline">\(\theta\)</span> is the angle between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> and <span class="math inline">\(||x||\)</span> is the magnitude/length/norm of a vector <span class="math inline">\(x\)</span>. From the above expression, we can arrive at cosine similarity:</p>
-<p><span class="math display">\[\text{cosine_similarity} = \text{cos}(\theta) = \frac{a \cdot b}{||a|| \, ||b||}\]</span></p>
+<p><span class="math display">\[a \cdot b = \Vert a \Vert \Vert b \Vert \text{cos}(\theta)\]</span></p>
+<p>where <span class="math inline">\(\theta\)</span> is the angle between <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> and <span class="math inline">\(\Vert x \Vert\)</span> is the magnitude/length/norm of a vector <span class="math inline">\(x\)</span>. From the above expression, we can arrive at cosine similarity:</p>
+<p><span class="math display">\[\text{cosine similarity} = \text{cos}(\theta) = \frac{a \cdot b}{\Vert a \Vert \Vert b \Vert}\]</span></p>
 <p>In <code>R</code> this is defined as:</p>
 <pre class="r"><code>cosine_sim &lt;- function(a, b) crossprod(a,b)/sqrt(crossprod(a)*crossprod(b))</code></pre>
 <p>OK, OK, OK, you’ve seen the formula, and I even wrote an <code>R</code> function, but where’s the intuition? What does it all mean?</p>
@@ -454,7 +454,7 @@ knitr::kable(calc_cos_sim(come_as_you_are))</code></pre>
 </tr>
 </tbody>
 </table>
-<p>Alright, 2 for 2. One thing to be mindful of when looking at these results is that we’re not incorporating <em>any</em> information about the songs themselves. Our engine isn’t built using any data about the artist, genre, or other musical characteristics. Additionally, we’re not considering any demographic information about the users, and it’s fairly easy to see how useful age, gender, and other user-level data could be in making recommendations. If we used this information in addition to our user play data, we’d have what is called a <a href="https://www.math.uci.edu/icamp/courses/math77b/lecture_12w/pdfs/Chapter%2005%20-%20Hybrid%20recommendation%20approaches.pdf"><strong>hybrid recommendation system</strong></a>).</p>
+<p>Alright, 2 for 2. One thing to be mindful of when looking at these results is that we’re not incorporating <em>any</em> information about the songs themselves. Our engine isn’t built using any data about the artist, genre, or other musical characteristics. Additionally, we’re not considering any demographic information about the users, and it’s fairly easy to see how useful age, gender, and other user-level data could be in making recommendations. If we used this information in addition to our user play data, we’d have what is called a <a href="https://www.math.uci.edu/icamp/courses/math77b/lecture_12w/pdfs/Chapter%2005%20-%20Hybrid%20recommendation%20approaches.pdf"><strong>hybrid recommendation system</strong></a>.</p>
 <p>Finally, we’ll recommend songs for our hard-partying friends that like the song <a href="https://www.youtube.com/watch?v=XNtTEibFvlQ">“Shots” by LMFAO featuring Lil Jon</a> (<strong>that video is not for the faint of heart</strong>).</p>
 <pre class="r"><code>shots &lt;- &#39;SOJYBJZ12AB01801D0&#39;
 knitr::kable(calc_cos_sim(shots))</code></pre>
