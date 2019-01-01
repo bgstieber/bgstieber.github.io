@@ -7,106 +7,1902 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Mon, 31 Dec 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>December 31, 2018</lastBuildDate>
     
-	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Recommending Songs Using Cosine Similarity in R</title>
       <link>/post/recommending-songs-using-cosine-similarity-in-r/</link>
-      <pubDate>Mon, 31 Dec 2018 00:00:00 +0000</pubDate>
+      <pubDate>December 31, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/recommending-songs-using-cosine-similarity-in-r/</guid>
-      <description>Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even the homes we buy are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: cosine similarity.
-First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity.</description>
+      <description>&lt;p&gt;Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even &lt;a href=&#34;https://www.redfin.com/blog/2013/09/the-end-of-search.html&#34;&gt;the homes we buy&lt;/a&gt; are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: &lt;strong&gt;cosine similarity&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity. Finally, I’m going to use cosine similarity to build a recommendation engine for songs in R.&lt;/p&gt;
+&lt;div id=&#34;the-basics-recommendation-engine-vocabulary&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The Basics: Recommendation Engine Vocabulary&lt;/h2&gt;
+&lt;p&gt;There are a few different flavors of recommendation engines. One type is &lt;strong&gt;collaborative filtering&lt;/strong&gt;, which relies on the behavior of users to understand and predict the similarity between items. There are two subtypes of collaborative filtering: &lt;strong&gt;user-user&lt;/strong&gt; and &lt;strong&gt;item-item&lt;/strong&gt;. In a nutshell, user-user engines will look for similar users to you, and suggest things that these users have liked (&lt;em&gt;users like you also bought X&lt;/em&gt;). Item-item recommendation engines generate suggestions based on the similarity of items instead of the similarity of users (&lt;em&gt;you bought X and Y, maybe you’d like Z too&lt;/em&gt;). Converting an engine from user-user to item-item can reduce the computational cost of generating recommendations.&lt;/p&gt;
+&lt;p&gt;Another type of recommendation engine is &lt;strong&gt;content-based&lt;/strong&gt;. Rather than using the behavior of other users or the similarity between ratings, content-based systems employ information about the items themselves (e.g. genre, starring actors, or when the movie was released). Then, a user’s behavior is examined to generate a user profile, which tries to find content similar to what’s been consumed before based on the characteristics of the content.&lt;/p&gt;
+&lt;p&gt;Cosine similarity is helpful for building both types of recommender systems, as it provides a way of measuring how similar users, items, or content is. In this post, we’ll be using it to generate song recommendations based on how often users listen to different songs.&lt;/p&gt;
+&lt;p&gt;The only package we’ll need for this post is:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;the-math-cosine-similarity&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The Math: Cosine Similarity&lt;/h2&gt;
+&lt;p&gt;Cosine similarity is built on the geometric definition of the &lt;a href=&#34;https://en.wikipedia.org/wiki/Dot_product&#34;&gt;&lt;strong&gt;dot product&lt;/strong&gt;&lt;/a&gt; of two vectors:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{dot product}(a, b) =a \cdot b = a^{T}b = \sum_{i=1}^{n} a_i b_i \]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;You may be wondering what &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; actually represent. If we’re trying to recommend certain products, &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; might be the collection of ratings for two products based on the input from &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; customers. For example, if &lt;span class=&#34;math inline&#34;&gt;\(a =[5, 0, 1]\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b = [0, 1, 2]\)&lt;/span&gt;, the first customer rated &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; a 5 and did not rate &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt;, the second customer did not rate &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and gave &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; a 1, and the third customer rated &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; a 1 and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; a 2.&lt;/p&gt;
+&lt;p&gt;With that out of the way, we can layer in geometric information&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[a \cdot b = \Vert a \Vert \Vert b \Vert \text{cos}(\theta)\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;where &lt;span class=&#34;math inline&#34;&gt;\(\theta\)&lt;/span&gt; is the angle between &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\Vert x \Vert\)&lt;/span&gt; is the magnitude/length/norm of a vector &lt;span class=&#34;math inline&#34;&gt;\(x\)&lt;/span&gt;. From the above expression, we can arrive at cosine similarity:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{cosine similarity} = \text{cos}(\theta) = \frac{a \cdot b}{\Vert a \Vert \Vert b \Vert}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;In &lt;code&gt;R&lt;/code&gt; this is defined as:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cosine_sim &amp;lt;- function(a, b) crossprod(a,b)/sqrt(crossprod(a)*crossprod(b))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;OK, OK, OK, you’ve seen the formula, and I even wrote an &lt;code&gt;R&lt;/code&gt; function, but where’s the intuition? What does it all mean?&lt;/p&gt;
+&lt;p&gt;What I like to focus on in cosine similarity is the angle &lt;span class=&#34;math inline&#34;&gt;\(\theta\)&lt;/span&gt;. &lt;span class=&#34;math inline&#34;&gt;\(\theta\)&lt;/span&gt; tells us how far we’d have to move vector &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; so that it could rest on top of &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt;. This assumes we can only adjust the orientation of &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt;, and have no ability to influence its magnitude. The easier it is to get &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; on top of &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt;, the smaller this angle will be, and the more similar &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; will be. Furthermore, the smaller &lt;span class=&#34;math inline&#34;&gt;\(\theta\)&lt;/span&gt; is, the larger &lt;span class=&#34;math inline&#34;&gt;\(\text{cos}(\theta)\)&lt;/span&gt; will be. &lt;a href=&#34;http://blog.christianperone.com/2013/09/machine-learning-cosine-similarity-for-vector-space-models-part-iii/&#34;&gt;This blog post&lt;/a&gt; has a great image demonstrating cosine similarity for a few examples.&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;div class=&#34;figure&#34;&gt;
+&lt;img src=&#34;http://blog.christianperone.com/wp-content/uploads/2013/09/cosinesimilarityfq1.png&#34; alt=&#34;Image from a 2013 blog post by Christian S. Perone&#34; /&gt;
+&lt;p class=&#34;caption&#34;&gt;&lt;em&gt;Image from a 2013 &lt;a href=&#34;http://blog.christianperone.com/2013/09/machine-learning-cosine-similarity-for-vector-space-models-part-iii/&#34;&gt;blog post&lt;/a&gt; by Christian S. Perone&lt;/em&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;For the data we’ll be looking at in this post, &lt;span class=&#34;math inline&#34;&gt;\(\text{cos}(\theta)\)&lt;/span&gt; will be somewhere between 0 and 1, since user play data is all non-negative. A value of 1 will indicate perfect similarity, and 0 will indicate the two vectors are unrelated. In other applications, there may be data which is positive &lt;em&gt;and&lt;/em&gt; negative. For these cases, &lt;span class=&#34;math inline&#34;&gt;\(\text{cos}(\theta)\)&lt;/span&gt; will be between -1 and 1, with -1 meaning &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; are perfectly dissimilar and 1 meaning &lt;span class=&#34;math inline&#34;&gt;\(a\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt; are perfectly similar.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;the-data-songs-from-the-million-song-dataset&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The Data: Songs from the Million Song Dataset&lt;/h2&gt;
+&lt;p&gt;We use a subset of the data from the &lt;a href=&#34;https://labrosa.ee.columbia.edu/millionsong/&#34;&gt;Million Song Dataset&lt;/a&gt;. The data only has 10K songs, but that should be enough for this exercise.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# read user play data and song data from the internet
+play_data &amp;lt;- &amp;quot;https://static.turi.com/datasets/millionsong/10000.txt&amp;quot; %&amp;gt;%
+  read_tsv(col_names = c(&amp;#39;user&amp;#39;, &amp;#39;song_id&amp;#39;, &amp;#39;plays&amp;#39;))
+
+song_data &amp;lt;- &amp;#39;https://static.turi.com/datasets/millionsong/song_data.csv&amp;#39; %&amp;gt;%
+  read_csv() %&amp;gt;%
+  distinct(song_id, title, artist_name)
+# join user and song data together
+all_data &amp;lt;- play_data %&amp;gt;%
+  group_by(user, song_id) %&amp;gt;%
+  summarise(plays = sum(plays, na.rm = TRUE)) %&amp;gt;%
+  inner_join(song_data)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here are the first few rows of the data. The important variable is &lt;code&gt;plays&lt;/code&gt;, which measures how many times a certain user has listened to a song. We’ll be using this variable to generate recommendations.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;knitr::kable(head(all_data, 4))&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;user&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;song_id&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;plays&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;title&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;artist_name&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;00003a4459f33b92906be11abe0e93efc423c0ff&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;SOJJRVI12A6D4FBE49&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Only You (Illuminate Album Version)&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;David Crowder*Band&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;00003a4459f33b92906be11abe0e93efc423c0ff&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;SOKJWZB12A6D4F9487&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Do You Want To Know Love (Pray For Rain Album Version)&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;PFR&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;00003a4459f33b92906be11abe0e93efc423c0ff&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;SOMZHIH12A8AE45D00&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;You’re A Wolf (Album)&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Sea Wolf&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;00003a4459f33b92906be11abe0e93efc423c0ff&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;SONFEUF12AAF3B47E3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Não É Proibido&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Marisa Monte&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;There are 76,353 users in this data set, so combining the number of users with songs makes the data a little too unwieldy for this toy example. I’m going to filter our dataset so that it’s only based on the 1,000 most-played songs. We use the &lt;code&gt;spread&lt;/code&gt; function to turn our data from being “tall” (one row per user per song) to being “wide” (one row per user, and one column per song).&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;top_1k_songs &amp;lt;- all_data %&amp;gt;%
+    group_by(song_id, title, artist_name) %&amp;gt;%
+    summarise(sum_plays = sum(plays)) %&amp;gt;%
+    ungroup() %&amp;gt;%
+    top_n(1000, sum_plays) %&amp;gt;% 
+    distinct(song_id)
+
+all_data_top_1k &amp;lt;- all_data %&amp;gt;%
+  inner_join(top_1k_songs)
+
+top_1k_wide &amp;lt;- all_data_top_1k %&amp;gt;%
+    ungroup() %&amp;gt;%
+    distinct(user, song_id, plays) %&amp;gt;%
+    spread(song_id, plays, fill = 0)
+
+ratings &amp;lt;- as.matrix(top_1k_wide[,-1])&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This results in having play data for 70,345 users and 994 songs. 1.05% of user-song combinations have &lt;code&gt;plays&lt;/code&gt; greater than 0.&lt;/p&gt;
+&lt;p&gt;Here’s a sample of what the &lt;code&gt;ratings&lt;/code&gt; matrix looks like:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;ratings[1:5, 1:3] # one row per user, one column per song&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##      SOAAVUV12AB0186646 SOABHYV12A6D4F6D0F SOABJBU12A8C13F63F
+## [1,]                  0                  0                  0
+## [2,]                  0                  0                  0
+## [3,]                  0                  0                  0
+## [4,]                  0                  0                  0
+## [5,]                  0                  0                  0&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;the-result-making-song-recommendations&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The Result: Making Song Recommendations&lt;/h2&gt;
+&lt;p&gt;I wrote a function called &lt;code&gt;calc_cos_sim&lt;/code&gt;, which will calculate the similarity between a chosen song and the other songs, and recommend 5 new songs for a user to listen to. From start to finish, this only took about 20 lines of code, indicating how easy it can be to spin up a recommendation engine.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;calc_cos_sim &amp;lt;- function(song_code, 
+                         rating_mat = ratings,
+                         songs = song_data,
+                         return_n = 5) {
+  # find our song
+  song_col_index &amp;lt;- which(colnames(rating_mat) == song_code)
+  # calculate cosine similarity for each song based on 
+  # number of plays for users
+  # apply(..., 2) iterates over the columns of a matrix
+  cos_sims &amp;lt;- apply(rating_mat, 2,
+                    FUN = function(y) 
+                      cosine_sim(rating_mat[,song_col_index], y))
+  # return results
+  data_frame(song_id = names(cos_sims), cos_sim = cos_sims) %&amp;gt;%
+    filter(song_id != song_code) %&amp;gt;% # remove self reference
+    inner_join(songs) %&amp;gt;%
+    arrange(desc(cos_sim)) %&amp;gt;%
+    top_n(return_n, cos_sim) %&amp;gt;%
+    select(song_id, title, artist_name, cos_sim)
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can use the function above to calculate similarities and generate recommendations for a few songs.&lt;/p&gt;
+&lt;p&gt;Let’s look at the hip-hop classic &lt;a href=&#34;https://www.youtube.com/watch?v=QFcv5Ma8u8k&#34;&gt;“Forgot about Dre”&lt;/a&gt; first.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;forgot_about_dre &amp;lt;- &amp;#39;SOPJLFV12A6701C797&amp;#39;
+knitr::kable(calc_cos_sim(forgot_about_dre))&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;song_id&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;title&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;artist_name&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;cos_sim&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOZCWQA12A6701C798&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;The Next Episode&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Dr. Dre / Snoop Dogg&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3561683&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOHEMBB12A6701E907&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Superman&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Eminem / Dina Rae&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2507195&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOWGXOP12A6701E93A&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Without Me&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Eminem&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1596885&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOJTDUS12A6D4FBF0E&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;None Shall Pass (Main)&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Aesop Rock&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1591929&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOSKDTM12A6701C795&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;What’s The Difference&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Dr. Dre / Eminem / Alvin Joiner&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1390476&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Each song we recommended is a hip-hop song, which is a good start! Even on this reduced dataset, the engine is making &lt;em&gt;decent&lt;/em&gt; recommendations.&lt;/p&gt;
+&lt;!--
+
+```r
+enter_sandman &lt;- &#39;SOCHYVZ12A6D4F5908&#39;
+knitr::kable(calc_cos_sim(enter_sandman))
+```
+
+
+
+song_id              title                         artist_name                  cos_sim
+-------------------  ----------------------------  ------------------------  ----------
+SOLMIUU12A58A79C99   Another Day In Paradise       Phil Collins               0.2211738
+SOYGHUM12AB018139C   Bad Company                   Five Finger Death Punch    0.2190192
+SOZDGEW12A8C13E748   One                           Metallica                  0.2104946
+SOUBXSF12A6701D23C   You Could Be Mine             Guns N&#39; Roses              0.1289000
+SOIPYPB12A8C1360D4   My Immortal (Album Version)   Evanescence                0.1175952
+SOIPYPB12A8C1360D4   My Immortal                   Evanescence                0.1175952
+--&gt;
+&lt;p&gt;The next song is &lt;a href=&#34;https://www.youtube.com/watch?v=vabnZ9-ex7o&#34;&gt;“Come As You Are” by Nirvana&lt;/a&gt;. Users who like this song probably listen to other grunge/rock songs.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;come_as_you_are &amp;lt;- &amp;#39;SODEOCO12A6701E922&amp;#39;
+knitr::kable(calc_cos_sim(come_as_you_are))&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;song_id&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;title&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;artist_name&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;cos_sim&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOCPMIK12A6701E96D&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;The Man Who Sold The World&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Nirvana&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3903533&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SONNNEH12AB01827DE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Lithium&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Nirvana&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3568732&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOLOFYI12A8C145F8D&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Heart Shaped Box&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Nirvana&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1958162&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOVDLVT12A58A7B988&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Behind Blue Eyes&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Limp Bizkit&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1186160&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOWBYZF12A6D4F9424&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Fakty&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Horkyze Slyze&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0952245&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Alright, 2 for 2. One thing to be mindful of when looking at these results is that we’re not incorporating &lt;em&gt;any&lt;/em&gt; information about the songs themselves. Our engine isn’t built using any data about the artist, genre, or other musical characteristics. Additionally, we’re not considering any demographic information about the users, and it’s fairly easy to see how useful age, gender, and other user-level data could be in making recommendations. If we used this information in addition to our user play data, we’d have what is called a &lt;a href=&#34;https://www.math.uci.edu/icamp/courses/math77b/lecture_12w/pdfs/Chapter%2005%20-%20Hybrid%20recommendation%20approaches.pdf&#34;&gt;&lt;strong&gt;hybrid recommendation system&lt;/strong&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Finally, we’ll recommend songs for our hard-partying friends that like the song &lt;a href=&#34;https://www.youtube.com/watch?v=XNtTEibFvlQ&#34;&gt;“Shots” by LMFAO featuring Lil Jon&lt;/a&gt; (&lt;strong&gt;that video is not for the faint of heart&lt;/strong&gt;).&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;shots &amp;lt;- &amp;#39;SOJYBJZ12AB01801D0&amp;#39;
+knitr::kable(calc_cos_sim(shots))&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;song_id&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;title&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;artist_name&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;cos_sim&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOWEHOM12A6BD4E09E&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;16 Candles&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;The Crests&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2551851&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOLQXDJ12AB0182E47&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Yes&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;LMFAO&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1866648&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOSZJFV12AB01878CB&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Teach Me How To Dougie&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;California Swag District&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1387647&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOYGKNI12AB0187E6E&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;All I Do Is Win (feat. T-Pain_ Ludacris_ Snoop Dogg &amp;amp; Rick Ross)&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;DJ Khaled&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1173063&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;SOUSMXX12AB0185C24&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;OMG&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Usher featuring will.i.am&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.1012716&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Well, the “16 Candles” result is a little surprising, but this might give us some insight into the demographics of users that like “Shots”. The other four recommendations seem pretty solid, I guess.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;conclusion&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;Cosine similarity is simple to calculate and is fairly intuitive once some basic geometric concepts are understood. The simplicity of this metric makes it a great first-pass option for recommendation systems, and can be treated as a baseline with which to compare more computationally intensive and/or difficult to understand methods.&lt;/p&gt;
+&lt;p&gt;I think that recommendation systems will continue to play a large role in our online lives. It can be helpful to understand the components underneath these systems, so that we treat them less as blackbox oracles and more as the imperfect prediction systems based on data they are.&lt;/p&gt;
+&lt;p&gt;I hope you liked this brief excursion into the world of recommendation engines. Hopefully you can walk away knowing a little more about why Amazon, Netflix, and other platforms recommend the content they do.&lt;/p&gt;
+&lt;div id=&#34;other-resources&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Other Resources&lt;/h3&gt;
+&lt;p&gt;Here are a few great resources if you want to dive deeper into recommendation systems and cosine similarity.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.christianperone.com/2013/09/machine-learning-cosine-similarity-for-vector-space-models-part-iii/&#34;&gt;Machine Learning :: Cosine Similarity for Vector Space Models (Part III)&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stefansavev.com/blog/cosine-similarity-all-posts/&#34;&gt;Series of blog posts about cosine similarity&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Cosine_similarity&#34;&gt;Wikipedia: Cosine Similarity&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://masongallo.github.io/machine/learning,/python/2016/07/29/cosine-similarity.html&#34;&gt;Implementing and Understanding Cosine Similarity&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://towardsdatascience.com/what-are-product-recommendation-engines-and-the-various-versions-of-them-9dcab4ee26d5&#34;&gt;What are Product Recommendation Engines? And the various versions of them?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://hackernoon.com/introduction-to-recommender-system-part-1-collaborative-filtering-singular-value-decomposition-44c9659c5e75&#34;&gt;Introduction to Collaborative Filtering&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>Using R to Create Custom Color Palettes for Tableau</title>
       <link>/post/using-r-to-create-custom-color-palettes-for-tableau/</link>
-      <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
+      <pubDate>October 31, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/using-r-to-create-custom-color-palettes-for-tableau/</guid>
-      <description>Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use R to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!
-This is going to be a short post, with just a little bit of R code.
-At the end of the post, you’ll see how to use R to generate custom color palettes to add to Tableau.</description>
+      <description>&lt;p&gt;Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use &lt;code&gt;R&lt;/code&gt; to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!&lt;/p&gt;
+&lt;p&gt;This is going to be a short post, with just a little bit of &lt;code&gt;R&lt;/code&gt; code.&lt;/p&gt;
+&lt;p&gt;At the end of the post, you’ll see how to use &lt;code&gt;R&lt;/code&gt; to generate custom color palettes to add to Tableau. We’ll show how to add palettes from the viridis color palette and ColorBrewer to Tableau.&lt;/p&gt;
+&lt;div id=&#34;defining-custom-color-palettes&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Defining Custom Color Palettes&lt;/h2&gt;
+&lt;p&gt;Tableau already has a &lt;a href=&#34;https://onlinehelp.tableau.com/current/pro/desktop/en-us/formatting_create_custom_colors.htm&#34;&gt;pretty good tutorial&lt;/a&gt; and &lt;a href=&#34;http://www.tableauexpert.co.in/2015/11/how-to-create-custom-color-palette-in.html&#34;&gt;this tutorial&lt;/a&gt; is pretty good too, but I thought I’d share some &lt;code&gt;R&lt;/code&gt; code that helps to make it easier to define custom palettes.&lt;/p&gt;
+&lt;p&gt;The basics of defining custom palettes in Tableau is that you have to modify the &lt;code&gt;Preferences.tps&lt;/code&gt; file that comes with Tableau. This file can be found in your &lt;strong&gt;My Tableau Repository&lt;/strong&gt;. It’s an &lt;code&gt;XML&lt;/code&gt; file, which makes it pretty easy to hack around in the text editor of your choice (I prefer &lt;a href=&#34;https://www.sublimetext.com/&#34;&gt;Sublime Text&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;If we wanted to define a custom palette, based on the &lt;a href=&#34;http://colorbrewer2.org/#type=qualitative&amp;amp;scheme=Set1&amp;amp;n=3&#34;&gt;three color Set1 palette&lt;/a&gt; from &lt;a href=&#34;http://colorbrewer2.org&#34;&gt;ColorBrewer&lt;/a&gt;, we would just add this to our &lt;code&gt;Preferences.tps&lt;/code&gt; file:&lt;/p&gt;
+&lt;pre class=&#34;xml&#34;&gt;&lt;code&gt;&amp;lt;color-palette name=&amp;quot;Set1 3 Color Qual Palette&amp;quot; type=&amp;quot;regular&amp;quot;&amp;gt;
+&amp;lt;color&amp;gt;#E41A1C&amp;lt;/color&amp;gt;
+&amp;lt;color&amp;gt;#377EB8&amp;lt;/color&amp;gt;
+&amp;lt;color&amp;gt;#4DAF4A&amp;lt;/color&amp;gt;
+&amp;lt;/color-palette&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In it, we defined the &lt;code&gt;name&lt;/code&gt;, the &lt;code&gt;type&lt;/code&gt; (regular, ordered-diverging, or ordered-sequential), and the &lt;code&gt;color&lt;/code&gt;s (HEX codes).&lt;/p&gt;
+&lt;p&gt;If you wanted to hand-edit this file, it might be tedious and you’d need to do a lot of copying-and-pasting.&lt;/p&gt;
+&lt;p&gt;So, why not write a quick function in &lt;code&gt;R&lt;/code&gt; to generate this?&lt;/p&gt;
+&lt;p&gt;Or, maybe you’d just like a pre-filled &lt;code&gt;Preferences.tps&lt;/code&gt; file with many useful palettes added already. If so, check out &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/custom-tableau-color-palette/Preferences.tps&#34;&gt;my GitHub repository&lt;/a&gt; which has a fairly complete &lt;code&gt;Preferences.tps&lt;/code&gt; file.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;the-create_tableau_palette-function&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The &lt;code&gt;create_tableau_palette&lt;/code&gt; function&lt;/h2&gt;
+&lt;p&gt;The following function takes three arguments:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_name&lt;/code&gt;&lt;/strong&gt;: this is what you want the name to be in your file. In the example above, it was &lt;em&gt;Set1 3 Color Qual Palette&lt;/em&gt;. Make sure you name it something descriptive enough to be found easily in Tableau.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_colors&lt;/code&gt;&lt;/strong&gt;: this is a character vector of colors which will be added to the palette. You should use HEX codes (e.g. &lt;code&gt;&amp;quot;#E41A1C&amp;quot;&lt;/code&gt;, &lt;code&gt;&amp;quot;#377EB8&amp;quot;&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_type&lt;/code&gt;&lt;/strong&gt;: this is one of the three palette types described above. In the previous example, it was &lt;em&gt;regular&lt;/em&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The function will then print the resulting color palette to the console, so you can copy and paste the results. It uses the &lt;code&gt;cat&lt;/code&gt; function, so it &lt;strong&gt;only&lt;/strong&gt; prints stuff to the console, it isn’t necessary to store the result in a variable.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;create_tableau_palette &amp;lt;- function(palette_name,
+                                   palette_colors,
+                                   palette_type) {
+  # check palette type
+  p_type = match.arg(palette_type,
+                     choices = c(&amp;#39;ordered-diverging&amp;#39;,
+                                 &amp;#39;ordered-sequential&amp;#39;,
+                                 &amp;#39;regular&amp;#39;))
+  # starting line
+  line_start &amp;lt;- paste0(&amp;#39;&amp;lt;color-palette name=&amp;quot;&amp;#39;,
+                       palette_name,
+                       &amp;#39;&amp;quot; type=&amp;quot;&amp;#39;,
+                       p_type,
+                       &amp;#39;&amp;quot;&amp;gt;\n&amp;#39;)
+  # define colors
+  colors &amp;lt;- paste0(&amp;#39;&amp;lt;color&amp;gt;&amp;#39;,
+                   palette_colors,
+                   &amp;#39;&amp;lt;/color&amp;gt;\n&amp;#39;)
+  # ending line
+  line_end &amp;lt;- &amp;quot;&amp;lt;/color-palette&amp;gt;\n&amp;quot;
+  # push together
+  cat(paste0(c(line_start, colors, line_end)))
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here’s an example:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# character vector of first four Set2 color values
+brewer_4 &amp;lt;- RColorBrewer::brewer.pal(4, &amp;#39;Set2&amp;#39;)
+# use the function
+create_tableau_palette(palette_name = &amp;quot;Color Brewer Set2 4&amp;quot;,
+                       palette_colors = brewer_4,
+                       palette_type = &amp;#39;regular&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## &amp;lt;color-palette name=&amp;quot;Color Brewer Set2 4&amp;quot; type=&amp;quot;regular&amp;quot;&amp;gt;
+##  &amp;lt;color&amp;gt;#66C2A5&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#FC8D62&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#8DA0CB&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#E78AC3&amp;lt;/color&amp;gt;
+##  &amp;lt;/color-palette&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You could take the result above (remove the &lt;code&gt;##&lt;/code&gt; that results from printing) and copy and paste it into the &lt;code&gt;Preferences.tps&lt;/code&gt; file.&lt;/p&gt;
+&lt;p&gt;Of course, we could loop through different specifications to create many custom palettes rather quickly.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;generating-viridis-palettes-for-tableau&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Generating Viridis Palettes for Tableau&lt;/h2&gt;
+&lt;p&gt;Let’s use this function to generate custom Tableau color palettes for the popular &lt;a href=&#34;https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html&#34;&gt;viridis palette&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-31-using-r-to-create-custom-color-palettes-for-tableau_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We’re using the &lt;a href=&#34;https://purrr.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;purrr&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package to do our “looping”.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# need to store result for better printing, result is just a list of NULL
+x&amp;lt;-purrr::map(4:7,
+           ~create_tableau_palette(palette_name = paste(&amp;#39;Viridis&amp;#39;, .x),
+                                   palette_colors = viridis::viridis(.x),
+                                   palette_type = &amp;#39;ordered-sequential&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## &amp;lt;color-palette name=&amp;quot;Viridis 4&amp;quot; type=&amp;quot;ordered-sequential&amp;quot;&amp;gt;
+##  &amp;lt;color&amp;gt;#440154FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#31688EFF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#35B779FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#FDE725FF&amp;lt;/color&amp;gt;
+##  &amp;lt;/color-palette&amp;gt;
+## &amp;lt;color-palette name=&amp;quot;Viridis 5&amp;quot; type=&amp;quot;ordered-sequential&amp;quot;&amp;gt;
+##  &amp;lt;color&amp;gt;#440154FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#3B528BFF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#21908CFF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#5DC863FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#FDE725FF&amp;lt;/color&amp;gt;
+##  &amp;lt;/color-palette&amp;gt;
+## &amp;lt;color-palette name=&amp;quot;Viridis 6&amp;quot; type=&amp;quot;ordered-sequential&amp;quot;&amp;gt;
+##  &amp;lt;color&amp;gt;#440154FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#414487FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#2A788EFF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#22A884FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#7AD151FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#FDE725FF&amp;lt;/color&amp;gt;
+##  &amp;lt;/color-palette&amp;gt;
+## &amp;lt;color-palette name=&amp;quot;Viridis 7&amp;quot; type=&amp;quot;ordered-sequential&amp;quot;&amp;gt;
+##  &amp;lt;color&amp;gt;#440154FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#443A83FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#31688EFF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#21908CFF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#35B779FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#8FD744FF&amp;lt;/color&amp;gt;
+##  &amp;lt;color&amp;gt;#FDE725FF&amp;lt;/color&amp;gt;
+##  &amp;lt;/color-palette&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And then you can copy and paste that right into your &lt;code&gt;Preferences.tps&lt;/code&gt; file! You’ll need to remove those &lt;code&gt;##&lt;/code&gt; symbols, but that shouldn’t be an issue if you’re using this function in your own &lt;code&gt;R&lt;/code&gt; session. After you’ve added that to your file, restart Tableau, and then you should find the new palettes in your color choices.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrapping-up&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Wrapping Up&lt;/h2&gt;
+&lt;p&gt;This was a short post illustrating one way to use &lt;code&gt;R&lt;/code&gt; to generate custom palettes for Tableau. I really like Tableau as a way to build interactive dashboards, but I have found the default color palettes to be somewhat lacking (or maybe I just have high color palette standards). Hopefully this post will show you how easy it is to add new palettes to Tableau without having to do too much tedious copying-and-pasting.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>Iterating on a 2016 Election Analysis</title>
       <link>/post/iterating-on-a-2016-election-analysis/</link>
-      <pubDate>Wed, 03 Oct 2018 00:00:00 +0000</pubDate>
+      <pubDate>October 3, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/iterating-on-a-2016-election-analysis/</guid>
-      <description>Jake Low wrote a really interesting piece that presented a few data visualizations that went beyond the typical 2016 election maps we’ve all gotten used to seeing.
-I liked a lot of things about Jake’s post, here are three I was particularly fond of:
-His color palette choicesEach color palette that was used had solid perceptual properties and made sense for the data being visualized (i.e. diverging versus sequential)He made residuals from a model interesting by visualizing and interpreting themHe explained the usage of a log-scale transformation in an intuitive way, putting it in terms of the data set being used for the analysis.</description>
+      <description>&lt;p&gt;Jake Low wrote a &lt;a href=&#34;https://beta.observablehq.com/@jake-low/how-well-does-population-density-predict-u-s-voting-outcome&#34;&gt;really interesting piece&lt;/a&gt; that presented a few data visualizations that went beyond the typical &lt;a href=&#34;https://www.nytimes.com/interactive/2018/upshot/election-2016-voting-precinct-maps.html&#34;&gt;2016 election maps&lt;/a&gt; we’ve all gotten used to seeing.&lt;/p&gt;
+&lt;p&gt;I liked a lot of things about Jake’s post, here are three I was particularly fond of:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;His color palette choices
+&lt;ul&gt;
+&lt;li&gt;Each color palette that was used had solid perceptual properties and made sense for the data being visualized (i.e. diverging versus sequential)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;He made residuals from a model interesting by visualizing &lt;em&gt;and&lt;/em&gt; interpreting them&lt;/li&gt;
+&lt;li&gt;He explained the usage of a log-scale transformation in an intuitive way, putting it in terms of the data set being used for the analysis.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In this post, I’m going to replicate Jake’s analysis and then extend it a bit, by fitting a model which is a little more complicated than the one is his post.&lt;/p&gt;
+&lt;p&gt;In Jake’s post, he used d3.js to do most of the work. As usual, I’ll be using &lt;code&gt;R&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Since this is &lt;code&gt;R&lt;/code&gt;, here are the packages I’ll need:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
+library(tidycensus)
+library(ggmap)
+library(scales)
+library(maps)&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;getting-the-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Getting the Data&lt;/h2&gt;
+&lt;p&gt;For this analysis, we’ll need a few different data sets, all measured at the county level:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;2016 election results&lt;/li&gt;
+&lt;li&gt;Population density&lt;/li&gt;
+&lt;li&gt;Educational information (how many people over 25 have some college or associate’s degree)&lt;/li&gt;
+&lt;li&gt;Median income&lt;/li&gt;
+&lt;li&gt;2012 election results&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I got election results from &lt;a href=&#34;https://github.com/tonmcg/County_Level_Election_Results_12-16&#34;&gt;this GitHub repository&lt;/a&gt;. I plan on making a few heatmaps with this data, so I’m only including information from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Contiguous_United_States&#34;&gt;contiguous United States&lt;/a&gt;. There’s also an issue I don’t fully understand with Alaska vote reporting, where it seems as though county-level reporting doesn’t exist.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;github_raw &amp;lt;- &amp;quot;https://raw.githubusercontent.com/&amp;quot;
+repo &amp;lt;- &amp;quot;tonmcg/County_Level_Election_Results_12-16/master/&amp;quot;
+data_file &amp;lt;- &amp;quot;2016_US_County_Level_Presidential_Results.csv&amp;quot;
+results_16 &amp;lt;- read_csv(paste0(github_raw, repo, data_file)) %&amp;gt;%
+  filter(! state_abbr %in% c(&amp;#39;AK&amp;#39;, &amp;#39;HI&amp;#39;)) %&amp;gt;%
+  select(-X1) %&amp;gt;%
+  mutate(total_votes = votes_dem + votes_gop,
+         trump_ratio_clinton = 
+           (votes_gop/total_votes) / (votes_dem/total_votes),
+         two_party_ratio = (votes_dem) / (votes_dem + votes_gop)) %&amp;gt;%
+  mutate(log_trump_ratio = log(trump_ratio_clinton)) &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To get some extra information about the counties I’ll use the &lt;a href=&#34;https://github.com/walkerke/tidycensus&#34;&gt;&lt;strong&gt;&lt;code&gt;tidycensus&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package. For each county, I’m pulling information about the population over 25, the number of people over 25 with some college or associate’s degree, and the median income.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;census_data &amp;lt;- get_acs(&amp;#39;county&amp;#39;, 
+                   c(pop_25 = &amp;#39;B15003_001&amp;#39;, 
+                     edu = &amp;#39;B16010_028&amp;#39;, 
+                     inc = &amp;#39;B21004_001&amp;#39;)) %&amp;gt;%
+  select(-moe) %&amp;gt;%
+  spread(variable, estimate)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, I pulled in information about population density from the &lt;a href=&#34;https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk&#34;&gt;Census American FactFinder&lt;/a&gt;. Once I downloaded that data, I threw it into a &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/election-map/Data&#34;&gt;GitHub repo&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;recreating-jakes-analysis&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Recreating Jake’s Analysis&lt;/h2&gt;
+&lt;div id=&#34;election-and-population-density-maps&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Election and Population Density Maps&lt;/h4&gt;
+&lt;p&gt;First, we’re going to make the 2016 election map.&lt;/p&gt;
+&lt;p&gt;I’ll be making all of the maps in this post using &lt;code&gt;ggplot2&lt;/code&gt;. I’ve removed the code from this post, but if you look on my GitHub, you’ll notice some funky stuff going on with &lt;code&gt;scale_fill_gradientn&lt;/code&gt;. To make the map more visually salient, I’ve played around a bit with how the colors are scaled.&lt;/p&gt;
+&lt;p&gt;Counties that are red voted more for Trump, and counties that are blue voted more for Clinton.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Then we’ll take a look at population density. Again, I’ve hidden the code to make this map, but I’ve used &lt;code&gt;ggplot2&lt;/code&gt; to visualize the data, and I used one of the &lt;a href=&#34;https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html&#34;&gt;virdis&lt;/a&gt; color palettes (which is what Jake did as well).&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;If you look between the two maps, you might get a sense of the correlation between population density and the 2016 election results. It’s reasonable to expect that we might be able to do a decent job at predicting election results just using population density.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;predicting-2016-with-population-density&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Predicting 2016 with Population Density&lt;/h4&gt;
+&lt;p&gt;Finally, we’re going to try to &lt;strong&gt;predict the 2016 election results using population density&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;First, let’s examine a scatter plot of the data.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;results_and_pop_density &amp;lt;- results_16 %&amp;gt;% 
+  inner_join(pop_density, by = c(&amp;#39;combined_fips&amp;#39; = &amp;#39;FIPS&amp;#39;)) %&amp;gt;%
+  mutate(two_party_ratio = (votes_dem) / (votes_dem + votes_gop))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We’re going to fit a linear model which tries to predict the Two Party Vote Ratio &lt;span class=&#34;math inline&#34;&gt;\(\frac{N_{clinton}}{N_{clinton}+N_{trump}}\)&lt;/span&gt; using population density. Calculating the two party ratio in the way we have means that a county over 0.5 favored Clinton.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;model1 &amp;lt;- lm(two_party_ratio ~ I(log(population_density)),
+             data = results_and_pop_density)
+# extract residuals
+# negative values underestimate Trump (prediction is too high)
+# positive values underestimate Clinton (prediction is too low)
+results_and_pop_density$resid_model1 &amp;lt;- resid(model1)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I’m hiding the code used to generate the map, but what we’re visualizing isn’t actually what the model predicted. Instead, &lt;strong&gt;we’re visualizing the residuals&lt;/strong&gt;, which tell us about how good or bad the model’s prediction is. Calculating residuals is straightforward (we just see how far off our prediction was from the actual observed value):&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{residual} = \text{actual proportion} - \text{predicted proportion}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;The larger the residual (in absolute value), the farther the model was from being right for that observation. Analyzing residuals and learning more about where your model is wrong can be one of the most fascinating parts of statistics and data science.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-12-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;In my opinion, visualizing the residuals from this simple model tells an even more interesting story than the election map above.&lt;/p&gt;
+&lt;p&gt;For example, look at the southwest corner of Texas, which had much higher rates of Clinton favorability than the model predicted. Additionally, this map also shows Trump’s appeal through the middle of the country. Much of the nation’s “breadbasket” is colored pink, indicating that these counties favored Trump much more than the model predicted.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;extending-jakes-analysis&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Extending Jake’s Analysis&lt;/h2&gt;
+&lt;p&gt;My first thought after Jake’s post was that the model he built was pretty simple. There are a few other variables it would be good to adjust for.&lt;/p&gt;
+&lt;p&gt;What would the previous residual map look like if we controlled for factors like education, income, and age? How about if we add in the two party ratio from the 2012 election (which came from &lt;a href=&#34;https://github.com/tonmcg/US_County_Level_Election_Results_08-16&#34;&gt;this GitHub repository&lt;/a&gt;)?&lt;/p&gt;
+&lt;p&gt;We’re also going to deviate from the linear model we fit before. I think it would make more sense to fit a &lt;a href=&#34;https://stats.idre.ucla.edu/r/dae/logit-regression/&#34;&gt;logistic regression&lt;/a&gt; instead of a linear model, since the thing we want to predict is a proportion (it lives on the range &lt;span class=&#34;math inline&#34;&gt;\([0,1]\)&lt;/span&gt;), not necessarily a continuous value (which lives on the range &lt;span class=&#34;math inline&#34;&gt;\((-\infty, \infty)\)&lt;/span&gt;).&lt;/p&gt;
+&lt;p&gt;I would hope that building a more robust model would make the residual map even more interesting. Let’s see what happens!&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# fit logistic regression
+model2 &amp;lt;- glm(cbind(votes_dem, votes_gop) ~ I(log(population_density))+
+                I(log(inc))+edu_pct + state_abbr + I(log1p(two_party_2012)),
+              data = results_pop_census,
+              family = &amp;#39;binomial&amp;#39;)
+# extract residuals
+results_pop_census$resid_model2 &amp;lt;- resid(model2, type = &amp;#39;response&amp;#39;)
+# join up to geographic data
+results_pop_census_map &amp;lt;- county_map_with_fips %&amp;gt;%
+  inner_join(results_pop_census, by = c(&amp;#39;fips&amp;#39; = &amp;#39;combined_fips&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;A few things are &lt;strong&gt;noticeably different&lt;/strong&gt; between the two maps:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The upper Midwest is considerably pinker than the previous map. Incorporating the 2012 election results demonstrates how conventional wisdom resulted in poor predictions for 2016.&lt;/li&gt;
+&lt;li&gt;Adding variables to the model substantially improved the fit. Notice how the range for the residuals is now much smaller.&lt;/li&gt;
+&lt;li&gt;Parts of the Northeast are now much pinker as well. Trump’s vow to bring back coal jobs resonated with this area of the country.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Some things &lt;strong&gt;stayed the same&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The southwestern corner (i.e. border towns) of Texas are still green (Clinton performed better than the model would have predicted).&lt;/li&gt;
+&lt;li&gt;The “breadbasket” or “flyover” part of the country is still pink (Trump performed better than the model would have predicted).&lt;/li&gt;
+&lt;li&gt;Most coastal population centers are green (Clinton performed better than the model would have predicted).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;We can also look at counties where the model was most wrong, to see if there are any interesting patterns at the highest level.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;top_n(results_pop_census, 10, resid_model2) %&amp;gt;%
+    bind_rows(top_n(results_pop_census, 10, -resid_model2)) %&amp;gt;%
+    ggplot(aes(reorder(paste0(county_name, &amp;#39;, &amp;#39;, state_abbr), resid_model2), resid_model2))+
+    geom_col(aes(fill = resid_model2), colour = &amp;#39;black&amp;#39;)+
+    coord_flip()+
+    scale_fill_gradientn(values = rescale(c(-.16, -.05, -.02, 0, .02, .05, .16)),
+                         colours = brewer_pal(palette = &amp;#39;PiYG&amp;#39;)(7),
+                         limits = c(-.16, .16),
+                         name = &amp;#39;Prediction Error (pink underestimates Trump, green underestimates Clinton)&amp;#39;)+
+    theme(legend.position = &amp;#39;none&amp;#39;)+
+    xlab(&amp;#39;&amp;#39;)+
+    ylab(&amp;#39;Prediction Error (pink underestimated Trump, green underestimated Clinton)&amp;#39;)+
+    ggtitle(&amp;#39;Counties with the Highest Prediction Errors&amp;#39;,
+            subtitle = &amp;#39;Top 10 over- and under-predictions selected&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;In the above plot, we can see that three of the highest ten errors in favor of Clinton (the county performed better for Clinton than the model predicted) were from Texas. More analysis showed that five of the highest twenty five errors in favor of Clinton were in Texas. For Trump, Virginia, Kentucky, and Tennessee each had two counties in the top 10.&lt;/p&gt;
+&lt;p&gt;Finally, we can look at how wrong our new-and-improved model was across states. There are a few ways to summarize residuals over states (we could even build another model that predicted state results), but I’ll opt for the simplest route, and calculate &lt;strong&gt;the median error for each state&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-19-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Simply calculating the median prediction error tells an interesting story about the 2016 election. We see the Midwest lighting up in pink, indicating areas where Trump out-performed the expectations of the model. We see areas out west where Clinton out-performed the expectations of the model. Finally, we see areas which are colored faintly, indicating that the model’s median prediction error was fairly close to 0.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;conclusion&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;I wanted to build on the great work of &lt;a href=&#34;https://beta.observablehq.com/@jake-low/how-well-does-population-density-predict-u-s-voting-outcome&#34;&gt;Jake Low&lt;/a&gt; and demonstrate how going a bit deeper with our model fitting can allow us to refine the data stories we tell. I also wanted to take his analysis (done in d3.js) and demonstrate how it could be replicated in &lt;code&gt;R&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;I think the key takeaway from this post is that investigating the residuals from a model can result in some revelatory findings from a data analysis. Our models will &lt;a href=&#34;https://en.wikipedia.org/wiki/All_models_are_wrong&#34;&gt;always be wrong&lt;/a&gt;, but understanding and telling a story about &lt;em&gt;what&lt;/em&gt; they got wrong can make us feel a little better about that fact.&lt;/p&gt;
+&lt;p&gt;Thanks for reading through this post. If you want to look at the code for this analysis, you can find it &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/election-map&#34;&gt;on my GitHub&lt;/a&gt;. Let me know what you thought about my post. Did any of the maps surprise you?&lt;/p&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
       <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
-      <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
+      <pubDate>August 6, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
-      <description>IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
-Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</description>
+      <description>&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Introduction&lt;/h1&gt;
+&lt;p&gt;In this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.&lt;/p&gt;
+&lt;p&gt;Relying on some insight from the &lt;a href=&#34;https://en.wikipedia.org/wiki/Cross-industry_standard_process_for_data_mining&#34;&gt;CRISP-DM framework&lt;/a&gt;, my own experience as an amateur chef, and the well-known &lt;a href=&#34;https://archive.ics.uci.edu/ml/datasets/iris&#34;&gt;iris data set&lt;/a&gt;, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.&lt;/p&gt;
+&lt;p&gt;This post is pretty light on code, with just a few code chunks for illustrative purposes. These are the packages we’ll need.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
+library(glmnet)
+library(caret) # caret or carrot? :)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The code for this post can be found on &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/soup-machine-learning&#34;&gt;my GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;some-background&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Some Background&lt;/h1&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://commons.wikimedia.org/wiki/File:CRISP-DM_Process_Diagram.png#/media/File:CRISP-DM_Process_Diagram.png&#34;&gt;&lt;img src=&#34;https://upload.wikimedia.org/wikipedia/commons/b/b9/CRISP-DM_Process_Diagram.png&#34; alt=&#34;CRISP-DM Process Diagram.png&#34; height=&#34;400&#34; width=&#34;400&#34;&gt;&lt;/a&gt;&lt;br&gt; &lt;strong&gt;The CRISP-DM Framework (Kenneth Jensen)&lt;/strong&gt; &lt;a href=&#34;https://creativecommons.org/licenses/by-sa/3.0&#34; title=&#34;Creative Commons Attribution-Share Alike 3.0&#34;&gt;CC BY-SA 3.0&lt;/a&gt;, &lt;a href=&#34;https://commons.wikimedia.org/w/index.php?curid=24930610&#34;&gt;Link&lt;/a&gt;
+&lt;/p&gt;
+&lt;p&gt;I recently gave a presentation on the &lt;a href=&#34;https://en.wikipedia.org/wiki/Cross-industry_standard_process_for_data_mining&#34;&gt;CRISP-DM framework&lt;/a&gt; to the various teams that make up the IT Department at my organization. While I was discussing the Modeling phase of CRISP-DM, I got some questions that come up when you talk about data science with software-minded audiences.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;When you’re building a model, what are you doing? Where are you spending your time? How long does that take?&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;The people in IT know that data, machine learning, and artificial intelligence are impacting their daily lives, from &lt;a href=&#34;https://www.kdnuggets.com/2017/08/deep-learning-train-chatbot-talk-like-me.html&#34;&gt;chat bots&lt;/a&gt; to &lt;a href=&#34;https://en.wikipedia.org/wiki/Naive_Bayes_spam_filtering&#34;&gt;spam email detection&lt;/a&gt; to the &lt;a href=&#34;http://fortune.com/facebook-machine-learning/&#34;&gt;curation of news feeds&lt;/a&gt;. While they have awareness of the &lt;em&gt;impact&lt;/em&gt; of data science, they may not have as much awareness of the &lt;em&gt;processes&lt;/em&gt; of data science. I think the responsibility of demystifying machine learning rests on data scientists, and it’s imperative to have comprehensible mental models that can be employed to describe and de-clutter the machine learning process.&lt;/p&gt;
+&lt;p&gt;In my response to the questions, I thought I did a fairly good job of breaking down the three components of machine learning and the typical amount of iteration within each component by mirroring the CRISP-DM breakdown:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Problem type and associated modeling technique
+&lt;ul&gt;
+&lt;li&gt;Iteration level: low&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Parameter tuning
+&lt;ul&gt;
+&lt;li&gt;Iteration level: high&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Feature engineering and selection
+&lt;ul&gt;
+&lt;li&gt;Iteration level: high&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Of course, I was in a room full of very smart people, trying to extemporaneously explain parameter tuning and feature engineering in a coherent way, so I probably could have done a better job.&lt;/p&gt;
+&lt;p&gt;A few minutes after the meeting, I realized I could have used a simple analogy to explain the machine learning process.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Machine learning is like making a soup. First, you pick the type of soup you want to make. Second, you figure out the ingredients that are going to be in the soup and how they should be prepared. Third, you determine how you’re going to cook the soup. Finally, you taste the soup and iterate to make it taste better.&lt;/strong&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;making-a-soup-machine-learning&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Making a Soup = Machine Learning&lt;/h1&gt;
+&lt;p&gt;While I’m certainly not an expert chef, I think you can boil down making a soup into a few simple components.&lt;/p&gt;
+&lt;iframe src=&#34;https://giphy.com/embed/xT9DPhWvvzbSI5vrYQ&#34; width=&#34;480&#34; height=&#34;270&#34; frameBorder=&#34;0&#34; class=&#34;giphy-embed&#34; allowFullScreen&gt;
+&lt;/iframe&gt;
+&lt;p&gt;
+&lt;a href=&#34;https://giphy.com/gifs/cravetvcanada-seinfeld-xT9DPhWvvzbSI5vrYQ&#34;&gt;via GIPHY&lt;/a&gt;
+&lt;/p&gt;
+&lt;div id=&#34;picking-the-soup-selecting-a-modeling-technique&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Picking the Soup = Selecting a Modeling Technique&lt;/h2&gt;
+&lt;p&gt;In this step, we’re just trying to figure out what we want to make. In the machine learning world, this is where we need to think carefully about the problem we’re trying to solve, and which of the many machine learning algorithms can be used to attack it.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Soup Making:&lt;/strong&gt; what type of soup are we trying to make? are there external characteristics (season, weather, mood) we should consider? what soup will we enjoy? how difficult is this soup to make?&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Machine Learning:&lt;/strong&gt; what type of question(s) are we trying to answer? what type of model will allow us to answer this question? how is this model implemented? what are its assumptions?&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;ingredients-feature-engineering-selection&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Ingredients = Feature Engineering &amp;amp; Selection&lt;/h2&gt;
+&lt;p&gt;Now that we’ve decided what we’re going to make, we need to head to the grocery store and pick up the ingredients. After that we’ll need to prepare the ingredients for cooking. Similarly, we’ll need to understand the variables and context for our data set, and create/transform/aggregate our variables to get them into a useful form for modeling.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Soup Making:&lt;/strong&gt; what vegetables are needed and how should they be prepped? what type of protein will we be using? do we need some type of stock for the soup?&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Machine Learning:&lt;/strong&gt; what variables are needed for this model? do we need to standardize any of the variables? are there non-numeric variables? if so, how should those be handled?&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;cooking-methods-parameter-tuning&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Cooking Methods = Parameter Tuning&lt;/h2&gt;
+&lt;p&gt;Once we’ve decided upon the type of soup and the ingredient, it comes time to make the soup. This step involves select the best combination of different cooking methods to make the optimal (i.e. most tasty) soup. When we perform parameter tuning, we’re trying to pick the best combination of values to make our machine learning algorithms reach optimal performance. These values are different from the variables we previously discussed, as the variables are the &lt;em&gt;inputs&lt;/em&gt; for our ML algorithms, while the tuning parameters describe the algorithm itself.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Soup Making:&lt;/strong&gt; what heat are we cooking at and for how long? is the pot covered or uncovered? will the pot be on the stove top for the entirety of cooking or will we move it to the oven? how long will we let the soup simmer? how big of a batch are we making?&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Machine Learning:&lt;/strong&gt; what is our loss function? is there a learning rate? what’s the k in our k-fold cross validation? how many trees in our random forest? how much should we penalize complexity? what is the training/validation split? does an ensemble model outperform a single model?&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;building-a-model&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Building a Model&lt;/h1&gt;
+&lt;p&gt;Let’s see this framework in action. I’m going to pick a straightforward classification task to demonstrate. I’m going to use the &lt;a href=&#34;https://en.wikipedia.org/wiki/Iris_flower_data_set&#34;&gt;iris dataset&lt;/a&gt; and try to predict whether a flower is from the setosa species.&lt;/p&gt;
+&lt;p&gt;Here’s a quick look at the data:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;Sepal.Length&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Sepal.Width&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Petal.Length&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Petal.Width&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Species&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;6.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;6.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Just looking at the &lt;a href=&#34;https://www.itl.nist.gov/div898/handbook/eda/section3/scatterb.htm&#34;&gt;scatterplot matrix&lt;/a&gt; above, we can see that trying to classify flowers into the setosa species is a bit of a toy problem (the red points are well-separated from the blue and green). In fact, just by examining if the petal length of a flower is smaller than 2.45, we can determine if the flower is from the setosa species.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(&amp;#39;Petal Cut&amp;#39; = iris$Petal.Length &amp;gt;= 2.45,&amp;#39;Setosa&amp;#39; = iris$Species == &amp;#39;setosa&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##          Setosa
+## Petal Cut FALSE TRUE
+##     FALSE     0   50
+##     TRUE    100    0&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The iris data is used as a &lt;a href=&#34;https://en.wikipedia.org/wiki/%22Hello,_World!%22_program&#34;&gt;“hello, world”&lt;/a&gt; in data science. It has nice applications across a broad spectrum of applications: &lt;a href=&#34;https://cran.r-project.org/web/packages/dendextend/vignettes/Cluster_Analysis.html&#34;&gt;clustering&lt;/a&gt;, &lt;a href=&#34;https://warwick.ac.uk/fac/sci/moac/people/students/peter_cock/r/iris_lm/&#34;&gt;regression&lt;/a&gt;, &lt;a href=&#34;http://michael.hahsler.net/SMU/EMIS7332/R/logistic_regression.html&#34;&gt;classification&lt;/a&gt;, and &lt;a href=&#34;https://bl.ocks.org/mbostock/4063663&#34;&gt;visualization&lt;/a&gt;. It’s worth getting &lt;a href=&#34;https://eagereyes.org/blog/2018/how-to-get-excited-about-standard-datasets&#34;&gt;excited&lt;/a&gt; about!&lt;/p&gt;
+&lt;div id=&#34;picking-the-soup&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Picking the Soup&lt;/h2&gt;
+&lt;p&gt;As discussed earlier, the problem we’re trying to tackle is predicting if a flower is from the setosa species. Since we already know that there is something we’re trying to predict, we only have to explore supervised machine learning algorithms. We also know that we’re not interested in building a model which generates predictions on a continuous range. We only want the answer a &lt;em&gt;binary&lt;/em&gt; question: is this a setosa or not?&lt;/p&gt;
+&lt;p&gt;This narrows the set of algorithms even further, and we only need to explore models which will either generate a classification for a flower, or will generate a probability of the flower’s species being setosa.&lt;/p&gt;
+&lt;p&gt;For this post, I’m going to use &lt;a href=&#34;https://en.wikipedia.org/wiki/Elastic_net_regularization&#34;&gt;elastic net&lt;/a&gt; logistic regression. Elastic net fits a logistic regression while also penalizing the complexity of the model. The excellent &lt;a href=&#34;https://web.stanford.edu/~hastie/glmnet/glmnet_alpha.html&#34;&gt;&lt;strong&gt;&lt;code&gt;glmnet&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package allows us to build models in this fashion. I’m going to use ridge regression (elastic net with &lt;span class=&#34;math inline&#34;&gt;\(\alpha=0\)&lt;/span&gt;), which penalizes the &lt;span class=&#34;math inline&#34;&gt;\(L_2\)&lt;/span&gt; norm of the coefficients. Fitting an elastic net with &lt;span class=&#34;math inline&#34;&gt;\(\alpha=1\)&lt;/span&gt; generates a LASSO model, which can also be useful for variable selection, but I’m using a different technique to do variable selection in this post, so I’m sticking with ridge here.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;ingredients&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Ingredients&lt;/h2&gt;
+&lt;p&gt;Feature engineering and selection is one of the most time-consuming parts of the machine learning process. To keep this post brief, I’m going to go through just a few feature engineering steps.&lt;/p&gt;
+&lt;p&gt;First, we split the data into &lt;a href=&#34;https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets&#34;&gt;training and testing&lt;/a&gt; sets. After this, I extract only the numeric predictor variables for the model, and then add squared terms as well as interactions between each of the first order effects. These two steps transform the predictor matrix from four columns into fourteen. Finally, we use the &lt;code&gt;preProcess&lt;/code&gt; function from the &lt;a href=&#34;https://topepo.github.io/caret/index.html&#34;&gt;&lt;strong&gt;&lt;code&gt;caret&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package to center and scale each variable so that it has mean = 0 and variance = 1.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(123)
+# create training and testing split
+training_index &amp;lt;- sample(nrow(iris), 0.7 * nrow(iris))
+iris_train &amp;lt;- iris[training_index,]
+iris_test &amp;lt;- iris[-training_index,]
+# grab X data add squared term for each column
+iris_X_train &amp;lt;- iris_train[,-5] %&amp;gt;% mutate_all(funs(&amp;#39;sq&amp;#39; = . ^ 2))
+iris_X_test &amp;lt;- iris_test[,-5] %&amp;gt;% mutate_all(funs(&amp;#39;sq&amp;#39; = . ^ 2))
+# all two way interactions with first order terms
+iris_X_train &amp;lt;- 
+  model.matrix(~-1 + . + (Sepal.Length+Sepal.Width+Petal.Length+Petal.Width) ^ 2,
+               data = iris_X_train)
+iris_X_test &amp;lt;-
+  model.matrix(~-1 + . + (Sepal.Length+Sepal.Width+Petal.Length+Petal.Width) ^ 2,
+               data = iris_X_test)
+# fit center and scale processor on training data
+preProc &amp;lt;- preProcess(iris_X_train)
+iris_X_train_cs &amp;lt;- predict(preProc, iris_X_train)
+iris_X_test_cs &amp;lt;- predict(preProc, iris_X_test)
+# labels, convert to factor for glmnet
+iris_y_train &amp;lt;- as.factor(as.numeric(iris_train$Species == &amp;#39;setosa&amp;#39;))
+iris_y_test &amp;lt;- as.factor(iris_test$Species == &amp;#39;setosa&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The data augmentation steps I went through created numeric variables, but we could use decision trees or similar techniques to create categorical variables from numeric. We use those methods when it’s unnecessary to retain the continuous nature of a numeric variable (often the case with age or physiological measurements like height or weight).&lt;/p&gt;
+&lt;p&gt;After we’ve gone through the feature engineering step, we can think about which variables we’ll actually want to use in our model. There can be considerable back-and-forth between feature engineering and feature selection, just like iterating on a recipe may involve different ingredients and different ways of preparing those ingredients.&lt;/p&gt;
+&lt;p&gt;To do feature selection, I’m going to once again turn to the &lt;strong&gt;&lt;code&gt;caret&lt;/code&gt;&lt;/strong&gt; package and use the &lt;code&gt;rfe&lt;/code&gt; function. We could also use the infrastructure of the &lt;strong&gt;&lt;code&gt;glmnet&lt;/code&gt;&lt;/strong&gt; package to do some feature selection, as the &lt;a href=&#34;https://en.wikipedia.org/wiki/Lasso_(statistics)&#34;&gt;LASSO&lt;/a&gt; helps us perform variable selection.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(123)
+rf_control &amp;lt;- rfeControl(rfFuncs, method = &amp;#39;cv&amp;#39;, number = 5)
+
+iris_rfe &amp;lt;- rfe(x = iris_X_train_cs, 
+                y = iris_y_train,
+                sizes = 2:14, # select at least two variables
+                rfeControl = rf_control)
+
+iris_rfe$optVariables&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Petal.Length:Petal.Width&amp;quot; &amp;quot;Petal.Length_sq&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The procedure we used for variable selection suggested an interaction between the petal length and petal width variables, and petal length squared. It’s usually a bad idea to include higher ordered terms without also including the lower order terms, so our final model will have three variables: petal width, petal length, and petal width * petal length interaction.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;cooking-methods&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Cooking Methods&lt;/h2&gt;
+&lt;p&gt;In elastic net regression, we have two parameters to select: &lt;span class=&#34;math inline&#34;&gt;\(\alpha\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;. &lt;span class=&#34;math inline&#34;&gt;\(\alpha\)&lt;/span&gt; controls the weight we give to the &lt;span class=&#34;math inline&#34;&gt;\(L_1\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(L_2\)&lt;/span&gt; penalties (with &lt;span class=&#34;math inline&#34;&gt;\(\alpha\)&lt;/span&gt; being placed on the &lt;span class=&#34;math inline&#34;&gt;\(L_1\)&lt;/span&gt; norm, and &lt;span class=&#34;math inline&#34;&gt;\(1-\alpha\)&lt;/span&gt; being placed on the &lt;span class=&#34;math inline&#34;&gt;\(L_2\)&lt;/span&gt; norm). Putting all the weight on &lt;span class=&#34;math inline&#34;&gt;\(L_2\)&lt;/span&gt; norm is better known as &lt;a href=&#34;https://en.wikipedia.org/wiki/Tikhonov_regularization&#34;&gt;Tikhonov regularization or ridge regression&lt;/a&gt;. I’ve already made my choice of &lt;span class=&#34;math inline&#34;&gt;\(\alpha\)&lt;/span&gt; for this post, so we don’t have to tune it.&lt;/p&gt;
+&lt;p&gt;The other parameter we need to tune is &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;, which controls the strength of the penalty we’ll place on the &lt;span class=&#34;math inline&#34;&gt;\(L_2\)&lt;/span&gt; norm of the coefficients. A higher &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; value will “shrink” the model’s coefficients, whereas a smaller &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; value will result in a model more similar to the standard unregularized logistic regression fit.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;cv.glmnet&lt;/code&gt; function allows us to use cross-validation to tune &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;vv &amp;lt;- c(&amp;quot;Petal.Width&amp;quot;, &amp;quot;Petal.Length&amp;quot;, &amp;quot;Petal.Length:Petal.Width&amp;quot;)
+
+iris_X_train_cs_sub &amp;lt;- iris_X_train_cs[, colnames(iris_X_train_cs) %in% vv]
+iris_X_test_cs_sub &amp;lt;- iris_X_test_cs[, colnames(iris_X_test_cs) %in% vv]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cv_glm1 &amp;lt;- cv.glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                     alpha = 0, family = &amp;#39;binomial&amp;#39;,
+                     nfolds = length(iris_y_train) - 1,# LOOCV
+                     standardize = FALSE, intercept = FALSE) 
+
+lambda_1se_1 &amp;lt;- cv_glm1$lambda.1se # store &amp;quot;best&amp;quot; lambda for now
+
+plot(cv_glm1)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We can explore &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; a bit more to improve the model fit.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cv_glm2 &amp;lt;- cv.glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                     alpha = 0, lambda = exp(seq(-10, log(lambda_1se_1), length.out = 500)),
+                     family = &amp;#39;binomial&amp;#39;, nfolds = length(iris_y_train) - 1,# LOOCV
+                     standardize = FALSE, intercept = FALSE)
+
+lambda_2 &amp;lt;- exp(-6.5)
+plot(cv_glm2)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Cross-validation suggests a rather small value of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; to fit the model (&lt;span class=&#34;math inline&#34;&gt;\(\lambda_1\)&lt;/span&gt; = 0.0775, &lt;span class=&#34;math inline&#34;&gt;\(\lambda_2\)&lt;/span&gt; = 0.0015), and then investigate the results.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;tasting-the-soup&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Tasting the soup&lt;/h2&gt;
+&lt;p&gt;After we fit the model (or make the soup), we have to determine how good it is. For this example, I’m going to use a simple method for determining the classification accuracy and check the % of time the classifier got the species correct. Using this metric implies that we’re treating false positive and false negatives as equally bad errors. In most real world situations, this is not the case.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# naive classification accuracy
+class_acc &amp;lt;- function(preds, labels, thresh = 0.5){
+  tt &amp;lt;- table(preds &amp;gt; thresh, labels)
+  sum(diag(tt)) / sum(tt)
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In addition to the two models fit using regularization, I’m going to fit an unregularized model with the selected features along with an unregularized model with only the variables that were present in the original dataset.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# regularized models
+ridge_1 &amp;lt;- glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                  family = &amp;#39;binomial&amp;#39;, lambda = lambda_1se_1, alpha = 0,
+                  standardize = FALSE, intercept = FALSE)
+ridge_2 &amp;lt;- glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
+                  family = &amp;#39;binomial&amp;#39;, lambda = lambda_2, alpha = 0,
+                  standardize = FALSE, intercept = FALSE)
+# unregularized
+glm1 &amp;lt;- glm(iris_y_train ~ -1 + ., data = data.frame(iris_X_train_cs_sub), 
+            family = &amp;#39;binomial&amp;#39;)
+glm2 &amp;lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.Width,
+            data = data.frame(iris_X_train_cs), 
+            family = &amp;#39;binomial&amp;#39;) &lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;caption&gt;&lt;span id=&#34;tab:unnamed-chunk-12&#34;&gt;Table 1: &lt;/span&gt;Table of Model Accuracy&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;model&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;type&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;class accuracy&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;ridge_1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;regularized-lambda1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;91.11%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;ridge_2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;regularized-lambda2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;95.56%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;glm1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;full&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;100.00%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;glm2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;original&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;100.00%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;In the table above, we can see that the unregularized models resulted in better predictions on our test set. This shouldn’t be too surprising, as this classification example is somewhat contrived. In more realistic settings, we may see better predictive performance from models fit using regularization.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrapping-up&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Wrapping Up&lt;/h1&gt;
+&lt;p&gt;When we compare making a soup to machine learning, we get a simple and understandable lens through which we can look at machine learning. Just like making soup or cooking in general, iteration is a key component of machine learning. If you ask anyone that’s trying to develop a recipe, they probably won’t get it right the first time. If they do get it right the first time, maybe that’s because&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;they got lucky&lt;/li&gt;
+&lt;li&gt;they aren’t trying to make too difficult of a dish&lt;/li&gt;
+&lt;li&gt;they’re an experienced cook&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These situations have clear parallels to machine learning. Maybe you got lucky and your prediction task is fairly easy or maybe all you need is a simple model or maybe you’re an experienced data scientist.&lt;/p&gt;
+&lt;p&gt;I feel like this analogy is a pretty straightforward way to explain machine learning to a broad audience of people that are interested in the topic. I found a &lt;a href=&#34;https://www.becomingadatascientist.com/2017/07/17/introductory-machine-learning-terminology-with-food/&#34;&gt;similar article&lt;/a&gt; which discussed ideas that are related to the ones I talked about in my post. If you know of any other posts with similar sentiments, I hope you’ll share them with me!&lt;/p&gt;
+&lt;p&gt;Thanks for reading my post and leave a comment below if you have any thoughts or feedback!&lt;/p&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>Golf, Tidy Data, and Using Data Analysis to Guide Strategy</title>
       <link>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
-      <pubDate>Sun, 24 Jun 2018 00:00:00 +0000</pubDate>
+      <pubDate>June 24, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
-      <description>IntroductionI’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.
-I’m going to take a little bit of time to talk about tidy data. When I scraped the data used for this analysis, it wasn’t really stored in a tidy format, and there’s a good reason for that.</description>
+      <description>&lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;I’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.&lt;/p&gt;
+&lt;p&gt;I’m going to take a little bit of time to talk about &lt;a href=&#34;https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html&#34;&gt;&lt;strong&gt;tidy data&lt;/strong&gt;&lt;/a&gt;. When I scraped the data used for this analysis, it wasn’t really stored in a tidy format, and there’s a good reason for that. I’ll briefly discuss what makes the original data “untidy”, and what we can do to whip it into tidy shape.&lt;/p&gt;
+&lt;p&gt;After that, I’ll explore the data a little bit, with the goal of using the findings from this analysis to&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;improve strategy on the golf course&lt;/li&gt;
+&lt;li&gt;inspire ideas for looking deeper at the data&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Finally, I’ll show how we can use &lt;a href=&#34;https://en.wikipedia.org/wiki/Linear_model&#34;&gt;linear models&lt;/a&gt; along with &lt;a href=&#34;https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf&#34;&gt;mixed-effects linear models&lt;/a&gt; to build statistical models which allow us to quantify differences between groups of interest.&lt;/p&gt;
+&lt;p&gt;Here are the questions I hope to answer using the data:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;What are the most difficult holes? Why are they difficult?&lt;/li&gt;
+&lt;li&gt;What is the easiest hole? What makes it easier than the rest?&lt;/li&gt;
+&lt;li&gt;Are there clear differences in scores between regional and sectional golf tournaments?&lt;/li&gt;
+&lt;li&gt;What separates the better high school golfers (those that break 90) from the other golfers?&lt;/li&gt;
+&lt;li&gt;What are some general strategy guidelines for playing this golf course?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;All of the analysis in this post was performed using &lt;code&gt;R&lt;/code&gt;. I’ve omitted some of the code used to generate plots to improve readability. The full .Rmd file can be found &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/golf-tidy-data/2018-05-27-golf-tidy-data-and-using-data-analysis-for-strategy.Rmd&#34;&gt;on my GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;some-useful-context&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Some Useful Context&lt;/h2&gt;
+&lt;p&gt;This analysis will involve looking at results from WIAA golf tournaments that were hosted at &lt;a href=&#34;https://www.golfpinevalley.net/&#34;&gt;Pine Valley Golf Course (PV)&lt;/a&gt;. Since 2011, either a regional or sectional tournament was played at PV for Division 3 high schools. Pine Valley is a par 71 golf course, with two par 3’s, six par 4’s and one par 5 on the front nine, and two par 3’s, five par 4’s and two par 5’s on the back nine. Here’s an image of the scorecard:&lt;/p&gt;
+&lt;center&gt;
+&lt;img src=&#34;https://photos.bluegolf.com/bd/10/80/e2/4bef45efb375fe1ae2739672_l.jpg&#34;&gt;
+&lt;/center&gt;
+&lt;p&gt;Regional tournaments come before sectionals, with teams and individuals that played well in the regional tournament advancing to sectionals. Teams and individuals that play well in the sectional tournament will advance to the state tournament. It is a fair (and testable!) hypothesis that scores will tend to be better in sectional tournaments.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;hitting-the-range-show-me-the-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Hitting the Range: Show me the data&lt;/h2&gt;
+&lt;p&gt;First I’m going to load a few packages.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
+library(scales)
+library(lme4)
+theme_set(theme_bw())&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I’ve already scraped the data and cleaned it up a bit. I’ve thrown the code and data in a &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/golf-tidy-data&#34;&gt;github repository&lt;/a&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gh &amp;lt;- &amp;quot;https://raw.githubusercontent.com/bgstieber/files_for_blog/master/golf-tidy-data/data&amp;quot;
+# read in data and only keep scores lower than 121
+tidy_scores &amp;lt;- read_csv(paste0(gh, &amp;#39;/tidy_golf_scores.csv&amp;#39;)) %&amp;gt;%
+  filter(tot &amp;lt;= 120)
+untidy_scores &amp;lt;- read_csv(paste0(gh, &amp;#39;/untidy_golf_scores.csv&amp;#39;)) %&amp;gt;%
+  filter(tot &amp;lt;= 120)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The data is comprised of 472 golfers with scores for each of the 18 holes they played. In total, there are 8496 scores in this data set.&lt;/p&gt;
+&lt;p&gt;Let’s take a peek at the first few rows of each data set. The first data set we’ll look at is the untidy data, this is fairly close to what the WIAA provides on the webpages for each of the tournaments.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;name&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;year&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;1&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;2&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;3&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;4&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;5&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;6&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;7&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;8&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;9&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;out&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;10&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;11&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;12&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;13&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;14&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;15&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;16&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;17&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;18&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;in&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;tot&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;tourn_type&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;tourn_year&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;45&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;46&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;91&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;41&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;46&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;87&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;49&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;52&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;101&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;8&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;51&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;45&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;96&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;14&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;51&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;9&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;8&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;64&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;115&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;41&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;44&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;85&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;This is an example of a “wide” data set.&lt;/p&gt;
+&lt;p&gt;Now let’s take a look at the first few rows of the tidy data.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;name&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;year&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;out&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;in&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;tot&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;tourn_type&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;tourn_year&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;hole&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;score&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;par&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;ob&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;water&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;side&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;rel_to_par&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;45&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;46&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;91&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;front&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;41&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;46&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;87&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;front&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;49&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;52&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;101&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;7&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;front&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;51&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;45&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;96&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;8&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;front&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;51&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;64&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;115&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;14&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;front&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;A6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;41&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;44&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;85&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;sectionals&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2011&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;6&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;front&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;On inspection, there are some clear differences between the tidy and untidy data sets.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;putting-practice-what-makes-data-tidy&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Putting Practice: What makes data tidy?&lt;/h2&gt;
+&lt;p&gt;In some ways, recognizing tidy/untidy data can be one of those &lt;a href=&#34;https://en.wikipedia.org/wiki/I_know_it_when_I_see_it&#34;&gt;&lt;em&gt;I know it when I see it&lt;/em&gt;&lt;/a&gt; things. We can follow the fairly solid guidelines &lt;a href=&#34;https://www.jstatsoft.org/article/view/v059i10&#34;&gt;Hadley Wickham has proposed&lt;/a&gt; to make the distinction a bit more concrete (if you haven’t read that paper, I &lt;strong&gt;highly&lt;/strong&gt; recommend it):&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Each &lt;strong&gt;variable&lt;/strong&gt; is a column&lt;/li&gt;
+&lt;li&gt;Each &lt;strong&gt;observation&lt;/strong&gt; is a row&lt;/li&gt;
+&lt;li&gt;Each type of observational unit is a table (this isn’t as important for this post)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It’s important to think about those two bolded words within the context of this analysis. We’re interested in making our way around a golf course, to hopefully play our best. Playing our best means minimizing mistakes &lt;em&gt;throughout&lt;/em&gt; a round of golf.&lt;/p&gt;
+&lt;p&gt;Some people like to think of golf as a game composed of 18 “mini games” within it. For an analysis with the primary focus of identifying ways to get around the course as strategically as possible, I think the best way to look at the data is to have each observational unit be the score on &lt;strong&gt;one hole&lt;/strong&gt; for &lt;strong&gt;each competitor&lt;/strong&gt;. Our tidy data set is constructed this way, with &lt;strong&gt;one row per competitor per hole&lt;/strong&gt;. The untidy data has a structure of &lt;strong&gt;one row per competitor&lt;/strong&gt;. This structure may be useful if we’re only interested in looking at final scores for each competitor. It’s also useful for a concise summary of a competitor’s performance on a website (which was its original purpose).&lt;/p&gt;
+&lt;p&gt;Transforming the data from untidy to tidy is fairly simple using the &lt;a href=&#34;https://tidyr.tidyverse.org/reference/gather.html&#34;&gt;&lt;code&gt;gather&lt;/code&gt;&lt;/a&gt; function from the &lt;a href=&#34;https://tidyr.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyr&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;untidy_scores %&amp;gt;%
+  # only select a handful of columns to make printing easier
+  select(-year, -out, -`in`, -tot, -tourn_type, -tourn_year) %&amp;gt;%
+  gather(hole, score, -name)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 8,496 x 3
+##    name  hole  score
+##    &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt;
+##  1 A1    1         7
+##  2 A2    1         5
+##  3 A3    1         7
+##  4 A4    1         8
+##  5 A5    1        14
+##  6 A6    1         6
+##  7 A7    1         7
+##  8 A8    1         6
+##  9 A9    1         7
+## 10 A10   1        11
+## # ... with 8,486 more rows&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now that we have the data in a way that should be straightforward to analyze, let’s start taking a look at some summaries of the results from these competitions.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;teeing-off-exploring-the-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Teeing Off: Exploring the Data&lt;/h2&gt;
+&lt;p&gt;We could either look at the scores on each hole or we could look at the score &lt;em&gt;relative to par&lt;/em&gt; for each hole. Scores will generally be higher depending on the par of the hole. Par 3’s are shorter than par 4’s which are shorter than par 5’s, and the longer the hole the more strokes (usually) it will take to complete. Since this represents an inherent “bias” in the score data, I think it’s better to analyze the score relative to par.&lt;/p&gt;
+&lt;p&gt;First, we’ll visualize the distribution of scores relative to par.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We’re able to see a few things pretty quickly from the heatmap above:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Holes 4 and 12 are clearly the hardest on the course, with over 50% of the field making double bogey or worse&lt;/li&gt;
+&lt;li&gt;Hole 11 is the easiest on the course, with the highest percentage of the field making a birdie or better, and the lowest percentage making double or worse.&lt;/li&gt;
+&lt;li&gt;About 50% of the field made a bogey on 13, which is a par 3&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Next, we’re going to take a look at the average score relative to par for each of the 18 holes played at PV. Each of the 18 holes played at least one stroke over par.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The four hardest holes are (in order of difficulty): 12, 4, 7, and 1.&lt;/p&gt;
+&lt;p&gt;PV was my home course growing up, so here’s a little &lt;em&gt;local knowledge&lt;/em&gt; about each of those holes.&lt;/p&gt;
+&lt;div id=&#34;hole-12&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Hole 12&lt;/h4&gt;
+&lt;p&gt;12 is the longest par 4 on the course, playing at about 430 yards from the back tees. The tee shot can be intimidating with out-of-bounds along the left, and some trees and mounds on the right. This hole seemed to play into the wind more often than downwind, making it even longer than the 430 yards on the card.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;hole-4&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Hole 4&lt;/h4&gt;
+&lt;p&gt;4 is rated as the hardest hole on the golf course according to the USGA handicapping system. The tee shot can be somewhat difficult, with out-of-bounds, trees, and water on the left, and more trees on the right. That being said, the hole is not overly long, so hitting something less than driver is not a bad route. The green is guarded by a stream in front of it, and hilly terrain surrounding it. Putting on this green can be difficult, as it has a lot of slope and undulation.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;hole-7&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Hole 7&lt;/h4&gt;
+&lt;p&gt;7 is a short dogleg left. The main difficulty on this hole is the tight dogleg golfers must navigate off the tee. There are trees which can block an approach shot if the tee shot veers too far right, and hills along with trees and water on the left side for those getting too aggressive off the tee. The approach into the green (provided one has a clear shot) is not that difficult, with no bunkers and a lot of room to miss. The major difficulty on this hole is the tee shot, but from there it’s fairly straightforward.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;hole-1&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Hole 1&lt;/h4&gt;
+&lt;p&gt;1 is a shorter par 5 with a daunting tee shot. There’s OB on the left side, and trees and fescue along the right side. On top of that, a golfer must steady their first tee jitters and focus on hitting a solid tee shot in front of the “gallery” of other players, coaches, and spectators. After hitting the tee shot, the fun doesn’t end. The approach into the green is challenging, as trees surround the green and the hole narrows all the way into the green&lt;/p&gt;
+&lt;p&gt;Each of the four most difficult holes requires a well-struck tee shot. On the 12th, it’s important to hit a long and straight shot. The 4th and 1st holes require precision and steady nerves to avoid trouble and hit a narrow fairway. The 7th requires a controlled and well-executed tee shot that is shaped right to left.&lt;/p&gt;
+&lt;p&gt;The next visualization is a &lt;a href=&#34;http://datavizproject.com/data-type/lollipop-chart/&#34;&gt;lollipop chart&lt;/a&gt;, which is a great way to avoid the “visually aggressive” &lt;a href=&#34;https://en.wikipedia.org/wiki/Moir%C3%A9_pattern&#34;&gt;moire effect&lt;/a&gt; that bar charts can sometimes fall victim to without losing the perceptually sound concept of &lt;a href=&#34;https://pdfs.semanticscholar.org/565d/843c2c0e60915709268ac4224894469d82d5.pdf&#34;&gt;position along a common scale&lt;/a&gt;. &lt;a href=&#34;https://juliasilge.com&#34;&gt;Julia Silge&lt;/a&gt; uses this chart type to great effect in some of her &lt;a href=&#34;https://juliasilge.com/blog/gender-pronouns/&#34;&gt;blog posts&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We took the same data that was displayed in the previous chart, but augmented it slightly to tell a different story. The orange lollipops on the chart show the holes that have higher scores relative to par than average. Three of the four hardest holes are on the front nine, occurring in the first seven holes of the course. We can also see how much more difficult holes 1, 4, 7, and 12 are than the rest (the “sticks” of the lollipops rise much higher than the other holes which played harder than average).&lt;/p&gt;
+&lt;p&gt;The easiest holes on the course can be identified as well. Hole 11 stands out as being the easiest hole at PV. Hole 11 is a straightforward par 5 with almost no trouble off the tee and a fairly generous fairway all the way to the green. The hole typically plays downwind (it’s routed in the opposite direction of 12), allowing longer hitters the option of trying to reach it in two.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;making-the-turn-statistical-modeling&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Making the Turn: Statistical Modeling&lt;/h2&gt;
+&lt;p&gt;After a bit of exploratory analysis, we can move on to using statistical modeling to briefly investigate the differences between holes with a little more precision. Additionally, we can use a simple model to test the hypothesis that scores (in relation to par) will be lower at sectional tournaments as opposed to regional.&lt;/p&gt;
+&lt;p&gt;First, we’ll fit a linear mixed-effects model. I haven’t really worked with mixed-effects models too much since grad school, but this model shouldn’t be too hard to describe.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# create factor variables for tournament year and hole to make
+# modeling a bit easier
+hardest_holes &amp;lt;- c(12L, 4L, 7L, 1L, 18L, 
+                   15L, 10L, 3L, 13L, 
+                   17L, 6L, 2L, 16L, 
+                   8L, 14L, 9L, 5L, 11L)
+
+tidy_scores2 &amp;lt;- tidy_scores %&amp;gt;%
+  mutate(tourn_year_f = factor(tourn_year),
+         hole_f = factor(hole,levels = hardest_holes))
+## look at past performance to find most difficult holes
+simple_mod &amp;lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tourn_year_f:name),
+                   data = tidy_scores2)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;In the model above, we’re fitting &lt;em&gt;fixed effects&lt;/em&gt; for the hole variable and the tournament type variable. We’re using &lt;code&gt;(1|tourn_year_f)&lt;/code&gt; to fit a random effect for the tournament year, and using &lt;code&gt;(1|tourn_year_f:name)&lt;/code&gt; to fit a random effect for the competitor &lt;em&gt;nested within&lt;/em&gt; tournament year. A simple way to think about the fixed versus random effects divide is that if we’re interested in understanding the impact of a variable on our target, we should probably fit it as a fixed effect, if we’re not that interested a random effect is the way to go (this is a gross over-simplification, I’d see &lt;a href=&#34;https://dynamicecology.wordpress.com/2015/11/04/is-it-a-fixed-or-random-effect/&#34;&gt;this post&lt;/a&gt; if you’re looking for something more in-depth).&lt;/p&gt;
+&lt;p&gt;Alright, so we fit the model, now what?&lt;/p&gt;
+&lt;div id=&#34;check-out-the-coefficients&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Check out the coefficients&lt;/h3&gt;
+&lt;p&gt;Let’s see what a summary of the model looks like&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(simple_mod)$coefficients&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##                         Estimate Std. Error     t value
+## (Intercept)           1.88291300 0.09070793  20.7579763
+## hole_f4              -0.06991525 0.06812176  -1.0263278
+## hole_f7              -0.18432203 0.06812176  -2.7057733
+## hole_f1              -0.22881356 0.06812176  -3.3588910
+## hole_f18             -0.40889831 0.06812176  -6.0024627
+## hole_f15             -0.44279661 0.06812176  -6.5000762
+## hole_f10             -0.44703390 0.06812176  -6.5622779
+## hole_f3              -0.48728814 0.06812176  -7.1531939
+## hole_f13             -0.53601695 0.06812176  -7.8685133
+## hole_f17             -0.53813559 0.06812176  -7.8996141
+## hole_f6              -0.54661017 0.06812176  -8.0240175
+## hole_f2              -0.55296610 0.06812176  -8.1173200
+## hole_f16             -0.61864407 0.06812176  -9.0814461
+## hole_f8              -0.64406780 0.06812176  -9.4546563
+## hole_f14             -0.67372881 0.06812176  -9.8900681
+## hole_f9              -0.68008475 0.06812176  -9.9833706
+## hole_f5              -0.68432203 0.06812176 -10.0455723
+## hole_f11             -0.80084746 0.06812176 -11.7561186
+## tourn_typesectionals -0.06353005 0.09519269  -0.6673837&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;These results aren’t too interesting, but note that I set up the &lt;code&gt;hole&lt;/code&gt; factor variable to compare the other holes to #12, the hardest on the course. The only hole that wasn’t significantly easier than 12 was #4.&lt;/p&gt;
+&lt;p&gt;We can also look at the estimate for the &lt;code&gt;tourn_type&lt;/code&gt; variable. &lt;em&gt;Directionally&lt;/em&gt;, we got the result we were expecting, i.e. sectionals have lower scores relative to par than regionals on average. However, the coefficient is not significant (thumb rule &lt;span class=&#34;math inline&#34;&gt;\(|t| &amp;lt; 2\)&lt;/span&gt;) and its effect size is small, indicating that although the directional effect is negative, we’d have a hard time concluding that the effect is really that meaningful.&lt;/p&gt;
+&lt;p&gt;Oh well, let’s do something more interesting with the results from the model&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;pulling-by-our-bootstraps&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Pulling by our bootstraps&lt;/h3&gt;
+&lt;p&gt;What I really want is to be able to visualize not only the difficulty of the holes (i.e. a point estimate), but also look at the uncertainty in that difficulty.&lt;/p&gt;
+&lt;p&gt;Using the solution from this &lt;a href=&#34;https://stats.stackexchange.com/a/147837/99673&#34;&gt;CrossValidated post&lt;/a&gt;, we’ll use the bootstrap to generate predictions on a “dummy” data set.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# initial setup
+dummy_table &amp;lt;- tidy_scores2 %&amp;gt;%
+  select(hole_f, tourn_type) %&amp;gt;%
+  unique()
+
+# taken from https://stats.stackexchange.com/a/147837/99673
+predFun &amp;lt;- function(fit) {
+  predict(fit, dummy_table, re.form = NA)
+}
+# fit the bootstrap...takes a longish time
+bb &amp;lt;- bootMer(simple_mod,
+              nsim = 500,
+              FUN = predFun,
+              seed = 101)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;After munging the data a bit, we’re left with a data set of predictions from the bootstrap.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# use the results from the boostrapped model
+dummy_table_boot &amp;lt;- cbind(dummy_table, t(bb$t)) %&amp;gt;%
+  gather(iter, rel_to_par, -hole_f, -tourn_type) %&amp;gt;%
+  mutate(hole_n = as.numeric(as.character(hole_f)))
+
+dummy_table_boot %&amp;gt;% head&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##   hole_f tourn_type iter rel_to_par hole_n
+## 1      1 sectionals    1   1.586058      1
+## 2      1  regionals    1   1.637165      1
+## 3      2 sectionals    1   1.293660      2
+## 4      2  regionals    1   1.344768      2
+## 5      3 sectionals    1   1.262038      3
+## 6      3  regionals    1   1.313146      3&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can use these results to visualize the distributions of predictions.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-15-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We see that for both regional and sectional tournaments, holes 1, 4, 7, and 12 were much more difficult than the rest. We can also see that scores relative to par were slightly higher for regional tournaments, and that scores tended to vary a bit more in regional tournaments (the boxes for regionals tend to be a bit longer).&lt;/p&gt;
+&lt;p&gt;As I’ll mention in the conclusion of this post, I think we could dive a bit deeper into the mixed-effects models and potentially investigate interaction effects, or build some more interesting models using feature engineering, but this is as far as I want to go for this post.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;walking-up-18-what-separates-the-best-from-the-rest&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Walking up 18: What Separates the Best from the Rest&lt;/h2&gt;
+&lt;p&gt;Finally, we’re going to take a look at what separates the golfers that broke 90 from the rest of the field.&lt;/p&gt;
+&lt;p&gt;To make the next visualization, we’ll use a little bit of &lt;a href=&#34;https://purrr.tidyverse.org/reference/map.html&#34;&gt;&lt;code&gt;map_df&lt;/code&gt;&lt;/a&gt; magic from the &lt;a href=&#34;https://purrr.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;purrr&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package to make a plot that is a cousin of the q-q plot.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;seq(0,1,.025) %&amp;gt;%
+  map_df(~untidy_scores %&amp;gt;% 
+           group_by(tourn_type, &amp;#39;p&amp;#39; = .x) %&amp;gt;% 
+           summarise(&amp;#39;perc&amp;#39; = quantile(tot, .x))) %&amp;gt;%
+  ggplot(aes(p, perc, colour = tourn_type))+
+  geom_point(size = 2)+
+  scale_x_continuous(&amp;#39;Percentile (lower is better)&amp;#39;, labels = percent)+
+  scale_y_continuous(breaks = seq(70, 160, 10),
+                     name = &amp;#39;Final Score&amp;#39;)+
+  scale_colour_brewer(palette = &amp;#39;Set1&amp;#39;,
+                      name = &amp;#39;&amp;#39;)+
+  ggtitle(&amp;#39;Final Score Percentile Plot by Tournament Type&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Breaking 90 is generally a sign of a fairly accomplished high school golfer. In the plot above, we can see that the 90 mark is right around the 30th percentile for both the regional and sectional tournaments. This means that about 30% of the competitors scored 90 or lower. One other interesting insight from this chart is that the performance between the regional and sectional tournament is fairly similar (the scores by percentile are pretty close) except for between the 50th and 75th percentiles (the red dots tend to rise a bit above the blue). It could be interesting to dig into this divergence a bit more in a follow-up analysis.&lt;/p&gt;
+&lt;p&gt;To explore the difference between those that broke 90 (29.7% of the field) from those that didn’t, we’ll fit a simple linear model. We’ll use the results of the model to make predictions on a dummy data set and then look at the differences between predicted scores relative to par for each hole for the top 30% and the bottom 70%. We use a linear model to give our analysis a bit more precision than using simple averages across the data. We could also return to this analysis and investigate the coefficients or add complexity to the model if appropriate.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tidy_scores3 &amp;lt;- tidy_scores2 %&amp;gt;%
+  mutate(broke_90 = ifelse(tot &amp;lt; 90, &amp;#39;Broke 90&amp;#39;, &amp;#39;Did not Break 90&amp;#39;))
+# linear model with effects for hole, broke_90 indicator
+# and interaction between hole and broke_90
+fit2 &amp;lt;- lm(rel_to_par ~ hole_f * broke_90, data = tidy_scores3)
+
+dummy_table2 &amp;lt;- tidy_scores3 %&amp;gt;%
+  select(hole_f, broke_90) %&amp;gt;%
+  unique()
+
+cbind(dummy_table2, 
+      predict(fit2, newdata = dummy_table2, interval = &amp;#39;prediction&amp;#39;)) %&amp;gt;%
+  select(hole_f, broke_90, fit) %&amp;gt;%
+  spread(broke_90, fit) %&amp;gt;%
+  mutate(diff_avg = `Did not Break 90` - `Broke 90`) %&amp;gt;%
+  ggplot(aes(reorder(hole_f, -diff_avg), diff_avg))+
+  geom_col()+
+  xlab(&amp;#39;Hole (ordered by average difference)&amp;#39;)+
+  ylab(&amp;#39;Average Stroke Improvement from Bottom 70% to Top 30%&amp;#39;)+
+  ggtitle(&amp;#39;Where do the Better Golfers Shine?&amp;#39;,
+          subtitle = paste0(&amp;#39;The golfers finishing in the top 30% tended to&amp;#39;,
+                            &amp;#39; perform better on the more difficult holes.&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The chart above demonstrates two clear reasons why the top 30% fared better than the rest:&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;They played the hardest holes better
+&lt;ul&gt;
+&lt;li&gt;The top 30% were more than a stroke better than the bottom 70% on holes 1, 4, 7, and 12&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;They took advantage of the easiest holes
+&lt;ul&gt;
+&lt;li&gt;The top 30% were also more than a stroke better than the bottom 70% on hole 11 (the easiest hole on the course)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The results from this quick analysis show that the better players &lt;strong&gt;take advantage of the easiest holes&lt;/strong&gt; and &lt;strong&gt;minimize their mistakes on the hardest holes&lt;/strong&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;signing-the-scorecard-final-thoughts-and-summary&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Signing the Scorecard: Final Thoughts and Summary&lt;/h2&gt;
+&lt;p&gt;In this blog post I talked about tidy data and used data analysis to inform decisions on the golf course. Of course, data science can be used to do more than just guide golfers to lower scores, but I thought it was an interesting application.&lt;/p&gt;
+&lt;p&gt;The four toughest holes were 1, 4, 7, and 12. Each of these holes require thought off the tee, and some holes have challenging approach shots to the green. We saw that players who broke 90 tended to outperform their higher-scoring counterparts on these holes by more than a stroke.&lt;/p&gt;
+&lt;p&gt;The easiest hole was number 11, a straightforward par 5 with little trouble, a generous fairway, and usually has a helping wind. This hole had the highest percentage of birdies on the course, and the top golfers took advantage of it. The top 30% played this hole more than a stroke better than the bottom 70%.&lt;/p&gt;
+&lt;p&gt;It was difficult to identify clear differences between the results from regional and sectional tournaments, but we did see some divergence in final scores between the 50th through 75th percentiles.&lt;/p&gt;
+&lt;p&gt;We can use the results from this analysis to guide golfers’ strategy a bit. First, they should take advantage of hole 11, as there is almost no risk to being aggressive on this hole. Second, they should think carefully and formulate a game plan for the tee shots on 1, 4, 7, and 12. These holes play as the most difficult, and a lot of the challenge comes from the tee shot. Finally, it’s always a good idea to remember that you’re playing golf, and that it’s a game and it’s supposed to be fun!&lt;/p&gt;
+&lt;p&gt;In this blog post I used some data science techniques to explore an interesting data set. I think this analysis could be expanded to include more statistical modeling aided by some feature engineering (are there certain characteristics of holes we should investigate? what about player characteristics?). We could also dig deeper into the top 30% and try to determine differences &lt;em&gt;within&lt;/em&gt; that group, to find commonalities among the best of the best. Finally, it might be interesting to use data from a weather service to identify which years had difficult conditions, and estimate a rain or wind effect on final scores.&lt;/p&gt;
+&lt;p&gt;Thanks for reading this post and feel free to leave a comment below if you have any thoughts or feedback!&lt;/p&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>An Introduction to the kmeans Algorithm</title>
       <link>/post/an-introduction-to-the-kmeans-algorithm/</link>
-      <pubDate>Mon, 28 May 2018 00:00:00 +0000</pubDate>
+      <pubDate>May 28, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/an-introduction-to-the-kmeans-algorithm/</guid>
-      <description>This post will provide an R code-heavy, math-light introduction to selecting the \(k\) in k means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in R, provides some components of the kmeans fit, and displays some methods for selecting k. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.
-kmeans clustering is an example of unsupervised learning, where we do not have an output we’re explicitly trying to predict.</description>
+      <description>&lt;p&gt;This post will provide an &lt;code&gt;R&lt;/code&gt; code-heavy, math-light introduction to selecting the &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; in &lt;strong&gt;k&lt;/strong&gt; means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in &lt;code&gt;R&lt;/code&gt;, provides some components of the kmeans fit, and displays some methods for selecting &lt;code&gt;k&lt;/code&gt;. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.&lt;/p&gt;
+&lt;p&gt;kmeans clustering is an example of &lt;a href=&#34;https://en.wikipedia.org/wiki/Unsupervised_learning&#34;&gt;unsupervised learning&lt;/a&gt;, where we do not have an output we’re explicitly trying to predict. We may have reasons to believe that there are latent groups within a dataset, so a clustering method can be a useful way to explore and describe pockets of similar observations within a dataset.&lt;/p&gt;
+&lt;div id=&#34;the-algorithm&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;The Algorithm&lt;/h2&gt;
+&lt;p&gt;Here’s basically what kmeans (the algorithm) does (taken from &lt;a href=&#34;https://www.r-statistics.com/2013/08/k-means-clustering-from-r-in-action/&#34;&gt;K-means Clustering&lt;/a&gt;):&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;Selects K centroids (K rows chosen at random)&lt;/li&gt;
+&lt;li&gt;Assigns each data point to its closest centroid&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Recalculates the centroids as the average of all data points in a cluster (i.e., the centroids are p-length mean vectors, where p is the number of variables)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Assigns data points to their closest centroids&lt;/li&gt;
+&lt;li&gt;Continues steps 3 and 4 until the observations are not reassigned or the &lt;strong&gt;maximum number of iterations&lt;/strong&gt; (&lt;code&gt;R&lt;/code&gt; uses 10 as a default) is reached.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Here it is in gif form (taken from &lt;a href=&#34;http://simplystatistics.org/2014/02/18/k-means-clustering-in-a-gif/&#34;&gt;k-means clustering in a GIF&lt;/a&gt;):&lt;/p&gt;
+&lt;center&gt;
+&lt;img src=&#34;post_images/kmeans.gif&#34; /&gt;
+&lt;/center&gt;
+&lt;div id=&#34;a-balls-and-urns-explanation&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;A balls and urns explanation&lt;/h3&gt;
+&lt;p&gt;As a statistician, I have hard time avoiding resorting to using balls and urns to describe statistical concepts.&lt;/p&gt;
+&lt;p&gt;Suppose we have &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; balls, and each ball has &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; characteristics, like &lt;span class=&#34;math inline&#34;&gt;\(shape\)&lt;/span&gt;, &lt;span class=&#34;math inline&#34;&gt;\(size\)&lt;/span&gt;, &lt;span class=&#34;math inline&#34;&gt;\(density\)&lt;/span&gt;, &lt;span class=&#34;math inline&#34;&gt;\(\ldots\)&lt;/span&gt;, and we want to put those &lt;span class=&#34;math inline&#34;&gt;\(n\)&lt;/span&gt; balls into &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; urns (clusters) according to the &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; characteristics.&lt;/p&gt;
+&lt;p&gt;First, we randomly select &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; balls (&lt;span class=&#34;math inline&#34;&gt;\(balls_{init}\)&lt;/span&gt;), and assign the rest of the balls (&lt;span class=&#34;math inline&#34;&gt;\(n-k\)&lt;/span&gt;) to whichever &lt;span class=&#34;math inline&#34;&gt;\(balls_{init}\)&lt;/span&gt; it is closest to. After this first assignment, we calculate the centroid of each (&lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt;) collection of balls. The centroids are the averages of the &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; characteristics of the balls in each cluster. So, for each cluster, there will be a vector of length &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; with the means of the characteristics of the balls &lt;em&gt;in that cluster&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;After the calculation of the centroid, we then calculate (for each ball) the distances between its &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; characteristics and the centroids for each cluster. We assign the ball to the cluster with the centroid it is closest to. Then, we recalculate the centroids and repeat the process. We leave the number of clusters (&lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt;) fixed, but we allow the balls to move between the clusters, depending on which cluster they are closest to.&lt;/p&gt;
+&lt;p&gt;Either the algorithm will “converge” and between time &lt;span class=&#34;math inline&#34;&gt;\(t\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(t+1\)&lt;/span&gt; no reassignments will occur, or we’ll reach the maximum number of iterations allowed by the algorithm.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;kmeans-in-r&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;&lt;code&gt;kmeans&lt;/code&gt; in &lt;code&gt;R&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Here’s how we use the &lt;code&gt;kmeans&lt;/code&gt; function in &lt;code&gt;R&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;kmeans(x, centers, iters.max, nstart)&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;arguments&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;arguments&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;x&lt;/code&gt; is our data&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;centers&lt;/code&gt; is the &lt;strong&gt;k&lt;/strong&gt; in kmeans&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;iters.max&lt;/code&gt; controls the &lt;strong&gt;maximum number of iterations&lt;/strong&gt;, if the algorithm has not converged, it’s good to bump this number up&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;nstart&lt;/code&gt; controls the initial configurations (step 1 in the algorithm), bumping this number up is a good idea, since kmeans tends to be sensitive to initial conditions (which may remind you of &lt;a href=&#34;https://en.wikipedia.org/wiki/Chaos_theory#Sensitivity_to_initial_conditions&#34;&gt;sensitivity to initial conditions in chaos theory&lt;/a&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div id=&#34;values-it-returns&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;values it returns&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;kmeans&lt;/code&gt; returns an object of class “kmeans” which has a &lt;code&gt;print&lt;/code&gt; and a &lt;code&gt;fitted&lt;/code&gt; method. It is a list with at least the following components:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;cluster&lt;/strong&gt; - A vector of integers (from 1:k) indicating the cluster to which each point is allocated.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;centers&lt;/strong&gt; - A matrix of cluster centers &lt;strong&gt;these are the centroids for each cluster&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;totss&lt;/strong&gt; - The total sum of squares.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;withinss&lt;/strong&gt; - Vector of within-cluster sum of squares, one component per cluster.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;tot.withinss&lt;/strong&gt; - Total within-cluster sum of squares, i.e. sum(withinss).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;betweenss&lt;/strong&gt; - The between-cluster sum of squares, i.e. totss-tot.withinss.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;size&lt;/strong&gt; - The number of points in each cluster.&lt;/p&gt;
+&lt;p&gt;To use &lt;code&gt;kmeans&lt;/code&gt;, we first need to specify the &lt;code&gt;k&lt;/code&gt;. How should we do this?&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Data&lt;/h2&gt;
+&lt;p&gt;For this post, we’ll be using the &lt;a href=&#34;https://archive.ics.uci.edu/ml/datasets/Housing&#34;&gt;Boston housing data set&lt;/a&gt;. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
+## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
+## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14
+## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03
+## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94
+## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33
+## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21
+##   medv
+## 1 24.0
+## 2 21.6
+## 3 34.7
+## 4 33.4
+## 5 36.2
+## 6 28.7&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualize-within-cluster-error&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualize within Cluster Error&lt;/h2&gt;
+&lt;p&gt;Use a scree plot to visualize the reduction in within-cluster error:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;ss_kmeans &amp;lt;- t(sapply(2:14, 
+                  FUN = function(k) 
+                  kmeans(x = b_housing, 
+                         centers = k, 
+                         nstart = 20, 
+                         iter.max = 25)[c(&amp;#39;tot.withinss&amp;#39;,&amp;#39;betweenss&amp;#39;)]))
+
+plot(2:14, unlist(ss_kmeans[,1]), xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;Within Cluster SSE&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;When we look at the scree plot, we’re looking for the “elbow”. We can see the SSE dropping, but at some point it discontinues its rapid dropping. At what cluster does it stop dropping abruptly?&lt;/p&gt;
+&lt;p&gt;Stated more verbosely from &lt;a href=&#34;https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set&#34;&gt;Wikipedia&lt;/a&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The elbow method looks at the percentage of variance explained as a function of the number of clusters: One should choose a number of clusters so that adding another cluster doesn’t give much better modeling of the data. More precisely, if one plots the percentage of variance explained by the clusters against the number of clusters, the first clusters will add much information (explain a lot of variance), but at some point the marginal gain will drop, giving an angle in the graph. The number of clusters is chosen at this point, hence the “elbow criterion”. This “elbow” cannot always be unambiguously identified. Percentage of variance explained is the ratio of the between-group variance to the total variance, also known as an F-test. A slight variation of this method plots the curvature of the within group variance.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;We can get the percentage of variance explained by typing:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tot.ss &amp;lt;- sum(apply(b_housing, 2, var)) * (nrow(b_housing) - 1)
+
+var_explained &amp;lt;- unlist(ss_kmeans[,2]) / tot.ss
+
+plot(2:14, var_explained, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;% of Total Variation Explained&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Where does the elbow occur in the above plot? That’s pretty subjective (a common theme in unsupervised learning), but for our task we would prefer to have &lt;span class=&#34;math inline&#34;&gt;\(\leq 10\)&lt;/span&gt; clusters, probably.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualize-aic&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualize AIC&lt;/h2&gt;
+&lt;p&gt;We could also opt for the AIC, which basically looks at how well the clusters are fitting to the data, while also penalizing how many clusters are in the final fit. The general rule with AIC is that lower values are better.&lt;/p&gt;
+&lt;p&gt;First, we define a &lt;a href=&#34;http://stackoverflow.com/questions/15839774/how-to-calculate-bic-for-k-means-clustering-in-r&#34;&gt;function which calculates the AIC&lt;/a&gt; from the output of &lt;code&gt;kmeans&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;kmeansAIC &amp;lt;- function(fit){
+
+  m = ncol(fit$centers) 
+  k = nrow(fit$centers)
+  D = fit$tot.withinss
+  return(D + 2*m*k)
+  
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;aic_k &amp;lt;- sapply(2:14, FUN = 
+         function(k) 
+           kmeansAIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
+
+plot(2:14, aic_k, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;AIC from kmeans&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Look familiar? It is remarkably similar to looking at the SSE. This is because the main component in calculating AIC is the within-cluster sum of squared errors. Once again, we’re looking for an elbow in the plot, indicating that the decrease in AIC is not happening so rapidly.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualize-bic&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualize BIC&lt;/h2&gt;
+&lt;p&gt;BIC is related to AIC in that BIC is AIC’s conservative cousin. When we evaluate models using BIC rather than AIC as our metric, we tend to select smaller models. Calculating BIC is rather similar to that of AIC (we replaced 2 in the AIC calculation with &lt;code&gt;log(n)&lt;/code&gt;):&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;kmeansBIC &amp;lt;- function(fit){
+  m = ncol(fit$centers) 
+  n = length(fit$cluster)
+  k = nrow(fit$centers)
+  D = fit$tot.withinss
+  return(D + log(n) * m * k) # using log(n) instead of 2, penalize model complexity
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;bic_k &amp;lt;- sapply(2:14, FUN = 
+         function(k) 
+           kmeansBIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
+
+plot(2:14, aic_k, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;BIC from kmeans&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Once again, the plots are rather similar for this toy example.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrap-it-all-together-in-kmeans2&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Wrap it all together in &lt;code&gt;kmeans2&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;We can wrap all the previous parts together in a function to get a broad look at the fit of &lt;code&gt;kmeans&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We’ll fit &lt;code&gt;kmeans&lt;/code&gt; across a range of centers (&lt;code&gt;center_range&lt;/code&gt;). Using the results from these fits, we’ll look at AIC, BIC, within cluster variation, and the % of total variation explained. We can choose to spit out a table to the user (&lt;code&gt;plot = FALSE&lt;/code&gt;) or we’ll plot each of the four metrics by the number of clusters (&lt;code&gt;plot = TRUE&lt;/code&gt;).&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;kmeans2 &amp;lt;- function(data, center_range, iter.max, nstart, plot = TRUE){
+  
+  #fit kmeans for each center
+  all_kmeans &amp;lt;- lapply(center_range, 
+                       FUN = function(k) 
+                         kmeans(data, center = k, iter.max = iter.max, nstart = nstart))
+  
+  #extract AIC from each
+  all_aic &amp;lt;- sapply(all_kmeans, kmeansAIC)
+  #extract BIC from each
+  all_bic &amp;lt;- sapply(all_kmeans, kmeansBIC)
+  #extract tot.withinss
+  all_wss &amp;lt;- sapply(all_kmeans, FUN = function(fit) fit$tot.withinss)
+  #extract between ss
+  btwn_ss &amp;lt;- sapply(all_kmeans, FUN = function(fit) fit$betweenss)
+  #extract totall sum of squares
+  tot_ss &amp;lt;- all_kmeans[[1]]$totss
+  #put in data.frame
+  clust_res &amp;lt;- 
+    data.frame(&amp;#39;Clusters&amp;#39; = center_range, 
+             &amp;#39;AIC&amp;#39; = all_aic, 
+             &amp;#39;BIC&amp;#39; = all_bic, 
+             &amp;#39;WSS&amp;#39; = all_wss,
+             &amp;#39;BSS&amp;#39; = btwn_ss,
+             &amp;#39;TSS&amp;#39; = tot_ss)
+  #plot or no plot?
+  if(plot){
+    par(mfrow = c(2,2))
+    with(clust_res,{
+      plot(Clusters, AIC)
+      plot(Clusters, BIC)
+      plot(Clusters, WSS, ylab = &amp;#39;Within Cluster SSE&amp;#39;)
+      plot(Clusters, BSS / TSS, ylab = &amp;#39;Prop of Var. Explained&amp;#39;)
+    })
+  }else{
+    return(clust_res)
+  }
+  
+}
+
+
+kmeans2(data = b_housing, center_range = 2:15, iter.max = 20, nstart = 25)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;use-a-package-to-determine-k&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Use a package to determine &lt;code&gt;k&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;This is &lt;code&gt;R&lt;/code&gt; after all, so surely there must be at least one package to help in determining the “best” number of clusters. &lt;a href=&#34;https://cran.r-project.org/web/packages/NbClust/index.html&#34;&gt;&lt;strong&gt;&lt;code&gt;NbClust&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; is a viable option.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(NbClust)
+
+best.clust &amp;lt;- NbClust(data = b_housing, 
+                      min.nc = 2, 
+                      max.nc = 15, 
+                      method = &amp;#39;kmeans&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;## *** : The Hubert index is a graphical method of determining the number of clusters.
+##                 In the plot of Hubert index, we seek a significant knee that corresponds to a 
+##                 significant increase of the value of the measure i.e the significant peak in Hubert
+##                 index second differences plot. 
+## &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-2.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;## *** : The D index is a graphical method of determining the number of clusters. 
+##                 In the plot of D index, we seek a significant knee (the significant peak in Dindex
+##                 second differences plot) that corresponds to a significant increase of the value of
+##                 the measure. 
+##  
+## ******************************************************************* 
+## * Among all indices:                                                
+## * 7 proposed 2 as the best number of clusters 
+## * 2 proposed 3 as the best number of clusters 
+## * 12 proposed 4 as the best number of clusters 
+## * 1 proposed 5 as the best number of clusters 
+## * 1 proposed 8 as the best number of clusters 
+## * 1 proposed 15 as the best number of clusters 
+## 
+##                    ***** Conclusion *****                            
+##  
+## * According to the majority rule, the best number of clusters is  4 
+##  
+##  
+## *******************************************************************&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;NbClust&lt;/code&gt;&lt;/strong&gt; returns a big object with some information that may or may not be useless for this use case (I stored the rest of the output in &lt;code&gt;best.clust&lt;/code&gt;, but the package still spit out a bunch of stuff). But, it does tell you the best number of clusters as selected by a slew of indices. This function must iterate through all the possible clusters from &lt;code&gt;min.nc&lt;/code&gt; to &lt;code&gt;max.nc&lt;/code&gt;, &lt;strong&gt;so it may not be very quick&lt;/strong&gt;, but it does give another way of selecting the number of clusters.&lt;/p&gt;
+&lt;p&gt;You may want to find a &lt;em&gt;reasonable&lt;/em&gt; range for &lt;code&gt;min.nc&lt;/code&gt; and &lt;code&gt;max.nc&lt;/code&gt; before resorting to the &lt;code&gt;NbClust&lt;/code&gt; function. If you know that 3 clusters won’t be enough, don’t make &lt;code&gt;NbClust&lt;/code&gt; even consider it as an option.&lt;/p&gt;
+&lt;p&gt;There’s also an argument called &lt;code&gt;index&lt;/code&gt; in the &lt;code&gt;NbClust&lt;/code&gt; function. This value controls which indices are used to determine the best number of clusters. The calculation methods differ between indices and if your data isn’t so nice (e.g. variables with few unique values), the function may fail. The default value is &lt;code&gt;all&lt;/code&gt;, which is a collection of 30 (!) indices all used to help determine the best number of clusters.&lt;/p&gt;
+&lt;p&gt;It may be helpful to try different indices such as &lt;code&gt;tracew&lt;/code&gt;, &lt;code&gt;kl&lt;/code&gt;, &lt;code&gt;dindex&lt;/code&gt; or &lt;code&gt;duda&lt;/code&gt;. Unfortunately, you’ll need to specify only one index for each &lt;code&gt;NbClust&lt;/code&gt; call (unless you use &lt;code&gt;index = &#39;all&#39;&lt;/code&gt; or &lt;code&gt;index = &#39;alllong&#39;&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;For more details look at the &lt;a href=&#34;https://www.rdocumentation.org/packages/NbClust/versions/3.0/topics/NbClust&#34;&gt;function’s documentation&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualizing-the-centroids&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualizing the centroids&lt;/h2&gt;
+&lt;p&gt;This function helps to visualize the centroids for each cluster. It can allow for interpretation of clusters.&lt;/p&gt;
+&lt;p&gt;The arguments for this function are &lt;code&gt;fit&lt;/code&gt;, &lt;code&gt;levels&lt;/code&gt;, and &lt;code&gt;show_N&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;fit&lt;/code&gt;: object returned from a call to &lt;code&gt;kmeans&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;levels&lt;/code&gt;: a character vector representing the levels of the variables in the data set used to fit &lt;code&gt;kmeans&lt;/code&gt;, this vector will allow a user to control the order in which variables are plotted&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;show_N&lt;/code&gt;: a logical value, if TRUE, the plot will contain information about the size of each cluster, if FALSE, a table of counts will be printed prior to the plot&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;To use the &lt;code&gt;levels&lt;/code&gt; argument, the character vector you supply must have the same number of elements as the number of unique variables in the data set used to fit the &lt;code&gt;kmeans&lt;/code&gt;. If you specify &lt;code&gt;levels = c(&#39;a&#39;,&#39;b&#39;,&#39;c&#39;)&lt;/code&gt; the plotting device will display (from top to bottom) &lt;code&gt;&#39;c&#39;,&#39;b&#39;,&#39;a&#39;&lt;/code&gt;. If you are not satisfied with the plotting order, the &lt;code&gt;rev&lt;/code&gt; function may come in handy.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;kmeans_viz &amp;lt;- function(fit, levels = NULL, show_N = TRUE){
+  require(ggplot2)
+  require(dplyr)
+  #extract number of clusters
+  clusts &amp;lt;- length(unique(fit$cluster))
+  #centroids
+  kmeans.table &amp;lt;- as.data.frame(t(fit$center), stringsAsFactors = FALSE)
+  #variable names
+  kmeans.table$Variable &amp;lt;- row.names(kmeans.table)
+  #name clusters
+  names(kmeans.table)[1:clusts] &amp;lt;- paste0(&amp;#39;cluster&amp;#39;, 1:clusts)
+  #reshape from wide table to long (makes plotting easier)
+  kmeans.table &amp;lt;- reshape(kmeans.table, direction = &amp;#39;long&amp;#39;,
+                        idvar = &amp;#39;Variable&amp;#39;, 
+                        varying = paste0(&amp;#39;cluster&amp;#39;, 1:clusts),
+                        v.names = &amp;#39;cluster&amp;#39;)
+  
+  #number of observations in each cluster
+  #should we show N in the graph or just print it?
+  if(show_N){
+    #show it in the graph
+  kmeans.table$time &amp;lt;- paste0(kmeans.table$time,
+                             &amp;#39; (N = &amp;#39;,
+                             fit$size[kmeans.table$time],
+                             &amp;#39;)&amp;#39;)
+  }else{
+    #just print it
+    print(rbind(&amp;#39;Cluster&amp;#39; = 1:clusts,
+          &amp;#39;N&amp;#39; = fit$size))
+  }
+  #standardize the cluster means to make a nice plot
+  kmeans.table %&amp;gt;%
+    group_by(Variable) %&amp;gt;%
+    mutate(cluster_stdzd = (cluster - mean(cluster)) / sd(cluster)) -&amp;gt; kmeans.table
+  #did user specify a variable levels vector?
+  if(length(levels) == length(unique(kmeans.table$Variable))){
+    kmeans.table$Variable &amp;lt;- factor(kmeans.table$Variable, levels = levels)
+  }
+  
+  #make the plot
+  ggplot(kmeans.table, aes(x = Variable, y = time))+
+    geom_tile(colour = &amp;#39;black&amp;#39;, aes(fill = cluster_stdzd))+
+    geom_text(aes(label = round(cluster,2)))+
+    coord_flip()+
+    xlab(&amp;#39;&amp;#39;)+ylab(&amp;#39;Cluster&amp;#39;)+
+    scale_fill_gradient(low = &amp;#39;white&amp;#39;, high = &amp;#39;grey60&amp;#39;)+
+    theme_bw()+
+    theme(legend.position = &amp;#39;none&amp;#39;,
+          axis.title.y = element_blank(),
+          axis.title.x = element_text(size = 16),
+          panel.grid = element_blank(),
+          axis.text = element_text(size = 14),
+          axis.ticks = element_blank())
+
+}
+
+opt.kmeans &amp;lt;- kmeans(b_housing, centers = 4, nstart = 50, iter.max = 50)
+
+kmeans_viz(opt.kmeans)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-11-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;using-kmeans-to-predict&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Using &lt;code&gt;kmeans&lt;/code&gt; to predict&lt;/h2&gt;
+&lt;p&gt;We can predict cluster membership using a few techniques. For the simple plug-and-play method, we can use the &lt;code&gt;cl_predict&lt;/code&gt; function from the &lt;a href=&#34;https://cran.r-project.org/web/packages/clue/index.html&#34;&gt;&lt;strong&gt;&lt;code&gt;clue&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package. For those interested in a more manual approach, we can calculate the centroid distances for the new data, and select whichever cluster is the shortest distance away.&lt;/p&gt;
+&lt;p&gt;I will demonstrate both techniques.&lt;/p&gt;
+&lt;p&gt;First, we’re going to select a subset of the Boston dataset to fit a &lt;code&gt;kmeans&lt;/code&gt; on. Using the result of &lt;code&gt;kmeans&lt;/code&gt; fit on &lt;code&gt;b_hous.train&lt;/code&gt;, we’ll try to predict the clusters for a “new” dataset, &lt;code&gt;b_hous.test&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;#rows to select
+set.seed(123)
+train_samps &amp;lt;- sample(nrow(b_housing), .7 * nrow(b_housing), replace = F)
+#create training and testing set
+b_hous.train &amp;lt;- b_housing[train_samps,]
+b_hous.test &amp;lt;- b_housing[-train_samps,]
+
+#fit our new kmeans
+train.kmeans &amp;lt;- kmeans(b_hous.train, centers = 4, nstart = 50, iter.max = 50)&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;use-cl_predict&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Use &lt;code&gt;cl_predict&lt;/code&gt;&lt;/h3&gt;
+&lt;p&gt;The interface is fairly simple to get the predicted values.&lt;/p&gt;
+&lt;p&gt;We’re going to use &lt;code&gt;system.time&lt;/code&gt; to time how long it takes &lt;code&gt;R&lt;/code&gt; to do what we want it to.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(clue)
+
+system.time(
+  test_clusters.clue &amp;lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    user  system elapsed 
+##       0       0       0&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.clue)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## test_clusters.clue
+##  1  2  3  4 
+## 84 15 27 26&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;by-hand&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;By hand&lt;/h3&gt;
+&lt;p&gt;Taken from &lt;a href=&#34;http://stats.stackexchange.com/questions/78322/is-there-a-function-in-r-that-takes-the-centers-of-clusters-that-were-found-and&#34;&gt;this nice CrossValidated solution&lt;/a&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;clusters &amp;lt;- function(x, centers) {
+  # compute squared euclidean distance from each sample to each cluster center
+  tmp &amp;lt;- sapply(seq_len(nrow(x)),
+                function(i) apply(centers, 1,
+                                  function(v) sum((x[i, ]-v)^2)))
+  max.col(-t(tmp))  # find index of min distance
+}
+
+system.time(
+  test_clusters.hand &amp;lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
+  )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    user  system elapsed 
+##    0.95    0.00    0.95&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.hand)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## test_clusters.hand
+##  1  2  3  4 
+## 84 15 27 26&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;all(test_clusters.hand == test_clusters.clue) #TRUE&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] TRUE&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We see that &lt;code&gt;clusters&lt;/code&gt; is slower than &lt;code&gt;cl_predict&lt;/code&gt;, but they return the same result. It would be prudent to use &lt;code&gt;cl_predict&lt;/code&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrapping-up&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Wrapping Up&lt;/h3&gt;
+&lt;p&gt;In this post I walked through the kmeans algorithm, and its implementation in &lt;code&gt;R&lt;/code&gt;. Additionally, I discussed some of the ways to select the &lt;code&gt;k&lt;/code&gt; in kmeans. The process of selecting and evaluating choices of &lt;code&gt;k&lt;/code&gt; will vary from project to project and depend strongly on the goals of an analysis.&lt;/p&gt;
+&lt;p&gt;It is worth noting that one of the drawbacks of kmeans clustering is that it must put &lt;em&gt;every&lt;/em&gt; observation into a cluster. There may be anomalies or outliers present in a dataset, so it may not always make sense to enforce the condition that each observation is assigned to a cluster. A different unsupervised learning technique, such as &lt;a href=&#34;https://en.wikipedia.org/wiki/DBSCAN&#34;&gt;dbscan&lt;/a&gt; (density-based spatial clustering of applications with noise) may be more appropriate for tasks in which anomaly detection is necessary. I hope to explore this technique in a future post. In the meantime, &lt;a href=&#34;https://medium.com/netflix-techblog/tracking-down-the-villains-outlier-detection-at-netflix-40360b31732&#34;&gt;here’s an example&lt;/a&gt; of Netflix applying dbscan for anomaly detection.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>My First Post</title>
       <link>/post/my-first-post/</link>
-      <pubDate>Sat, 26 May 2018 00:00:00 +0000</pubDate>
+      <pubDate>May 26, 2018</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/post/my-first-post/</guid>
-      <description>Welcome to my blog!I plan to use this website to present data explorations and analyses in a way that’s understandable to a broad audience. I hope to demonstrate the utility of applying ideas like machine learning, data visualization, and exploratory data analysis to day-to-day life to improve decision-making processes.
-I was inspired to create a blog after reading this post by David Robinson.
-New blog post: &amp;quot;Advice to aspiring data scientists: start a blog&amp;quot; https://t.</description>
+      <description>&lt;div id=&#34;welcome-to-my-blog&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Welcome to my blog!&lt;/h1&gt;
+&lt;p&gt;I plan to use this website to present data explorations and analyses in a way that’s understandable to a broad audience. I hope to demonstrate the utility of applying ideas like &lt;a href=&#34;https://en.wikipedia.org/wiki/Machine_learning&#34;&gt;machine learning&lt;/a&gt;, &lt;a href=&#34;https://en.wikipedia.org/wiki/Data_visualization&#34;&gt;data visualization&lt;/a&gt;, and &lt;a href=&#34;https://en.wikipedia.org/wiki/Exploratory_data_analysis&#34;&gt;exploratory data analysis&lt;/a&gt; to day-to-day life to improve decision-making processes.&lt;/p&gt;
+&lt;p&gt;I was inspired to create a blog after reading &lt;a href=&#34;http://varianceexplained.org/r/start-blog/&#34;&gt;this post&lt;/a&gt; by David Robinson.&lt;/p&gt;
+&lt;blockquote class=&#34;twitter-tweet&#34;&gt;&lt;p lang=&#34;en&#34; dir=&#34;ltr&#34;&gt;New blog post: &amp;quot;Advice to aspiring data scientists: start a blog&amp;quot; &lt;a href=&#34;https://t.co/yMDHqviiBN&#34;&gt;https://t.co/yMDHqviiBN&lt;/a&gt; &lt;a href=&#34;https://twitter.com/hashtag/rstats?src=hash&amp;amp;ref_src=twsrc%5Etfw&#34;&gt;#rstats&lt;/a&gt; &lt;a href=&#34;https://t.co/9AdPUdbjtE&#34;&gt;pic.twitter.com/9AdPUdbjtE&lt;/a&gt;&lt;/p&gt;&amp;mdash; David Robinson (@drob) &lt;a href=&#34;https://twitter.com/drob/status/930492543187513345?ref_src=twsrc%5Etfw&#34;&gt;November 14, 2017&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&#34;https://platform.twitter.com/widgets.js&#34; charset=&#34;utf-8&#34;&gt;&lt;/script&gt;
+
+&lt;p&gt;I’m a big believer in treating data analysis as an iterative process, and I hope this blog will reinforce the idea that nearly anyone can learn the skills to do data analysis. I’m going to try as hard as I can to avoid the buzzwords and esoteric language that unnecessarily obfuscate data science discussions, so that this blog is accessible to an audience with varying levels of mathematical and statistical sophistication. That being said, I’ll still try to sneak a few data science nuggets for the hardcore data nerds out there!&lt;/p&gt;
+&lt;p&gt;I’ll mostly be using the &lt;a href=&#34;https://www.r-project.org/about.html&#34;&gt;&lt;strong&gt;&lt;code&gt;R&lt;/code&gt;&lt;/strong&gt; programming language&lt;/a&gt; to extract and manipulate data (you’ll find out I’m a huge &lt;a href=&#34;https://www.crummy.com/software/BeautifulSoup/bs4/doc/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; fan), but you may see me using a bit of &lt;a href=&#34;https://www.python.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;Python&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; as well (usually &lt;a href=&#34;http://scikit-learn.org/stable/&#34;&gt;scikit-learn&lt;/a&gt; and some web scraping with &lt;a href=&#34;https://www.crummy.com/software/BeautifulSoup/bs4/doc/&#34;&gt;BeautifulSoup&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;Thanks for checking my blog out!&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2018-05-26-my-first-post_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
     <item>
       <title>About me</title>
       <link>/about/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>January 1, 0001</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/about/</guid>
-      <description>Work: I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.
-Education: I graduated with an MS in Statistics from the University of Wisconsin in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from St.</description>
+      <description>&lt;p&gt;&lt;strong&gt;Work:&lt;/strong&gt; I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Education:&lt;/strong&gt; I graduated with an MS in Statistics from the &lt;a href=&#34;https://www.wisc.edu/&#34;&gt;University of Wisconsin&lt;/a&gt; in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from &lt;a href=&#34;https://www.stcloudstate.edu/&#34;&gt;St. Cloud State University&lt;/a&gt; in 2015 (go Huskies! 🐺).&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Personal:&lt;/strong&gt; I live in &lt;a href=&#34;http://www.cityofmadison.com/&#34;&gt;Madison, WI&lt;/a&gt;. I like to spend my spare time reading, playing guitar, playing golf, and watching whatever Wisconsin sports team is on television.&lt;/p&gt;
+</description>
+
     </item>
     
     <item>
       <title>Blogroll</title>
       <link>/blogroll/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <pubDate>January 1, 0001</pubDate>
       <author>bgstieber@gmail.com (Brad Stieber)</author>
       <guid>/blogroll/</guid>
-      <description>Blogs I’m reading:R-bloggers - Blog aggregator of content contributed by bloggers who write about R (in English).
-Revolutions - Blog dedicated to news and information of interest to members of the R community.
-Statistical Modeling, Causal Inference, and Social Science
-eagereyes - Robert Kosara’s website, mostly about data visualization
-Julia Silge’s blog - Great blog about a wide array of data science topics
-Variance Explained - David Robinson’s (the data scientist, not the basketball player) blog on data science.</description>
+      <description>&lt;div id=&#34;blogs-im-reading&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Blogs I’m reading:&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.r-bloggers.com/&#34;&gt;R-bloggers&lt;/a&gt; - Blog aggregator of content contributed by bloggers who write about R (in English).&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://blog.revolutionanalytics.com/&#34;&gt;Revolutions&lt;/a&gt; - Blog dedicated to news and information of interest to members of the R community.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://andrewgelman.com/&#34;&gt;Statistical Modeling, Causal Inference, and Social Science&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://eagereyes.org/&#34;&gt;eagereyes&lt;/a&gt; - Robert Kosara’s website, mostly about data visualization&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://juliasilge.com/blog/&#34;&gt;Julia Silge’s blog&lt;/a&gt; - Great blog about a wide array of data science topics&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://varianceexplained.org/&#34;&gt;Variance Explained&lt;/a&gt; - David Robinson’s (the data scientist, not the &lt;a href=&#34;https://en.wikipedia.org/wiki/David_Robinson_(basketball)&#34;&gt;basketball player&lt;/a&gt;) blog on data science.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://flowingdata.com/&#34;&gt;FlowingData&lt;/a&gt; - Nathan Yau’s blog, mostly about data visualization&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.analyticsvidhya.com/blog/&#34;&gt;Analytics Vidhya&lt;/a&gt; - Good blog with data science tutorials&lt;/p&gt;
+&lt;p&gt;…more to come&lt;/p&gt;
+&lt;/div&gt;
+</description>
+
     </item>
     
   </channel>
