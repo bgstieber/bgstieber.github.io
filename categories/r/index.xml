@@ -7,10 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Wed, 31 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 31 Dec 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Recommending Songs Using Cosine Similarity in R</title>
+      <link>/post/recommending-songs-using-cosine-similarity-in-r/</link>
+      <pubDate>Mon, 31 Dec 2018 00:00:00 +0000</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>/post/recommending-songs-using-cosine-similarity-in-r/</guid>
+      <description>Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even the homes we buy are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: cosine similarity.
+First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity.</description>
+    </item>
     
     <item>
       <title>Using R to Create Custom Color Palettes for Tableau</title>
