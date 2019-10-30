@@ -7,10 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>Mon, 31 Dec 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 29 Oct 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
+      <link>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
+      <pubDate>Tue, 29 Oct 2019 00:00:00 +0000</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
+      <description>One of my favorite data science blogs comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a blog post on a method for allocating turns in a multi-armed bandit problem.
+I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.
+Note: this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.</description>
+    </item>
     
     <item>
       <title>Recommending Songs Using Cosine Similarity in R</title>

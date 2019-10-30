@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
+  <meta property="og:title" content="Roulette Wheels for Multi-Armed Bandits: A Simulation in R" />
+  <meta name="twitter:title" content="Roulette Wheels for Multi-Armed Bandits: A Simulation in R" />
+  <meta name="description" content="One of my favorite data science blogs comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a blog post on a method for allocating turns in a multi-armed bandit problem.
+I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.
+Note: this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.">
+  <meta property="og:description" content="One of my favorite data science blogs comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a blog post on a method for allocating turns in a multi-armed bandit problem.
+I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.
+Note: this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.">
+  <meta name="twitter:description" content="One of my favorite data science blogs comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a blog post on a method for allocating turns in a multi-armed …">
+  <meta name="author" content="Brad Stieber"/>
+  <link href='/img/favicon2.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Brad Stieber" />
+
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="canonical" href="/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/" />
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Brad Stieber">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="/css/highlight.min.css" /><link rel="stylesheet" href="/css/codeblock.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-119936954-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Brad Stieber</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Posts" href="/post">Posts</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Blogroll" href="/blogroll">Blogroll</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Brad Stieber" href="/">
+            <img class="avatar-img" src="/img/brad-avatar.png" alt="Brad Stieber" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on October 29, 2019
+  
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>One of my favorite <a href="https://jamesmccaffrey.wordpress.com/">data science blogs</a> comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a <a href="https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/">blog post</a> on a method for allocating turns in a multi-armed bandit problem.</p>
+<p>I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.</p>
+<p><strong>Note:</strong> this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.</p>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>The basic idea of a <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">multi-armed bandit</a> is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we’re data scientists at a casino, hopefully we’re using the information we’re gathering to make better gambling decisions (is that an oxymoron?).</p>
+<p>We want to choose the best place to allocate our resources, and maximize our reward for each allocation. However, we should shy away from a greedy strategy (just play the winner), because it doesn’t allow us to explore our other options.</p>
+<p>There are <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">different strategies</a> for choosing where to allocate your next resource. One of the more popular choices is Thompson sampling, which usually involves sampling from a Beta distribution, and using the results of that sampling to determine your next allocation (out of scope for this blog post!).</p>
+</div>
+<div id="code-roulette_wheel" class="section level1">
+<h1>Code: <code>roulette_wheel</code></h1>
+<p>The following function implements the roulette wheel allocation, for a flexible number of slot machines.</p>
+<p>The function starts by generating a warm start with the data. We need to gather information about our different slot machines, so we allocate a small number of resources to each one to collect information. After we do this, we start the real allocation. We pick a winner based on how its cumulative probability compares to a draw from a random uniform distribution.</p>
+<p>So, if our observed success probabilities are</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">machine</th>
+<th align="right">observed_prob</th>
+<th align="right">cumulative_prob</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0.2</td>
+<td align="right">0.2</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">0.3</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">0.5</td>
+<td align="right">1.0</td>
+</tr>
+</tbody>
+</table>
+<p>And our draw from the random uniform was 0.7, we’d pick the third arm.</p>
+<p>We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.</p>
+<pre class="r"><code>roulette_wheel &lt;- function(coins = 40, 
+                           starts = 5,
+                           true_prob = c(0.3, 0.5, 0.7)){
+  # must have enough coins to generate initial empirical distribution
+  if (coins &lt; (length(true_prob) * starts)){
+    stop(&quot;To generate a starting distribution, each machine must be&quot;,
+         &quot; played &quot;,
+         starts,
+         &quot; times - not enough coins to do so.&quot;)
+  }
+  # allocate first (&quot;warm up&quot;)
+  SS &lt;- sapply(true_prob, FUN = function(x) sum(rbinom(starts, 1, x)))
+  FF &lt;- starts - SS
+  # calculate metrics used for play allocation
+  probs &lt;- SS / (SS + FF)
+  probs_normalized &lt;- probs / sum(probs)
+  cumu_probs_normalized &lt;- cumsum(probs_normalized)
+  # update number of coins
+  coins &lt;- coins - (length(true_prob) * starts)
+  # create simulation data.frame
+  sim_df &lt;- data.frame(machine = seq_along(true_prob),
+                       true_probabilities = true_prob,
+                       observed_probs = probs,
+                       successes = SS,
+                       failures = FF,
+                       plays = SS + FF,
+                       machine_played = NA,
+                       coins_left = coins)
+  # initialize before while loop
+  sim_list &lt;- vector(&#39;list&#39;, length = coins)
+  i &lt;- 1
+  # play until we run out of original coins
+  while(coins &gt; 0){
+    # which machine to play?
+    update_index &lt;- findInterval(runif(1), c(0, cumu_probs_normalized))
+    # play machine
+    flip &lt;- rbinom(1, 1, true_prob[update_index])
+    # update successes and failure for machine that was played
+    SS[update_index] &lt;- SS[update_index] + flip
+    FF[update_index] &lt;- FF[update_index] + (1-flip)
+    # update metrics used for play allocation
+    probs &lt;- SS / (SS + FF)
+    probs_normalized &lt;- probs / sum(probs)
+    cumu_probs_normalized &lt;- cumsum(probs_normalized)
+    # update number of coins
+    coins &lt;- coins - 1    
+    # update simulation data.frame (very inefficient)
+    sim_list[[i]] &lt;- data.frame(machine = seq_along(true_prob),
+                                true_probabilities = true_prob,
+                                observed_probs = probs,
+                                successes = SS,
+                                failures = FF,
+                                plays = SS + FF,
+                                machine_played = seq_along(true_prob) == update_index,
+                                coins_left = coins)
+    i &lt;- i + 1
+  }
+  # show success:failure ratio
+  message(&quot;Success to failure ratio was &quot;,
+          round(sum(SS) / sum(FF), 2),
+          &quot;\n&quot;,
+          paste0(&quot;(&quot;, 
+                 paste0(SS, collapse = &quot;+&quot;), 
+                 &quot;)/(&quot;, 
+                 paste0(FF, collapse = &quot;+&quot;), &quot;)&quot;))
+  # return data frame of values from experiment
+  rbind(sim_df, do.call(&#39;rbind&#39;, sim_list))
+}</code></pre>
+</div>
+<div id="data-analysis" class="section level1">
+<h1>Data Analysis</h1>
+<p>I’ll show a brief example of what we can do with the data generated from this function.</p>
+<pre class="r"><code>set.seed(123)
+rw1 &lt;- roulette_wheel(coins = 5000, 
+                      starts = 10, 
+                      true_prob = c(0.1, 0.25, 0.5, 0.65))</code></pre>
+<pre><code>## Success to failure ratio was 1.06
+## (15+228+835+1490)/(213+662+826+731)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-5">Table 1: </span>Final simulation result</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">machine</th>
+<th align="right">true_probabilities</th>
+<th align="right">observed_probs</th>
+<th align="right">successes</th>
+<th align="right">failures</th>
+<th align="right">plays</th>
+<th align="left">machine_played</th>
+<th align="right">coins_left</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>19841</td>
+<td align="right">1</td>
+<td align="right">0.10</td>
+<td align="right">0.0657895</td>
+<td align="right">15</td>
+<td align="right">213</td>
+<td align="right">228</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>19842</td>
+<td align="right">2</td>
+<td align="right">0.25</td>
+<td align="right">0.2561798</td>
+<td align="right">228</td>
+<td align="right">662</td>
+<td align="right">890</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>19843</td>
+<td align="right">3</td>
+<td align="right">0.50</td>
+<td align="right">0.5027092</td>
+<td align="right">835</td>
+<td align="right">826</td>
+<td align="right">1661</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>19844</td>
+<td align="right">4</td>
+<td align="right">0.65</td>
+<td align="right">0.6708690</td>
+<td align="right">1490</td>
+<td align="right">731</td>
+<td align="right">2221</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s look at how the observed probabilities changed over time:</p>
+<p><img src="/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
+<p>And how did our plays for each machine accumulate through time?</p>
+<p><img src="/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Boring!</p>
+<p>Maybe if we run a smaller number of simulations, we might get a better sense of variation in our number of plays.</p>
+<pre class="r"><code>set.seed(1)
+rw2 &lt;- roulette_wheel(coins = 100, 
+                      starts = 5, 
+                      true_prob = c(0.1, 0.3, 0.65))</code></pre>
+<pre><code>## Success to failure ratio was 0.82
+## (1+16+28)/(11+26+18)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-9">Table 2: </span>Final simulation result</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">machine</th>
+<th align="right">true_probabilities</th>
+<th align="right">observed_probs</th>
+<th align="right">successes</th>
+<th align="right">failures</th>
+<th align="right">plays</th>
+<th align="left">machine_played</th>
+<th align="right">coins_left</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>256</td>
+<td align="right">1</td>
+<td align="right">0.10</td>
+<td align="right">0.0833333</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">12</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>257</td>
+<td align="right">2</td>
+<td align="right">0.30</td>
+<td align="right">0.3809524</td>
+<td align="right">16</td>
+<td align="right">26</td>
+<td align="right">42</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>258</td>
+<td align="right">3</td>
+<td align="right">0.65</td>
+<td align="right">0.6086957</td>
+<td align="right">28</td>
+<td align="right">18</td>
+<td align="right">46</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>That shows our allocations a little bit better than the previous visualization.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>This was a fun exercise for me, and it reminded me of a <a href="https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/MultiArmedBandits.pdf">presentation</a> I did in graduate school about a very similar topic. I also wrote a <a href="https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/roulette_wheel.py">roulette wheel function</a> in Python, and was moderately successful at that (it runs faster than my R function, but I’m less confident in how “pythonic” it is).</p>
+<p>My biggest concern with this implementation is the potential situation in which our warm start results in all failures for a given slot machine. If the machine fails across the warm start, it will not be selected for the rest of the simulation. To offset this, you could add a little “jitter” (technical term: epsilon) to the observed probabilities at each iteration. Another option would be to generate a second random uniform variable, and if that value is very small, you that pull a random lever, rather than the one determined by the simulation.</p>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              
+              <a href="/tags/data-science/">data-science</a>&nbsp;
+            
+              
+              <a href="/tags/r/">r</a>&nbsp;
+            
+              
+              <a href="/tags/machine-learning/">machine-learning</a>&nbsp;
+            
+              
+              <a href="/tags/data-analysis/">data-analysis</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <ul class="list-inline footer-links">
+                
+
+
+<li>
+    <a href="//twitter.com/share?url=%2fpost%2froulette-wheels-for-multi-armed-bandits-a-simulation-in-r%2f&amp;text=Roulette%20Wheels%20for%20Multi-Armed%20Bandits%3a%20A%20Simulation%20in%20R&amp;via="
+       target="_blank" alt="" title="Share on Twitter">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.facebook.com/sharer/sharer.php?u=%2fpost%2froulette-wheels-for-multi-armed-bandits-a-simulation-in-r%2f" target="_blank" title="Share on Facebook">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.linkedin.com/shareArticle?url=%2fpost%2froulette-wheels-for-multi-armed-bandits-a-simulation-in-r%2f&amp;title=Roulette%20Wheels%20for%20Multi-Armed%20Bandits%3a%20A%20Simulation%20in%20R" target="_blank"
+       title="Share on LinkedIn">
+         <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+              </ul>
+            </section>
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="/post/recommending-songs-using-cosine-similarity-in-r/" data-toggle="tooltip" data-placement="top" title="Recommending Songs Using Cosine Similarity in R">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "bgstieber-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:bgstieber@gmail.com" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/bgstieber" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/brad-stieber-2227b2131" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/5619526/bouncyball" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://open.spotify.com/user/12102534356?si=_IgBxYLORrG5sy5wQxUEog" title="Spotify">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-spotify fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="/index.xml" title="RSS">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Brad Stieber
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2019
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="/">Brad Stieber</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.41</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+

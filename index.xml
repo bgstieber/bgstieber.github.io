@@ -7,10 +7,527 @@
     <generator>Hugo -- gohugo.io</generator>
     <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
     <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
-    <lastBuildDate>December 31, 2018</lastBuildDate>
+    <lastBuildDate>October 29, 2019</lastBuildDate>
     
         <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
+      <link>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
+      <pubDate>October 29, 2019</pubDate>
+      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      <guid>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
+      <description>&lt;p&gt;One of my favorite &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/&#34;&gt;data science blogs&lt;/a&gt; comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/&#34;&gt;blog post&lt;/a&gt; on a method for allocating turns in a multi-armed bandit problem.&lt;/p&gt;
+&lt;p&gt;I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.&lt;/p&gt;
+&lt;div id=&#34;background&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Background&lt;/h1&gt;
+&lt;p&gt;The basic idea of a &lt;a href=&#34;https://en.wikipedia.org/wiki/Multi-armed_bandit&#34;&gt;multi-armed bandit&lt;/a&gt; is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we’re data scientists at a casino, hopefully we’re using the information we’re gathering to make better gambling decisions (is that an oxymoron?).&lt;/p&gt;
+&lt;p&gt;We want to choose the best place to allocate our resources, and maximize our reward for each allocation. However, we should shy away from a greedy strategy (just play the winner), because it doesn’t allow us to explore our other options.&lt;/p&gt;
+&lt;p&gt;There are &lt;a href=&#34;https://en.wikipedia.org/wiki/Multi-armed_bandit&#34;&gt;different strategies&lt;/a&gt; for choosing where to allocate your next resource. One of the more popular choices is Thompson sampling, which usually involves sampling from a Beta distribution, and using the results of that sampling to determine your next allocation (out of scope for this blog post!).&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;code-roulette_wheel&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Code: &lt;code&gt;roulette_wheel&lt;/code&gt;&lt;/h1&gt;
+&lt;p&gt;The following function implements the roulette wheel allocation, for a flexible number of slot machines.&lt;/p&gt;
+&lt;p&gt;The function starts by generating a warm start with the data. We need to gather information about our different slot machines, so we allocate a small number of resources to each one to collect information. After we do this, we start the real allocation. We pick a winner based on how its cumulative probability compares to a draw from a random uniform distribution.&lt;/p&gt;
+&lt;p&gt;So, if our observed success probabilities are&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;right&#34;&gt;machine&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;observed_prob&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;cumulative_prob&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1.0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;And our draw from the random uniform was 0.7, we’d pick the third arm.&lt;/p&gt;
+&lt;p&gt;We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;roulette_wheel &amp;lt;- function(coins = 40, 
+                           starts = 5,
+                           true_prob = c(0.3, 0.5, 0.7)){
+  # must have enough coins to generate initial empirical distribution
+  if (coins &amp;lt; (length(true_prob) * starts)){
+    stop(&amp;quot;To generate a starting distribution, each machine must be&amp;quot;,
+         &amp;quot; played &amp;quot;,
+         starts,
+         &amp;quot; times - not enough coins to do so.&amp;quot;)
+  }
+  # allocate first (&amp;quot;warm up&amp;quot;)
+  SS &amp;lt;- sapply(true_prob, FUN = function(x) sum(rbinom(starts, 1, x)))
+  FF &amp;lt;- starts - SS
+  # calculate metrics used for play allocation
+  probs &amp;lt;- SS / (SS + FF)
+  probs_normalized &amp;lt;- probs / sum(probs)
+  cumu_probs_normalized &amp;lt;- cumsum(probs_normalized)
+  # update number of coins
+  coins &amp;lt;- coins - (length(true_prob) * starts)
+  # create simulation data.frame
+  sim_df &amp;lt;- data.frame(machine = seq_along(true_prob),
+                       true_probabilities = true_prob,
+                       observed_probs = probs,
+                       successes = SS,
+                       failures = FF,
+                       plays = SS + FF,
+                       machine_played = NA,
+                       coins_left = coins)
+  # initialize before while loop
+  sim_list &amp;lt;- vector(&amp;#39;list&amp;#39;, length = coins)
+  i &amp;lt;- 1
+  # play until we run out of original coins
+  while(coins &amp;gt; 0){
+    # which machine to play?
+    update_index &amp;lt;- findInterval(runif(1), c(0, cumu_probs_normalized))
+    # play machine
+    flip &amp;lt;- rbinom(1, 1, true_prob[update_index])
+    # update successes and failure for machine that was played
+    SS[update_index] &amp;lt;- SS[update_index] + flip
+    FF[update_index] &amp;lt;- FF[update_index] + (1-flip)
+    # update metrics used for play allocation
+    probs &amp;lt;- SS / (SS + FF)
+    probs_normalized &amp;lt;- probs / sum(probs)
+    cumu_probs_normalized &amp;lt;- cumsum(probs_normalized)
+    # update number of coins
+    coins &amp;lt;- coins - 1    
+    # update simulation data.frame (very inefficient)
+    sim_list[[i]] &amp;lt;- data.frame(machine = seq_along(true_prob),
+                                true_probabilities = true_prob,
+                                observed_probs = probs,
+                                successes = SS,
+                                failures = FF,
+                                plays = SS + FF,
+                                machine_played = seq_along(true_prob) == update_index,
+                                coins_left = coins)
+    i &amp;lt;- i + 1
+  }
+  # show success:failure ratio
+  message(&amp;quot;Success to failure ratio was &amp;quot;,
+          round(sum(SS) / sum(FF), 2),
+          &amp;quot;\n&amp;quot;,
+          paste0(&amp;quot;(&amp;quot;, 
+                 paste0(SS, collapse = &amp;quot;+&amp;quot;), 
+                 &amp;quot;)/(&amp;quot;, 
+                 paste0(FF, collapse = &amp;quot;+&amp;quot;), &amp;quot;)&amp;quot;))
+  # return data frame of values from experiment
+  rbind(sim_df, do.call(&amp;#39;rbind&amp;#39;, sim_list))
+}&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;data-analysis&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Data Analysis&lt;/h1&gt;
+&lt;p&gt;I’ll show a brief example of what we can do with the data generated from this function.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(123)
+rw1 &amp;lt;- roulette_wheel(coins = 5000, 
+                      starts = 10, 
+                      true_prob = c(0.1, 0.25, 0.5, 0.65))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Success to failure ratio was 1.06
+## (15+228+835+1490)/(213+662+826+731)&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;caption&gt;&lt;span id=&#34;tab:unnamed-chunk-5&#34;&gt;Table 1: &lt;/span&gt;Final simulation result&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;machine&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;true_probabilities&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;observed_probs&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;successes&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;failures&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;plays&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;machine_played&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;coins_left&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;19841&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.10&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0657895&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;15&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;213&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;228&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;FALSE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;19842&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.25&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.2561798&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;228&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;662&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;890&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;FALSE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;19843&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.50&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.5027092&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;835&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;826&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1661&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;FALSE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;19844&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;4&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.65&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.6708690&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1490&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;731&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2221&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Let’s look at how the observed probabilities changed over time:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;And how did our plays for each machine accumulate through time?&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Boring!&lt;/p&gt;
+&lt;p&gt;Maybe if we run a smaller number of simulations, we might get a better sense of variation in our number of plays.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(1)
+rw2 &amp;lt;- roulette_wheel(coins = 100, 
+                      starts = 5, 
+                      true_prob = c(0.1, 0.3, 0.65))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Success to failure ratio was 0.82
+## (1+16+28)/(11+26+18)&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;caption&gt;&lt;span id=&#34;tab:unnamed-chunk-9&#34;&gt;Table 2: &lt;/span&gt;Final simulation result&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;machine&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;true_probabilities&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;observed_probs&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;successes&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;failures&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;plays&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;machine_played&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;coins_left&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;256&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.10&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.0833333&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;1&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;11&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;12&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;FALSE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td&gt;257&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.30&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.3809524&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;16&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;26&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;42&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;FALSE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td&gt;258&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.65&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.6086957&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;28&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;18&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;46&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;TRUE&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;That shows our allocations a little bit better than the previous visualization.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;conclusion&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Conclusion&lt;/h1&gt;
+&lt;p&gt;This was a fun exercise for me, and it reminded me of a &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/MultiArmedBandits.pdf&#34;&gt;presentation&lt;/a&gt; I did in graduate school about a very similar topic. I also wrote a &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/roulette_wheel.py&#34;&gt;roulette wheel function&lt;/a&gt; in Python, and was moderately successful at that (it runs faster than my R function, but I’m less confident in how “pythonic” it is).&lt;/p&gt;
+&lt;p&gt;My biggest concern with this implementation is the potential situation in which our warm start results in all failures for a given slot machine. If the machine fails across the warm start, it will not be selected for the rest of the simulation. To offset this, you could add a little “jitter” (technical term: epsilon) to the observed probabilities at each iteration. Another option would be to generate a second random uniform variable, and if that value is very small, you that pull a random lever, rather than the one determined by the simulation.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <content:encoded><p>One of my favorite <a href="https://jamesmccaffrey.wordpress.com/">data science blogs</a> comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a <a href="https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/">blog post</a> on a method for allocating turns in a multi-armed bandit problem.</p>
+<p>I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.</p>
+<p><strong>Note:</strong> this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.</p>
+<div id="background" class="section level1">
+<h1>Background</h1>
+<p>The basic idea of a <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">multi-armed bandit</a> is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we’re data scientists at a casino, hopefully we’re using the information we’re gathering to make better gambling decisions (is that an oxymoron?).</p>
+<p>We want to choose the best place to allocate our resources, and maximize our reward for each allocation. However, we should shy away from a greedy strategy (just play the winner), because it doesn’t allow us to explore our other options.</p>
+<p>There are <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">different strategies</a> for choosing where to allocate your next resource. One of the more popular choices is Thompson sampling, which usually involves sampling from a Beta distribution, and using the results of that sampling to determine your next allocation (out of scope for this blog post!).</p>
+</div>
+<div id="code-roulette_wheel" class="section level1">
+<h1>Code: <code>roulette_wheel</code></h1>
+<p>The following function implements the roulette wheel allocation, for a flexible number of slot machines.</p>
+<p>The function starts by generating a warm start with the data. We need to gather information about our different slot machines, so we allocate a small number of resources to each one to collect information. After we do this, we start the real allocation. We pick a winner based on how its cumulative probability compares to a draw from a random uniform distribution.</p>
+<p>So, if our observed success probabilities are</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">machine</th>
+<th align="right">observed_prob</th>
+<th align="right">cumulative_prob</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">0.2</td>
+<td align="right">0.2</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">0.3</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">0.5</td>
+<td align="right">1.0</td>
+</tr>
+</tbody>
+</table>
+<p>And our draw from the random uniform was 0.7, we’d pick the third arm.</p>
+<p>We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.</p>
+<pre class="r"><code>roulette_wheel &lt;- function(coins = 40, 
+                           starts = 5,
+                           true_prob = c(0.3, 0.5, 0.7)){
+  # must have enough coins to generate initial empirical distribution
+  if (coins &lt; (length(true_prob) * starts)){
+    stop(&quot;To generate a starting distribution, each machine must be&quot;,
+         &quot; played &quot;,
+         starts,
+         &quot; times - not enough coins to do so.&quot;)
+  }
+  # allocate first (&quot;warm up&quot;)
+  SS &lt;- sapply(true_prob, FUN = function(x) sum(rbinom(starts, 1, x)))
+  FF &lt;- starts - SS
+  # calculate metrics used for play allocation
+  probs &lt;- SS / (SS + FF)
+  probs_normalized &lt;- probs / sum(probs)
+  cumu_probs_normalized &lt;- cumsum(probs_normalized)
+  # update number of coins
+  coins &lt;- coins - (length(true_prob) * starts)
+  # create simulation data.frame
+  sim_df &lt;- data.frame(machine = seq_along(true_prob),
+                       true_probabilities = true_prob,
+                       observed_probs = probs,
+                       successes = SS,
+                       failures = FF,
+                       plays = SS + FF,
+                       machine_played = NA,
+                       coins_left = coins)
+  # initialize before while loop
+  sim_list &lt;- vector(&#39;list&#39;, length = coins)
+  i &lt;- 1
+  # play until we run out of original coins
+  while(coins &gt; 0){
+    # which machine to play?
+    update_index &lt;- findInterval(runif(1), c(0, cumu_probs_normalized))
+    # play machine
+    flip &lt;- rbinom(1, 1, true_prob[update_index])
+    # update successes and failure for machine that was played
+    SS[update_index] &lt;- SS[update_index] + flip
+    FF[update_index] &lt;- FF[update_index] + (1-flip)
+    # update metrics used for play allocation
+    probs &lt;- SS / (SS + FF)
+    probs_normalized &lt;- probs / sum(probs)
+    cumu_probs_normalized &lt;- cumsum(probs_normalized)
+    # update number of coins
+    coins &lt;- coins - 1    
+    # update simulation data.frame (very inefficient)
+    sim_list[[i]] &lt;- data.frame(machine = seq_along(true_prob),
+                                true_probabilities = true_prob,
+                                observed_probs = probs,
+                                successes = SS,
+                                failures = FF,
+                                plays = SS + FF,
+                                machine_played = seq_along(true_prob) == update_index,
+                                coins_left = coins)
+    i &lt;- i + 1
+  }
+  # show success:failure ratio
+  message(&quot;Success to failure ratio was &quot;,
+          round(sum(SS) / sum(FF), 2),
+          &quot;\n&quot;,
+          paste0(&quot;(&quot;, 
+                 paste0(SS, collapse = &quot;+&quot;), 
+                 &quot;)/(&quot;, 
+                 paste0(FF, collapse = &quot;+&quot;), &quot;)&quot;))
+  # return data frame of values from experiment
+  rbind(sim_df, do.call(&#39;rbind&#39;, sim_list))
+}</code></pre>
+</div>
+<div id="data-analysis" class="section level1">
+<h1>Data Analysis</h1>
+<p>I’ll show a brief example of what we can do with the data generated from this function.</p>
+<pre class="r"><code>set.seed(123)
+rw1 &lt;- roulette_wheel(coins = 5000, 
+                      starts = 10, 
+                      true_prob = c(0.1, 0.25, 0.5, 0.65))</code></pre>
+<pre><code>## Success to failure ratio was 1.06
+## (15+228+835+1490)/(213+662+826+731)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-5">Table 1: </span>Final simulation result</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">machine</th>
+<th align="right">true_probabilities</th>
+<th align="right">observed_probs</th>
+<th align="right">successes</th>
+<th align="right">failures</th>
+<th align="right">plays</th>
+<th align="left">machine_played</th>
+<th align="right">coins_left</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>19841</td>
+<td align="right">1</td>
+<td align="right">0.10</td>
+<td align="right">0.0657895</td>
+<td align="right">15</td>
+<td align="right">213</td>
+<td align="right">228</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>19842</td>
+<td align="right">2</td>
+<td align="right">0.25</td>
+<td align="right">0.2561798</td>
+<td align="right">228</td>
+<td align="right">662</td>
+<td align="right">890</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>19843</td>
+<td align="right">3</td>
+<td align="right">0.50</td>
+<td align="right">0.5027092</td>
+<td align="right">835</td>
+<td align="right">826</td>
+<td align="right">1661</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>19844</td>
+<td align="right">4</td>
+<td align="right">0.65</td>
+<td align="right">0.6708690</td>
+<td align="right">1490</td>
+<td align="right">731</td>
+<td align="right">2221</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s look at how the observed probabilities changed over time:</p>
+<p><img src="/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-6-1.png" width="768" /></p>
+<p>And how did our plays for each machine accumulate through time?</p>
+<p><img src="/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Boring!</p>
+<p>Maybe if we run a smaller number of simulations, we might get a better sense of variation in our number of plays.</p>
+<pre class="r"><code>set.seed(1)
+rw2 &lt;- roulette_wheel(coins = 100, 
+                      starts = 5, 
+                      true_prob = c(0.1, 0.3, 0.65))</code></pre>
+<pre><code>## Success to failure ratio was 0.82
+## (1+16+28)/(11+26+18)</code></pre>
+<table>
+<caption><span id="tab:unnamed-chunk-9">Table 2: </span>Final simulation result</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">machine</th>
+<th align="right">true_probabilities</th>
+<th align="right">observed_probs</th>
+<th align="right">successes</th>
+<th align="right">failures</th>
+<th align="right">plays</th>
+<th align="left">machine_played</th>
+<th align="right">coins_left</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>256</td>
+<td align="right">1</td>
+<td align="right">0.10</td>
+<td align="right">0.0833333</td>
+<td align="right">1</td>
+<td align="right">11</td>
+<td align="right">12</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td>257</td>
+<td align="right">2</td>
+<td align="right">0.30</td>
+<td align="right">0.3809524</td>
+<td align="right">16</td>
+<td align="right">26</td>
+<td align="right">42</td>
+<td align="left">FALSE</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td>258</td>
+<td align="right">3</td>
+<td align="right">0.65</td>
+<td align="right">0.6086957</td>
+<td align="right">28</td>
+<td align="right">18</td>
+<td align="right">46</td>
+<td align="left">TRUE</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>That shows our allocations a little bit better than the previous visualization.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>This was a fun exercise for me, and it reminded me of a <a href="https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/MultiArmedBandits.pdf">presentation</a> I did in graduate school about a very similar topic. I also wrote a <a href="https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/roulette_wheel.py">roulette wheel function</a> in Python, and was moderately successful at that (it runs faster than my R function, but I’m less confident in how “pythonic” it is).</p>
+<p>My biggest concern with this implementation is the potential situation in which our warm start results in all failures for a given slot machine. If the machine fails across the warm start, it will not be selected for the rest of the simulation. To offset this, you could add a little “jitter” (technical term: epsilon) to the observed probabilities at each iteration. Another option would be to generate a second random uniform variable, and if that value is very small, you that pull a random lever, rather than the one determined by the simulation.</p>
+</div>
+</content:encoded>
+
+    </item>
     
     <item>
       <title>Recommending Songs Using Cosine Similarity in R</title>
