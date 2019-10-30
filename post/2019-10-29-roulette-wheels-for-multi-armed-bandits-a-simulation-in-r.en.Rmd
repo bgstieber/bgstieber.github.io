@@ -38,7 +38,7 @@ We want to choose the best place to allocate our resources, and maximize our rew
 
 There are [different strategies](https://en.wikipedia.org/wiki/Multi-armed_bandit) for choosing where to allocate your next resource. One of the more popular choices is Thompson sampling, which usually involves sampling from a Beta distribution, and using the results of that sampling to determine your next allocation (out of scope for this blog post!).
 
-# Code: `roulette_wheel`
+# Code: [`roulette_wheel`](https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/roulette_wheel.R)
 
 The following function implements the roulette wheel allocation, for a flexible number of slot machines.
 
@@ -57,9 +57,11 @@ knitr::kable(
 )
 ```
 
-And our draw from the random uniform was 0.7, we'd pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey's algorithm.
+And our draw from the random uniform was 0.7, we'd pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey's algorithm. For a better and more thorough explanation, I'd suggest reading his [blog post](https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/).
 
 We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.
+
+__And here's the code__
 
 ```{r echo = TRUE}
 roulette_wheel <- function(coins = 40, 
@@ -167,7 +169,7 @@ p1 <- p1 +
   xlab("Simulation")+
   scale_y_continuous("Chance of Success", labels = percent)+
   ggtitle("How did observed probabilities of success change during the simulation?",
-          subtitle = 'Dashed line represent true probabilities of success')
+          subtitle = 'Dashed lines represent true probabilities of success')
 
 p1
 ```

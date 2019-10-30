@@ -28,7 +28,7 @@
 &lt;p&gt;There are &lt;a href=&#34;https://en.wikipedia.org/wiki/Multi-armed_bandit&#34;&gt;different strategies&lt;/a&gt; for choosing where to allocate your next resource. One of the more popular choices is Thompson sampling, which usually involves sampling from a Beta distribution, and using the results of that sampling to determine your next allocation (out of scope for this blog post!).&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;code-roulette_wheel&#34; class=&#34;section level1&#34;&gt;
-&lt;h1&gt;Code: &lt;code&gt;roulette_wheel&lt;/code&gt;&lt;/h1&gt;
+&lt;h1&gt;Code: &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/roulette_wheel.R&#34;&gt;&lt;code&gt;roulette_wheel&lt;/code&gt;&lt;/a&gt;&lt;/h1&gt;
 &lt;p&gt;The following function implements the roulette wheel allocation, for a flexible number of slot machines.&lt;/p&gt;
 &lt;p&gt;The function starts by generating a warm start with the data. We need to gather information about our different slot machines, so we allocate a small number of resources to each one to collect information. After we do this, we start the real allocation. We pick a winner based on how its cumulative probability compares to a draw from a random uniform distribution.&lt;/p&gt;
 &lt;p&gt;So, if our observed success probabilities are&lt;/p&gt;
@@ -62,8 +62,9 @@
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;And our draw from the random uniform was 0.7, we’d pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey’s algorithm.&lt;/p&gt;
+&lt;p&gt;And our draw from the random uniform was 0.7, we’d pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey’s algorithm. For a better and more thorough explanation, I’d suggest reading his &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/&#34;&gt;blog post&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;And here’s the code&lt;/strong&gt;&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;roulette_wheel &amp;lt;- function(coins = 40, 
                            starts = 5,
                            true_prob = c(0.3, 0.5, 0.7)){
@@ -278,7 +279,7 @@ rw2 &amp;lt;- roulette_wheel(coins = 100,
 <p>There are <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">different strategies</a> for choosing where to allocate your next resource. One of the more popular choices is Thompson sampling, which usually involves sampling from a Beta distribution, and using the results of that sampling to determine your next allocation (out of scope for this blog post!).</p>
 </div>
 <div id="code-roulette_wheel" class="section level1">
-<h1>Code: <code>roulette_wheel</code></h1>
+<h1>Code: <a href="https://github.com/bgstieber/files_for_blog/blob/master/miscellaneous/roulette_wheel.R"><code>roulette_wheel</code></a></h1>
 <p>The following function implements the roulette wheel allocation, for a flexible number of slot machines.</p>
 <p>The function starts by generating a warm start with the data. We need to gather information about our different slot machines, so we allocate a small number of resources to each one to collect information. After we do this, we start the real allocation. We pick a winner based on how its cumulative probability compares to a draw from a random uniform distribution.</p>
 <p>So, if our observed success probabilities are</p>
@@ -312,8 +313,9 @@ rw2 &amp;lt;- roulette_wheel(coins = 100,
 </tr>
 </tbody>
 </table>
-<p>And our draw from the random uniform was 0.7, we’d pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey’s algorithm.</p>
+<p>And our draw from the random uniform was 0.7, we’d pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey’s algorithm. For a better and more thorough explanation, I’d suggest reading his <a href="https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/">blog post</a>.</p>
 <p>We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.</p>
+<p><strong>And here’s the code</strong></p>
 <pre class="r"><code>roulette_wheel &lt;- function(coins = 40, 
                            starts = 5,
                            true_prob = c(0.3, 0.5, 0.7)){
