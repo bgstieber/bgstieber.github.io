@@ -51,12 +51,13 @@ knitr::kable(
   data.frame(
     machine = 1:3,
     observed_prob = c(.2, .3, .5),
-    cumulative_prob = cumsum(c(.2, .3, .5))
+    cumulative_prob = cumsum(c(.2, .3, .5)),
+    selection_range = c("0.0-0.2", "0.2-0.5", "0.5-1.0")
   )
 )
 ```
 
-And our draw from the random uniform was 0.7, we'd pick the third arm.
+And our draw from the random uniform was 0.7, we'd pick the third arm (0.7 falls between 0.5 and 1). This selection criteria is the main point of Dr. McCaffrey's algorithm.
 
 We then continue this process (playing a slot machine, observing the outcome, recalculating observed probabilities, and picking the next slot machine) until we run out of coins.
 
@@ -143,8 +144,10 @@ rw1 <- roulette_wheel(coins = 5000,
 ```
 
 ```{r}
-knitr::kable(rw1[rw1$coins_left == 0,], 
-             caption = 'Final simulation result') # show last play
+knitr::kable(rw1[rw1$coins_left == 0,] %>%
+               mutate(observed_probs = round(observed_probs, 4)), 
+             caption = 'Final simulation result',
+             row.names = FALSE) # show last play
 ```
 
 Let's look at how the observed probabilities changed over time:
@@ -155,7 +158,8 @@ library(scales)
 p1 <- rw1 %>%
   ggplot(aes(40 + max(coins_left) - coins_left, observed_probs))+
   geom_hline(aes(yintercept = true_probabilities, colour = factor(machine)),
-             linetype = 'dashed')+
+             linetype = 'dashed',
+             size = 1.2)+
   geom_line(aes(colour = factor(machine)), size = 1.2)+
   scale_colour_viridis_d(name = "Machine")
 
@@ -196,8 +200,10 @@ rw2 <- roulette_wheel(coins = 100,
 ```
 
 ```{r}
-knitr::kable(rw2[rw2$coins_left == 0,], 
-             caption = 'Final simulation result') # show last play
+knitr::kable(rw2[rw2$coins_left == 0,] %>%
+               mutate(observed_probs = round(observed_probs, 4)), 
+             caption = 'Final simulation result',
+             row.names = FALSE) # show last play
 ```
 
 ```{r}
@@ -222,4 +228,4 @@ This was a fun exercise for me, and it reminded me of a [presentation](https://g
 
 My biggest concern with this implementation is the potential situation in which our warm start results in all failures for a given slot machine. If the machine fails across the warm start, it will not be selected for the rest of the simulation. To offset this, you could add a little "jitter" (technical term: epsilon) to the observed probabilities at each iteration. Another option would be to generate a second random uniform variable, and if that value is very small, you that pull a random lever, rather than the one determined by the simulation.
 
-
+Finally, I'd be interested in comparing the statistical properties of this algorithm and others that are used in sequential allocation problems...if I have the time.
