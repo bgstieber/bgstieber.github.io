@@ -5,8 +5,6 @@
     <link>/tags/machine-learning/</link>
     <description>Recent content in Machine Learning on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
-    <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     <lastBuildDate>Tue, 29 Oct 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
@@ -16,7 +14,7 @@
       <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
       <link>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
       <pubDate>Tue, 29 Oct 2019 00:00:00 +0000</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
       <description>One of my favorite data science blogs comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a blog post on a method for allocating turns in a multi-armed bandit problem.
 I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.
@@ -27,7 +25,7 @@ Note: this is strictly an implementation of Dr. McCaffrey’s ideas from his bl
       <title>Recommending Songs Using Cosine Similarity in R</title>
       <link>/post/recommending-songs-using-cosine-similarity-in-r/</link>
       <pubDate>Mon, 31 Dec 2018 00:00:00 +0000</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/recommending-songs-using-cosine-similarity-in-r/</guid>
       <description>Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even the homes we buy are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: cosine similarity.
 First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity.</description>
@@ -37,7 +35,7 @@ First, I’ll give a brief overview of some vocabulary we’ll need to understan
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
       <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
 Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</description>

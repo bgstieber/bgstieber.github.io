@@ -5,8 +5,6 @@
     <link>/</link>
     <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
-    <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     <lastBuildDate>October 29, 2019</lastBuildDate>
     
         <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
@@ -16,11 +14,12 @@
       <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
       <link>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
       <pubDate>October 29, 2019</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
       <description>&lt;p&gt;One of my favorite &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/&#34;&gt;data science blogs&lt;/a&gt; comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/&#34;&gt;blog post&lt;/a&gt; on a method for allocating turns in a multi-armed bandit problem.&lt;/p&gt;
 &lt;p&gt;I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.&lt;/p&gt;
+&lt;p&gt;You can find the .Rmd file for this post &lt;a href=&#34;https://github.com/bgstieber/bgstieber.github.io/blob/master/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en.Rmd&#34;&gt;on my GitHub&lt;/a&gt;.&lt;/p&gt;
 &lt;div id=&#34;background&#34; class=&#34;section level1&#34;&gt;
 &lt;h1&gt;Background&lt;/h1&gt;
 &lt;p&gt;The basic idea of a &lt;a href=&#34;https://en.wikipedia.org/wiki/Multi-armed_bandit&#34;&gt;multi-armed bandit&lt;/a&gt; is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we’re data scientists at a casino, hopefully we’re using the information we’re gathering to make better gambling decisions (is that an oxymoron?).&lt;/p&gt;
@@ -272,6 +271,7 @@ rw2 &amp;lt;- roulette_wheel(coins = 100,
       <content:encoded><p>One of my favorite <a href="https://jamesmccaffrey.wordpress.com/">data science blogs</a> comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a <a href="https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/">blog post</a> on a method for allocating turns in a multi-armed bandit problem.</p>
 <p>I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.</p>
 <p><strong>Note:</strong> this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.</p>
+<p>You can find the .Rmd file for this post <a href="https://github.com/bgstieber/bgstieber.github.io/blob/master/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en.Rmd">on my GitHub</a>.</p>
 <div id="background" class="section level1">
 <h1>Background</h1>
 <p>The basic idea of a <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">multi-armed bandit</a> is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we’re data scientists at a casino, hopefully we’re using the information we’re gathering to make better gambling decisions (is that an oxymoron?).</p>
@@ -527,7 +527,7 @@ rw2 &lt;- roulette_wheel(coins = 100,
       <title>Recommending Songs Using Cosine Similarity in R</title>
       <link>/post/recommending-songs-using-cosine-similarity-in-r/</link>
       <pubDate>December 31, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/recommending-songs-using-cosine-similarity-in-r/</guid>
       <description>&lt;p&gt;Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even &lt;a href=&#34;https://www.redfin.com/blog/2013/09/the-end-of-search.html&#34;&gt;the homes we buy&lt;/a&gt; are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: &lt;strong&gt;cosine similarity&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity. Finally, I’m going to use cosine similarity to build a recommendation engine for songs in R.&lt;/p&gt;
@@ -1168,7 +1168,7 @@ knitr::kable(calc_cos_sim(shots))</code></pre>
       <title>Using R to Create Custom Color Palettes for Tableau</title>
       <link>/post/using-r-to-create-custom-color-palettes-for-tableau/</link>
       <pubDate>October 31, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/using-r-to-create-custom-color-palettes-for-tableau/</guid>
       <description>&lt;p&gt;Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use &lt;code&gt;R&lt;/code&gt; to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!&lt;/p&gt;
 &lt;p&gt;This is going to be a short post, with just a little bit of &lt;code&gt;R&lt;/code&gt; code.&lt;/p&gt;
@@ -1403,7 +1403,7 @@ x&lt;-purrr::map(4:7,
       <title>Iterating on a 2016 Election Analysis</title>
       <link>/post/iterating-on-a-2016-election-analysis/</link>
       <pubDate>October 3, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/iterating-on-a-2016-election-analysis/</guid>
       <description>&lt;p&gt;Jake Low wrote a &lt;a href=&#34;https://beta.observablehq.com/@jake-low/how-well-does-population-density-predict-u-s-voting-outcome&#34;&gt;really interesting piece&lt;/a&gt; that presented a few data visualizations that went beyond the typical &lt;a href=&#34;https://www.nytimes.com/interactive/2018/upshot/election-2016-voting-precinct-maps.html&#34;&gt;2016 election maps&lt;/a&gt; we’ve all gotten used to seeing.&lt;/p&gt;
 &lt;p&gt;I liked a lot of things about Jake’s post, here are three I was particularly fond of:&lt;/p&gt;
@@ -1694,7 +1694,7 @@ results_pop_census_map &lt;- county_map_with_fips %&gt;%
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
       <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>August 6, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34;&gt;
 &lt;h1&gt;Introduction&lt;/h1&gt;
@@ -2257,7 +2257,7 @@ glm2 &lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.W
       <title>Golf, Tidy Data, and Using Data Analysis to Guide Strategy</title>
       <link>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
       <pubDate>June 24, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
       <description>&lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Introduction&lt;/h2&gt;
@@ -3426,7 +3426,7 @@ cbind(dummy_table2,
       <title>An Introduction to the kmeans Algorithm</title>
       <link>/post/an-introduction-to-the-kmeans-algorithm/</link>
       <pubDate>May 28, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/an-introduction-to-the-kmeans-algorithm/</guid>
       <description>&lt;p&gt;This post will provide an &lt;code&gt;R&lt;/code&gt; code-heavy, math-light introduction to selecting the &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; in &lt;strong&gt;k&lt;/strong&gt; means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in &lt;code&gt;R&lt;/code&gt;, provides some components of the kmeans fit, and displays some methods for selecting &lt;code&gt;k&lt;/code&gt;. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.&lt;/p&gt;
 &lt;p&gt;kmeans clustering is an example of &lt;a href=&#34;https://en.wikipedia.org/wiki/Unsupervised_learning&#34;&gt;unsupervised learning&lt;/a&gt;, where we do not have an output we’re explicitly trying to predict. We may have reasons to believe that there are latent groups within a dataset, so a clustering method can be a useful way to explore and describe pockets of similar observations within a dataset.&lt;/p&gt;
@@ -4145,7 +4145,7 @@ system.time(
       <title>My First Post</title>
       <link>/post/my-first-post/</link>
       <pubDate>May 26, 2018</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/post/my-first-post/</guid>
       <description>&lt;div id=&#34;welcome-to-my-blog&#34; class=&#34;section level1&#34;&gt;
 &lt;h1&gt;Welcome to my blog!&lt;/h1&gt;
@@ -4180,7 +4180,7 @@ system.time(
       <title>About me</title>
       <link>/about/</link>
       <pubDate>January 1, 0001</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/about/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Work:&lt;/strong&gt; I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Education:&lt;/strong&gt; I graduated with an MS in Statistics from the &lt;a href=&#34;https://www.wisc.edu/&#34;&gt;University of Wisconsin&lt;/a&gt; in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from &lt;a href=&#34;https://www.stcloudstate.edu/&#34;&gt;St. Cloud State University&lt;/a&gt; in 2015 (go Huskies! 🐺).&lt;/p&gt;
@@ -4197,7 +4197,7 @@ system.time(
       <title>Blogroll</title>
       <link>/blogroll/</link>
       <pubDate>January 1, 0001</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/blogroll/</guid>
       <description>&lt;div id=&#34;blogs-im-reading&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Blogs I’m reading:&lt;/h2&gt;

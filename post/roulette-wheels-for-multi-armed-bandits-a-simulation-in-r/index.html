@@ -210,6 +210,7 @@ if (!doNotTrack) {
         <p>One of my favorite <a href="https://jamesmccaffrey.wordpress.com/">data science blogs</a> comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a <a href="https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/">blog post</a> on a method for allocating turns in a multi-armed bandit problem.</p>
 <p>I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.</p>
 <p><strong>Note:</strong> this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.</p>
+<p>You can find the .Rmd file for this post <a href="https://github.com/bgstieber/bgstieber.github.io/blob/master/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en.Rmd">on my GitHub</a>.</p>
 <div id="background" class="section level1">
 <h1>Background</h1>
 <p>The basic idea of a <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">multi-armed bandit</a> is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we’re data scientists at a casino, hopefully we’re using the information we’re gathering to make better gambling decisions (is that an oxymoron?).</p>
@@ -572,14 +573,6 @@ rw2 &lt;- roulette_wheel(coins = 100,
         <ul class="list-inline text-center footer-links">
           
               <li>
-                <a href="mailto:bgstieber@gmail.com" title="Email me">
-                  <span class="fa-stack fa-lg">
-                    <i class="fa fa-circle fa-stack-2x"></i>
-                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
-                  </span>
-                </a>
-              </li>
-              <li>
                 <a href="https://github.com/bgstieber" title="GitHub">
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
@@ -600,14 +593,6 @@ rw2 &lt;- roulette_wheel(coins = 100,
                   <span class="fa-stack fa-lg">
                     <i class="fa fa-circle fa-stack-2x"></i>
                     <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
-                  </span>
-                </a>
-              </li>
-              <li>
-                <a href="https://open.spotify.com/user/12102534356?si=_IgBxYLORrG5sy5wQxUEog" title="Spotify">
-                  <span class="fa-stack fa-lg">
-                    <i class="fa fa-circle fa-stack-2x"></i>
-                    <i class="fa fa-spotify fa-stack-1x fa-inverse"></i>
                   </span>
                 </a>
               </li>

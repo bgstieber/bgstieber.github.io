@@ -5,8 +5,6 @@
     <link>/categories/</link>
     <description>Recent content in Categories on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <managingEditor>bgstieber@gmail.com (Brad Stieber)</managingEditor>
-    <webMaster>bgstieber@gmail.com (Brad Stieber)</webMaster>
     
 	<atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,7 +13,7 @@
       <title>Python</title>
       <link>/categories/python/</link>
       <pubDate>Sat, 26 May 2018 00:00:00 +0000</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/categories/python/</guid>
       <description></description>
     </item>
@@ -24,7 +22,7 @@
       <title>R</title>
       <link>/categories/r/</link>
       <pubDate>Tue, 29 Oct 2019 00:00:00 +0000</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/categories/r/</guid>
       <description></description>
     </item>
@@ -33,7 +31,7 @@
       <title>Tableau</title>
       <link>/categories/tableau/</link>
       <pubDate>Wed, 31 Oct 2018 00:00:00 +0000</pubDate>
-      <author>bgstieber@gmail.com (Brad Stieber)</author>
+      
       <guid>/categories/tableau/</guid>
       <description></description>
     </item>

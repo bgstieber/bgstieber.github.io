@@ -30,6 +30,8 @@ I really liked his post, and decided to take a look at the algorithm he describe
 
 __Note:__ this is strictly an implementation of Dr. McCaffrey's ideas from his blog post, and should not be taken as my own.
 
+You can find the .Rmd file for this post [on my GitHub](https://github.com/bgstieber/bgstieber.github.io/blob/master/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en.Rmd).
+
 # Background
 
 The basic idea of a [multi-armed bandit](https://en.wikipedia.org/wiki/Multi-armed_bandit) is that you have a fixed number of resources (e.g. money at a casino) and you have a number of competing places where you can allocate those resources (e.g. four slot machines at the casino). These allocations occur sequentially, so in the casino example, we choose a slot machine, observe the success or failure from our play, and then make the next allocation decision. Since we're data scientists at a casino, hopefully we're using the information we're gathering to make better gambling decisions (is that an oxymoron?).
