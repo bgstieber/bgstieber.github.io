@@ -5,10 +5,20 @@
     <link>/post/</link>
     <description>Recent content in Posts on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 29 Oct 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 03 Nov 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>7 Tips for Delivering a Great Data Science Presentation</title>
+      <link>/post/7-tips-for-delivering-a-great-data-science-presentation/</link>
+      <pubDate>Sun, 03 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/post/7-tips-for-delivering-a-great-data-science-presentation/</guid>
+      <description>Delivering a great data science presentation can seem daunting. By no means am I a communications expert, but I have presented my fair share of talks to a diverse group of audiences. Through my experience, I’ve developed a few easy-to-remember tips to hopefully make your next data science presentation your best yet. These are tips that have worked for me, and I hope they’re helpful!
+Without further ado, here are seven tips for delivering a great data science presentation.</description>
+    </item>
     
     <item>
       <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>

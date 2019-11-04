@@ -10,3 +10,5 @@ __Work:__ I currently work as a Data Analyst in the higher ed / non profit secto
 __Education:__ I graduated with an MS in Statistics from the [University of Wisconsin](https://www.wisc.edu/) in 2017 (go Badgers! `r emo::ji("open_hands")`). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from [St. Cloud State University](https://www.stcloudstate.edu/) in 2015 (go Huskies! `r emo::ji("wolf")`). 
 
 __Personal:__ I live in [Madison, WI](http://www.cityofmadison.com/). I like to spend my spare time reading, playing guitar, playing golf, and watching whatever Wisconsin sports team is on television. 
+
+My email is bgstieber (at) gmail (dot) com

@@ -5,10 +5,229 @@
     <link>/</link>
     <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>October 29, 2019</lastBuildDate>
+    <lastBuildDate>November 3, 2019</lastBuildDate>
     
         <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>7 Tips for Delivering a Great Data Science Presentation</title>
+      <link>/post/7-tips-for-delivering-a-great-data-science-presentation/</link>
+      <pubDate>November 3, 2019</pubDate>
+      
+      <guid>/post/7-tips-for-delivering-a-great-data-science-presentation/</guid>
+      <description>&lt;p&gt;Delivering a great data science presentation can seem daunting. By no means am I a communications expert, but I have presented my fair share of talks to a diverse group of audiences. Through my experience, I’ve developed a few easy-to-remember tips to hopefully make your next data science presentation your best yet. These are tips that have worked for me, and I hope they’re helpful!&lt;/p&gt;
+&lt;p&gt;Without further ado, here are &lt;strong&gt;seven tips for delivering a great data science presentation&lt;/strong&gt;.&lt;/p&gt;
+&lt;div id=&#34;practice-practice-practice&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;1. Practice, practice, practice&lt;/h3&gt;
+&lt;p&gt;This is the most important tip I can give to anyone. Practicing your presentation (in front of colleagues, friends, family, or the mirror) is one of the best ways to make sure you’ll feel comfortable on the day of your talk. In my opinion, it’s the best way to “stress-test” your talk and make sure you’re prepared.&lt;/p&gt;
+&lt;p&gt;By practicing multiple times, you can find portions of your presentation that can be edited, enhanced, or eliminated. By presenting to others and taking their feedback seriously, you can prepare yourself for your real audience and the questions they might have.&lt;/p&gt;
+&lt;p&gt;A corollary of &lt;strong&gt;practice, practice, practice&lt;/strong&gt;, is &lt;strong&gt;perfect practice makes perfect&lt;/strong&gt;. In your practice talks, try to simulate the environment of your talk as close as possible. It may help to deliver your practice talk while standing, dress up for your practice talk, or even practice in a public space if you expect your room to be noisy.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;talk-about-what-you-know-but-dont-be-afraid-to-branch-out-a-little&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;2. Talk about what you know, but don’t be afraid to branch out a little&lt;/h3&gt;
+&lt;p&gt;Another way to feel more comfortable is to make sure you’re comfortable with the material you’re presenting. I’ve been to a few talks where it was clear that the presenter wasn’t entirely confident with the subject of their talk. Data science is a broad field, so it’s nearly impossible to be an expert in &lt;em&gt;everything&lt;/em&gt;. Even though you &lt;em&gt;probably&lt;/em&gt; can’t be an expert in &lt;em&gt;everything&lt;/em&gt;, you can be knowledgeable about &lt;em&gt;something&lt;/em&gt;. Talk about that something!&lt;/p&gt;
+&lt;p&gt;That being said, delivering a presentation &lt;em&gt;can&lt;/em&gt; be an excellent way to familiarize yourself with a topic you haven’t explored in depth. Using the pressure of delivering a presentation may help you learn something you’ve been struggling to learn.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;look-yourself-in-the-mirror-and-say-im-not-an-impostor&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;3. Look yourself in the mirror and say “I’m not an impostor”&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.uwhealth.org/health-wellness/tips-to-overcome-imposter-syndrome/52943&#34;&gt;Impostor syndrome&lt;/a&gt; is real and it sucks.&lt;/p&gt;
+&lt;p&gt;One of my favorite posters growing up was this one:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;post_images/expert_in_anything_was_once_a_beginner.jpg&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We’re all at different levels of developing our skills. I’ve found that some of my biggest data science aha moments come from having conversations with people outside of the field. Sometimes, knowing too much &lt;em&gt;can&lt;/em&gt; be a bad thing, especially when it introduces rigidity or bias to a problem-solving strategy.&lt;/p&gt;
+&lt;p&gt;No matter what level you’re at, &lt;strong&gt;I guarantee that you can provide useful information to your audience&lt;/strong&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;put-yourself-in-the-shoes-of-an-audience-member&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;4. Put yourself in the shoes of an audience member&lt;/h3&gt;
+&lt;p&gt;If you were attending your talk, what would you want to learn? how would you expect the presentation to be delivered? how much information do you think you can absorb? You should also remind yourself that most people in the audience are coming to your presentation to have a positive experience.&lt;/p&gt;
+&lt;p&gt;By taking an empathetic approach to understand the preferences of your audience, you can better prepare your talk and make it as effective as possible.&lt;/p&gt;
+&lt;p&gt;One of my favorite (and most critical) ways to evaluate my own presentation is to ask myself “so what?” or “why should I care?” for each slide in my deck. If the slide can’t pass that test, I either remove it or edit it until it does. It’s probably an extreme approach, but I like doing this because it ensures that I’ve taken every step I can to reduce any irrelevant sections from my talk.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;play-your-game-not-anyone-elses&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;5. Play your game, not anyone else’s&lt;/h3&gt;
+&lt;p&gt;One of the most notable data presentations is &lt;a href=&#34;https://www.youtube.com/watch?v=hVimVzgtD6w&#34;&gt;this one&lt;/a&gt; from Hans Rosling. He’s engaging, dynamic, and entertaining. His presentation style seems effortless. He makes data fun!&lt;/p&gt;
+&lt;p&gt;Although I’d like to give presentations like Hans Rosling, I know I can’t right now. The best I can do is to present in the style that best fits me. This doesn’t mean I’ve resigned to delivering flat, boring, and dry talks. Instead, I stay realistic and try to do the best that I can do, not the best Hans Rosling could do.&lt;/p&gt;
+&lt;p&gt;Speaking of being realistic…&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;set-realistic-expectations-strive-to-meet-them-and-hold-yourself-accountable&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;6. Set realistic expectations, strive to meet them, and hold yourself accountable&lt;/h3&gt;
+&lt;p&gt;Another way to say this is to &lt;strong&gt;set yourself up for success, not disappointment&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Here’s an example.&lt;/p&gt;
+&lt;p&gt;For my first presentation at a professional conference, the conference organizers provided ways to promote your session through social media and email. I thought this was really cool, but I had no interest taking part in these promotional activities. I had already committed to delivering my first talk at a professional conference, which took a lot of time to prepare for. I set a goal of delivering the best talk I could, and promoting my session was not part of my plan to achieve this goal. I stayed focused on my primary goal, and avoided getting distracted by anything else.&lt;/p&gt;
+&lt;p&gt;Here are a few different ways of turning unrealistic goals into realistic and attainable ones.&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;Unrealistic&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Realistic&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Deliver the best damn talk anyone has ever seen&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Deliver a strong talk, providing useful information to those in attendance&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Make people fall out of their chairs laughing&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Have a few punch lines that make at least one person laugh/chuckle/smirk&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Make my twenty minute talk last exactly twenty minutes&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Make my twenty minute talk last about twenty minutes, without sacrificing material or interfering with others’ presentations&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;BLOW MINDS&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Provide a new and accessible way of framing or thinking about a problem&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Be the next Hans Rosling&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Deliver an engaging presentation, without seeming inauthentic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;div id=&#34;take-audience-feedback-and-questions-seriously-and-use-them-to-learn-and-improve&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;7. Take audience feedback and questions seriously, and use them to learn and improve&lt;/h3&gt;
+&lt;p&gt;This tip doesn’t apply to delivering your presentation, it’s about your &lt;em&gt;next&lt;/em&gt; presentation.&lt;/p&gt;
+&lt;p&gt;After you’ve finished your talk, do an analysis of your presentation.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;What went well?&lt;/li&gt;
+&lt;li&gt;What could have been improved?&lt;/li&gt;
+&lt;li&gt;How engaged was your audience?
+&lt;ul&gt;
+&lt;li&gt;An indicator I use to judge engagement are how many people laugh at one of my lame jokes and how many people ask questions&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;What questions were asked?
+&lt;ul&gt;
+&lt;li&gt;You can use these questions to understand how well you conveyed your points and how engaging your presentation was.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Did you receive any feedback or constructive criticism on your content, delivery, and presentation style?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can learn a lot just by paying attention to how your audience received you and your own perception of your performance.&lt;/p&gt;
+&lt;p&gt;Just like how most machine learning algorithms get better at minimizing a loss function through iteration after iteration, you can improve your presentation through actively learning and iterating on your presentation style.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrapping-up&#34; class=&#34;section level1&#34;&gt;
+&lt;h1&gt;Wrapping up&lt;/h1&gt;
+&lt;p&gt;Just to recap, here are my tips for a great data science presentation:&lt;/p&gt;
+&lt;ol style=&#34;list-style-type: decimal&#34;&gt;
+&lt;li&gt;Practice, practice, practice&lt;/li&gt;
+&lt;li&gt;Talk about what you know&lt;/li&gt;
+&lt;li&gt;Look yourself in the mirror and say “I’m not an impostor”&lt;/li&gt;
+&lt;li&gt;Put yourself in the shoes of an audience member&lt;/li&gt;
+&lt;li&gt;Play your game, not anyone else’s&lt;/li&gt;
+&lt;li&gt;Set realistic expectations, strive to meet them, and hold yourself accountable&lt;/li&gt;
+&lt;li&gt;Take audience feedback and questions seriously, and use them to learn and improve&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Do you have any tips for giving a great talk? If so, go ahead and leave them in the comments below!&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <content:encoded><p>Delivering a great data science presentation can seem daunting. By no means am I a communications expert, but I have presented my fair share of talks to a diverse group of audiences. Through my experience, I’ve developed a few easy-to-remember tips to hopefully make your next data science presentation your best yet. These are tips that have worked for me, and I hope they’re helpful!</p>
+<p>Without further ado, here are <strong>seven tips for delivering a great data science presentation</strong>.</p>
+<div id="practice-practice-practice" class="section level3">
+<h3>1. Practice, practice, practice</h3>
+<p>This is the most important tip I can give to anyone. Practicing your presentation (in front of colleagues, friends, family, or the mirror) is one of the best ways to make sure you’ll feel comfortable on the day of your talk. In my opinion, it’s the best way to “stress-test” your talk and make sure you’re prepared.</p>
+<p>By practicing multiple times, you can find portions of your presentation that can be edited, enhanced, or eliminated. By presenting to others and taking their feedback seriously, you can prepare yourself for your real audience and the questions they might have.</p>
+<p>A corollary of <strong>practice, practice, practice</strong>, is <strong>perfect practice makes perfect</strong>. In your practice talks, try to simulate the environment of your talk as close as possible. It may help to deliver your practice talk while standing, dress up for your practice talk, or even practice in a public space if you expect your room to be noisy.</p>
+</div>
+<div id="talk-about-what-you-know-but-dont-be-afraid-to-branch-out-a-little" class="section level3">
+<h3>2. Talk about what you know, but don’t be afraid to branch out a little</h3>
+<p>Another way to feel more comfortable is to make sure you’re comfortable with the material you’re presenting. I’ve been to a few talks where it was clear that the presenter wasn’t entirely confident with the subject of their talk. Data science is a broad field, so it’s nearly impossible to be an expert in <em>everything</em>. Even though you <em>probably</em> can’t be an expert in <em>everything</em>, you can be knowledgeable about <em>something</em>. Talk about that something!</p>
+<p>That being said, delivering a presentation <em>can</em> be an excellent way to familiarize yourself with a topic you haven’t explored in depth. Using the pressure of delivering a presentation may help you learn something you’ve been struggling to learn.</p>
+</div>
+<div id="look-yourself-in-the-mirror-and-say-im-not-an-impostor" class="section level3">
+<h3>3. Look yourself in the mirror and say “I’m not an impostor”</h3>
+<p><a href="https://www.uwhealth.org/health-wellness/tips-to-overcome-imposter-syndrome/52943">Impostor syndrome</a> is real and it sucks.</p>
+<p>One of my favorite posters growing up was this one:</p>
+<p><img src="post_images/expert_in_anything_was_once_a_beginner.jpg" /></p>
+<p>We’re all at different levels of developing our skills. I’ve found that some of my biggest data science aha moments come from having conversations with people outside of the field. Sometimes, knowing too much <em>can</em> be a bad thing, especially when it introduces rigidity or bias to a problem-solving strategy.</p>
+<p>No matter what level you’re at, <strong>I guarantee that you can provide useful information to your audience</strong>.</p>
+</div>
+<div id="put-yourself-in-the-shoes-of-an-audience-member" class="section level3">
+<h3>4. Put yourself in the shoes of an audience member</h3>
+<p>If you were attending your talk, what would you want to learn? how would you expect the presentation to be delivered? how much information do you think you can absorb? You should also remind yourself that most people in the audience are coming to your presentation to have a positive experience.</p>
+<p>By taking an empathetic approach to understand the preferences of your audience, you can better prepare your talk and make it as effective as possible.</p>
+<p>One of my favorite (and most critical) ways to evaluate my own presentation is to ask myself “so what?” or “why should I care?” for each slide in my deck. If the slide can’t pass that test, I either remove it or edit it until it does. It’s probably an extreme approach, but I like doing this because it ensures that I’ve taken every step I can to reduce any irrelevant sections from my talk.</p>
+</div>
+<div id="play-your-game-not-anyone-elses" class="section level3">
+<h3>5. Play your game, not anyone else’s</h3>
+<p>One of the most notable data presentations is <a href="https://www.youtube.com/watch?v=hVimVzgtD6w">this one</a> from Hans Rosling. He’s engaging, dynamic, and entertaining. His presentation style seems effortless. He makes data fun!</p>
+<p>Although I’d like to give presentations like Hans Rosling, I know I can’t right now. The best I can do is to present in the style that best fits me. This doesn’t mean I’ve resigned to delivering flat, boring, and dry talks. Instead, I stay realistic and try to do the best that I can do, not the best Hans Rosling could do.</p>
+<p>Speaking of being realistic…</p>
+</div>
+<div id="set-realistic-expectations-strive-to-meet-them-and-hold-yourself-accountable" class="section level3">
+<h3>6. Set realistic expectations, strive to meet them, and hold yourself accountable</h3>
+<p>Another way to say this is to <strong>set yourself up for success, not disappointment</strong>.</p>
+<p>Here’s an example.</p>
+<p>For my first presentation at a professional conference, the conference organizers provided ways to promote your session through social media and email. I thought this was really cool, but I had no interest taking part in these promotional activities. I had already committed to delivering my first talk at a professional conference, which took a lot of time to prepare for. I set a goal of delivering the best talk I could, and promoting my session was not part of my plan to achieve this goal. I stayed focused on my primary goal, and avoided getting distracted by anything else.</p>
+<p>Here are a few different ways of turning unrealistic goals into realistic and attainable ones.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Unrealistic</th>
+<th align="left">Realistic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Deliver the best damn talk anyone has ever seen</td>
+<td align="left">Deliver a strong talk, providing useful information to those in attendance</td>
+</tr>
+<tr class="even">
+<td align="left">Make people fall out of their chairs laughing</td>
+<td align="left">Have a few punch lines that make at least one person laugh/chuckle/smirk</td>
+</tr>
+<tr class="odd">
+<td align="left">Make my twenty minute talk last exactly twenty minutes</td>
+<td align="left">Make my twenty minute talk last about twenty minutes, without sacrificing material or interfering with others’ presentations</td>
+</tr>
+<tr class="even">
+<td align="left">BLOW MINDS</td>
+<td align="left">Provide a new and accessible way of framing or thinking about a problem</td>
+</tr>
+<tr class="odd">
+<td align="left">Be the next Hans Rosling</td>
+<td align="left">Deliver an engaging presentation, without seeming inauthentic</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="take-audience-feedback-and-questions-seriously-and-use-them-to-learn-and-improve" class="section level3">
+<h3>7. Take audience feedback and questions seriously, and use them to learn and improve</h3>
+<p>This tip doesn’t apply to delivering your presentation, it’s about your <em>next</em> presentation.</p>
+<p>After you’ve finished your talk, do an analysis of your presentation.</p>
+<ul>
+<li>What went well?</li>
+<li>What could have been improved?</li>
+<li>How engaged was your audience?
+<ul>
+<li>An indicator I use to judge engagement are how many people laugh at one of my lame jokes and how many people ask questions</li>
+</ul></li>
+<li>What questions were asked?
+<ul>
+<li>You can use these questions to understand how well you conveyed your points and how engaging your presentation was.</li>
+</ul></li>
+<li>Did you receive any feedback or constructive criticism on your content, delivery, and presentation style?</li>
+</ul>
+<p>You can learn a lot just by paying attention to how your audience received you and your own perception of your performance.</p>
+<p>Just like how most machine learning algorithms get better at minimizing a loss function through iteration after iteration, you can improve your presentation through actively learning and iterating on your presentation style.</p>
+</div>
+<div id="wrapping-up" class="section level1">
+<h1>Wrapping up</h1>
+<p>Just to recap, here are my tips for a great data science presentation:</p>
+<ol style="list-style-type: decimal">
+<li>Practice, practice, practice</li>
+<li>Talk about what you know</li>
+<li>Look yourself in the mirror and say “I’m not an impostor”</li>
+<li>Put yourself in the shoes of an audience member</li>
+<li>Play your game, not anyone else’s</li>
+<li>Set realistic expectations, strive to meet them, and hold yourself accountable</li>
+<li>Take audience feedback and questions seriously, and use them to learn and improve</li>
+</ol>
+<p>Do you have any tips for giving a great talk? If so, go ahead and leave them in the comments below!</p>
+</div>
+</content:encoded>
+
+    </item>
     
     <item>
       <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
@@ -4185,10 +4404,12 @@ system.time(
       <description>&lt;p&gt;&lt;strong&gt;Work:&lt;/strong&gt; I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Education:&lt;/strong&gt; I graduated with an MS in Statistics from the &lt;a href=&#34;https://www.wisc.edu/&#34;&gt;University of Wisconsin&lt;/a&gt; in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from &lt;a href=&#34;https://www.stcloudstate.edu/&#34;&gt;St. Cloud State University&lt;/a&gt; in 2015 (go Huskies! 🐺).&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Personal:&lt;/strong&gt; I live in &lt;a href=&#34;http://www.cityofmadison.com/&#34;&gt;Madison, WI&lt;/a&gt;. I like to spend my spare time reading, playing guitar, playing golf, and watching whatever Wisconsin sports team is on television.&lt;/p&gt;
+&lt;p&gt;My email is bgstieber (at) gmail (dot) com&lt;/p&gt;
 </description>
       <content:encoded><p><strong>Work:</strong> I currently work as a Data Analyst in the higher ed / non profit sector. Prior to that, I worked in analytics and reporting for a private financing company. On the side, I am a volunteer data scientist for a few different organizations.</p>
 <p><strong>Education:</strong> I graduated with an MS in Statistics from the <a href="https://www.wisc.edu/">University of Wisconsin</a> in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from <a href="https://www.stcloudstate.edu/">St. Cloud State University</a> in 2015 (go Huskies! 🐺).</p>
 <p><strong>Personal:</strong> I live in <a href="http://www.cityofmadison.com/">Madison, WI</a>. I like to spend my spare time reading, playing guitar, playing golf, and watching whatever Wisconsin sports team is on television.</p>
+<p>My email is bgstieber (at) gmail (dot) com</p>
 </content:encoded>
 
     </item>
