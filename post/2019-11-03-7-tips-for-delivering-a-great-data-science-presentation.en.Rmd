@@ -34,7 +34,14 @@ That being said, delivering a presentation _can_ be an excellent way to familiar
 
 One of my favorite posters growing up was this one:
 
-![](post_images/expert_in_anything_was_once_a_beginner.jpg)
+```{r, echo=FALSE}
+# Define variable containing url
+# https://stackoverflow.com/a/28915042/5619526
+url <- "https://i.pinimg.com/736x/79/65/16/796516bfc4186f6e7762eae6617fe30a--baseball-mom-baseball-stuff.jpg"
+```
+
+<img src="`r url`" height = "400px" width = "300px">
+
 
 We're all at different levels of developing our skills. I've found that some of my biggest data science aha moments come from having conversations with people outside of the field. Sometimes, knowing too much _can_ be a bad thing, especially when it introduces rigidity or bias to a problem-solving strategy.
 
