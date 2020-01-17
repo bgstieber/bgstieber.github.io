@@ -285,20 +285,6 @@ library(caret) # caret or carrot? :)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">5.5</td>
-<td align="left">2.3</td>
-<td align="left">4.0</td>
-<td align="left">1.3</td>
-<td align="left">versicolor</td>
-</tr>
-<tr class="even">
-<td align="left">6.7</td>
-<td align="left">3.1</td>
-<td align="left">4.4</td>
-<td align="left">1.4</td>
-<td align="left">versicolor</td>
-</tr>
-<tr class="odd">
 <td align="left">6.1</td>
 <td align="left">2.6</td>
 <td align="left">5.6</td>
@@ -306,24 +292,38 @@ library(caret) # caret or carrot? :)</code></pre>
 <td align="left">virginica</td>
 </tr>
 <tr class="even">
-<td align="left">5.7</td>
-<td align="left">4.4</td>
-<td align="left">1.5</td>
+<td align="left">6.9</td>
+<td align="left">3.1</td>
+<td align="left">5.1</td>
+<td align="left">2.3</td>
+<td align="left">virginica</td>
+</tr>
+<tr class="odd">
+<td align="left">5.1</td>
+<td align="left">3.8</td>
+<td align="left">1.9</td>
 <td align="left">0.4</td>
 <td align="left">setosa</td>
 </tr>
+<tr class="even">
+<td align="left">4.9</td>
+<td align="left">3.1</td>
+<td align="left">1.5</td>
+<td align="left">0.2</td>
+<td align="left">setosa</td>
+</tr>
 <tr class="odd">
-<td align="left">6.4</td>
-<td align="left">2.8</td>
-<td align="left">5.6</td>
-<td align="left">2.2</td>
-<td align="left">virginica</td>
+<td align="left">4.8</td>
+<td align="left">3.0</td>
+<td align="left">1.4</td>
+<td align="left">0.3</td>
+<td align="left">setosa</td>
 </tr>
 <tr class="even">
-<td align="left">5.7</td>
-<td align="left">2.5</td>
-<td align="left">5.0</td>
-<td align="left">2.0</td>
+<td align="left">7.7</td>
+<td align="left">2.6</td>
+<td align="left">6.9</td>
+<td align="left">2.3</td>
 <td align="left">virginica</td>
 </tr>
 </tbody>
@@ -380,7 +380,7 @@ iris_rfe &lt;- rfe(x = iris_X_train_cs,
                 rfeControl = rf_control)
 
 iris_rfe$optVariables</code></pre>
-<pre><code>## [1] &quot;Petal.Length:Petal.Width&quot; &quot;Petal.Length_sq&quot;</code></pre>
+<pre><code>## [1] &quot;Petal.Length:Petal.Width&quot; &quot;Sepal.Length:Petal.Width&quot;</code></pre>
 <p>The procedure we used for variable selection suggested an interaction between the petal length and petal width variables, and petal length squared. It’s usually a bad idea to include higher ordered terms without also including the lower order terms, so our final model will have three variables: petal width, petal length, and petal width * petal length interaction.</p>
 </div>
 <div id="cooking-methods" class="section level2">
@@ -410,7 +410,7 @@ plot(cv_glm1)</code></pre>
 lambda_2 &lt;- exp(-6.5)
 plot(cv_glm2)</code></pre>
 <p><img src="/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p>Cross-validation suggests a rather small value of <span class="math inline">\(\lambda\)</span>, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of <span class="math inline">\(\lambda\)</span> to fit the model (<span class="math inline">\(\lambda_1\)</span> = 0.0775, <span class="math inline">\(\lambda_2\)</span> = 0.0015), and then investigate the results.</p>
+<p>Cross-validation suggests a rather small value of <span class="math inline">\(\lambda\)</span>, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of <span class="math inline">\(\lambda\)</span> to fit the model (<span class="math inline">\(\lambda_1\)</span> = 0.0698, <span class="math inline">\(\lambda_2\)</span> = 0.0015), and then investigate the results.</p>
 </div>
 <div id="tasting-the-soup" class="section level2">
 <h2>Tasting the soup</h2>
@@ -447,22 +447,22 @@ glm2 &lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.W
 <tr class="odd">
 <td align="left">ridge_1</td>
 <td align="left">regularized-lambda1</td>
-<td align="left">91.11%</td>
+<td align="left">84.4%</td>
 </tr>
 <tr class="even">
 <td align="left">ridge_2</td>
 <td align="left">regularized-lambda2</td>
-<td align="left">95.56%</td>
+<td align="left">95.6%</td>
 </tr>
 <tr class="odd">
 <td align="left">glm1</td>
 <td align="left">full</td>
-<td align="left">100.00%</td>
+<td align="left">100.0%</td>
 </tr>
 <tr class="even">
 <td align="left">glm2</td>
 <td align="left">original</td>
-<td align="left">100.00%</td>
+<td align="left">100.0%</td>
 </tr>
 </tbody>
 </table>
@@ -647,7 +647,7 @@ glm2 &lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.W
           
 
           &nbsp;&bull;&nbsp;
-          2019
+          2020
 
           
             &nbsp;&bull;&nbsp;

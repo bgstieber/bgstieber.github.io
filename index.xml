@@ -5,10 +5,659 @@
     <link>/</link>
     <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>November 3, 2019</lastBuildDate>
+    <lastBuildDate>January 17, 2020</lastBuildDate>
     
         <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Quantifying Home Field Advantage in the NFL Using Linear Models in R</title>
+      <link>/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</link>
+      <pubDate>January 17, 2020</pubDate>
+      
+      <guid>/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</guid>
+      <description>&lt;p&gt;If you pay attention to NFL football, you’re probably used to hearing that &lt;a href=&#34;https://en.wikipedia.org/wiki/Home_advantage&#34;&gt;homefield advantage&lt;/a&gt; is worth about 3 points. I’ve always been interested in this number, and how it was derived. So, using &lt;a href=&#34;https://github.com/fivethirtyeight/data/tree/master/nfl-elo&#34;&gt;some data from FiveThirtyEight&lt;/a&gt;, along with some linear modeling in R, I attempted to quantify home field advantage. My analysis shows that home field advantage (how much we expect the home team to win by, if the teams are evenly matched) is about 2.59 points.&lt;/p&gt;
+&lt;p&gt;Here are the packages we’ll need:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
+library(data.table)
+library(ggridges)
+library(scales)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can find my code for this analysis &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/quantifying-nfl-homefield-advantage&#34;&gt;on my GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;FiveThirtyEight has a data set with game-by-game Elo ratings and forecasts dating back to 1920. Elo ratings are simple measures of strength based on game-by-game results. More details on Elo ratings can be found &lt;a href=&#34;https://fivethirtyeight.com/features/nfl-elo-ratings-are-back/&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;It’s pretty easy to get this data.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data_link &amp;lt;- &amp;quot;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&amp;quot;
+
+nfl_data &amp;lt;- fread(data_link, verbose = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here are the first few rows and columns of the data:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;date&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;season&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;neutral&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;playoff&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;team1&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;team2&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;elo1_pre&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;elo2_pre&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1920-09-26&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1920&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;RII&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;STP&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1503.947&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1300.000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1920-10-03&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1920&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;DAY&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;COL&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1493.002&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1504.908&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1920-10-03&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1920&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;RII&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;MUN&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1516.108&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1478.004&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1920-10-03&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1920&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;CHI&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;MUT&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1368.333&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1300.000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1920-10-03&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1920&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;CBD&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;PTQ&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1504.688&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1300.000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1920-10-03&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1920&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;BFF&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;WBU&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1478.004&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1300.000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The full description of the data can be found on &lt;a href=&#34;https://github.com/fivethirtyeight/data/tree/master/nfl-elo&#34;&gt;FiveThirtyEight’s GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;We’re interested in a few variables in this data:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;variable&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;definition&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;elo1_pre&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Home team’s Elo rating before the game&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;elo2_pre&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Away team’s Elo rating before the game&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;qbelo1_pre&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Home team’s quarterback-adjusted base rating before the game&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;qbelo2_pre&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Away team’s quarterback-adjusted base rating before the game&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;score1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Home team’s score&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;score2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;Away team’s score&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;To quantify home field advantage, we can look at the home vs away score differential for all games &lt;strong&gt;not played at a neutral site&lt;/strong&gt;. We excluded playoff games from this analysis.&lt;/p&gt;
+&lt;p&gt;Here’s the summary of that score differential:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;measure&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;value&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Min.&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-57.00000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1st Qu.&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-7.00000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Median&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.00000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Mean&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.59056&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;3rd Qu.&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;12.00000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;Max.&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;59.00000&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;The median margin of victory is 3. Since this number is positive, it implies that there &lt;em&gt;is&lt;/em&gt; a noticeable home field advantage.&lt;/p&gt;
+&lt;p&gt;You might be wondering, has home field advantage been changing over time?&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;If you look at the most recent decades, you’ll notice that the distribution has been becoming &lt;a href=&#34;https://en.wikipedia.org/wiki/Multimodal_distribution&#34;&gt;bimodal&lt;/a&gt;, meaning there are two “peaks” in the distribution. The peaks belong to margins of victory of three points (a field goal) for the home and away teams:&lt;/p&gt;
+&lt;table&gt;
+&lt;caption&gt;&lt;span id=&#34;tab:unnamed-chunk-9&#34;&gt;Table 1: &lt;/span&gt;Two most frequently occurring outcomes for each decade&lt;/caption&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;Decade&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Home - Away&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;Count of Games&lt;/th&gt;
+&lt;th align=&#34;left&#34;&gt;% of Games&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;2010&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;203&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;8.02%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;2010&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;165&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.52%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;2000&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;225&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;8.87%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;2000&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;173&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.82%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1990&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;196&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;8.419%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1990&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;181&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;7.775%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1980&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;159&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;7.472%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1980&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;139&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.532%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1970&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;102&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.280%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1970&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;98&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.072%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1960&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;84&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.214%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1960&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;72&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.469%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1950&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;37&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.096%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;1950&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;-4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;35&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.821%&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;It’s not just good enough to take the average or median of all home vs away score differentials. Each NFL game is different, and by just blindly taking a summary statistic, we are assuming that the teams playing in each game are evenly matched. In my opinion, this assumption is &lt;strong&gt;invalid&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;We can use linear models to get closer to understanding home field advantage, by adjusting for the differences between the two teams. But before we get too deep into that, let’s take a closer look at linear regression.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;linear-regression-basics&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Linear Regression Basics&lt;/h2&gt;
+&lt;p&gt;A lot of people are familiar with linear models, having performed “line of best fit” calculations sometime in high school. Most people cringe when they see the &lt;span class=&#34;math inline&#34;&gt;\(y = mx + b\)&lt;/span&gt; formula, but statisticians and data scientists feel their hearts warm and get very excited after glancing at that formula.&lt;/p&gt;
+&lt;p&gt;Linear models are incredibly powerful tools of statistical analysis. Most of the time, we spend a lot of energy interpreting the &lt;span class=&#34;math inline&#34;&gt;\(m\)&lt;/span&gt; in the equation above. This gives us insight into how much we expect &lt;span class=&#34;math inline&#34;&gt;\(y\)&lt;/span&gt; to change (&lt;strong&gt;on average&lt;/strong&gt;) when &lt;span class=&#34;math inline&#34;&gt;\(x\)&lt;/span&gt; changes by some amount.&lt;/p&gt;
+&lt;p&gt;To illustrate, let’s use the mtcars data set to predict a car’s miles per gallon using its weight in pounds.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The linear model’s formula is displayed in the upper right hand corner of the plot. The coefficient for &lt;span class=&#34;math inline&#34;&gt;\(wt\)&lt;/span&gt; is -5.3, this is the &lt;span class=&#34;math inline&#34;&gt;\(m\)&lt;/span&gt; in the &lt;span class=&#34;math inline&#34;&gt;\(y = mx + b\)&lt;/span&gt; equation. The coefficient is negative, meaning that as the weight of the car increases, we expect its fuel efficiency to get worse. But what about &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt;, the intercept of the line?&lt;/p&gt;
+&lt;p&gt;The intercept of the best fit line is our “predicted” value of &lt;span class=&#34;math inline&#34;&gt;\(y\)&lt;/span&gt; when &lt;span class=&#34;math inline&#34;&gt;\(x\)&lt;/span&gt; equals 0. So, when the weight of a car is 0 pounds, we expect it to get 37.29 miles per gallon. This doesn’t make any sense! A car that weighs 0 pounds doesn’t get any miles per gallon, it doesn’t even exist!&lt;/p&gt;
+&lt;p&gt;In a lot of linear models, the intercept isn’t really worth interpreting. However, we can use the intercept to understand home field advantage using our NFL data.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;interpreting-the-intercept-in-a-model-of-the-nfl&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Interpreting the Intercept in a Model of the NFL&lt;/h2&gt;
+&lt;p&gt;We first fit a model trying to predict the home vs away score differential using the home vs away pre game Elo differential and the home vs away pre game QB Elo differential.&lt;/p&gt;
+&lt;p&gt;When the Elo differentials are equal to zero, it means the teams are effectively even matched (our best guess for the power rankings of the respective teams are basically equal). This gets us closer to understanding true home field advantage than taking a summary statistic would.&lt;/p&gt;
+&lt;p&gt;Our model will look like:&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[ \text{Home - Away Score} = \beta_{0} + \beta_{1} *\text{Elo Difference} + \beta_{2} * \text{QB Elo Difference}\]&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;While &lt;span class=&#34;math inline&#34;&gt;\(\beta_{1}\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(\beta_{2}\)&lt;/span&gt; above are interesting, we’re most interested in &lt;span class=&#34;math inline&#34;&gt;\(\beta_{0}\)&lt;/span&gt;, since this quantifies the home field advantage for evenly matched teams.&lt;/p&gt;
+&lt;p&gt;Enough talking, let’s fit the model:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;score_diff_model &amp;lt;- lm(home_away_score_diff ~ home_away_elo_diff+home_away_qb_elo_diff,
+                       data = model_data)&lt;/code&gt;&lt;/pre&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr class=&#34;header&#34;&gt;
+&lt;th align=&#34;left&#34;&gt;term&lt;/th&gt;
+&lt;th align=&#34;right&#34;&gt;estimate&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;(Intercept)&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;2.586&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;home_away_elo_diff&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.037&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;home_away_qb_elo_diff&lt;/td&gt;
+&lt;td align=&#34;right&#34;&gt;0.021&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Touchdown!&lt;/p&gt;
+&lt;p&gt;If we look at the intercept, the value is about 2.59. This means that if the two teams are basically evenly matched (i.e. &lt;span class=&#34;math inline&#34;&gt;\(x=0\)&lt;/span&gt; in &lt;span class=&#34;math inline&#34;&gt;\(y = mx+b\)&lt;/span&gt;), we can expect the home team to win by about 2.59 points (&lt;strong&gt;on average&lt;/strong&gt;).&lt;/p&gt;
+&lt;p&gt;Taking it one step further, here are the home field advantages for each decade.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-13-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrapping-up&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Wrapping Up&lt;/h2&gt;
+&lt;p&gt;We can learn some pretty cool things about our data if we pay close attention to the output of our linear models. I think a lot of people forget to pay attention to the intercepts in their linear models. This makes sense most of the time, because the intercept doesn’t really mean much in many of our models (e.g. if we predict a person’s height using their weight, the intercept is meaningless).&lt;/p&gt;
+&lt;p&gt;However, in some cases the intercept is really important. In this example using NFL data, we were able to use the intercept to quantify home field advantage for evenly matched teams. Hopefully this post will give a data point to bring up at a nice dinner party where you and your acquaintances are discussing what home field advantage &lt;em&gt;really&lt;/em&gt; means.&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <content:encoded><p>If you pay attention to NFL football, you’re probably used to hearing that <a href="https://en.wikipedia.org/wiki/Home_advantage">homefield advantage</a> is worth about 3 points. I’ve always been interested in this number, and how it was derived. So, using <a href="https://github.com/fivethirtyeight/data/tree/master/nfl-elo">some data from FiveThirtyEight</a>, along with some linear modeling in R, I attempted to quantify home field advantage. My analysis shows that home field advantage (how much we expect the home team to win by, if the teams are evenly matched) is about 2.59 points.</p>
+<p>Here are the packages we’ll need:</p>
+<pre class="r"><code>library(tidyverse)
+library(data.table)
+library(ggridges)
+library(scales)</code></pre>
+<p>You can find my code for this analysis <a href="https://github.com/bgstieber/files_for_blog/tree/master/quantifying-nfl-homefield-advantage">on my GitHub</a>.</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>FiveThirtyEight has a data set with game-by-game Elo ratings and forecasts dating back to 1920. Elo ratings are simple measures of strength based on game-by-game results. More details on Elo ratings can be found <a href="https://fivethirtyeight.com/features/nfl-elo-ratings-are-back/">here</a>.</p>
+<p>It’s pretty easy to get this data.</p>
+<pre class="r"><code>data_link &lt;- &quot;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&quot;
+
+nfl_data &lt;- fread(data_link, verbose = FALSE)</code></pre>
+<p>Here are the first few rows and columns of the data:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">date</th>
+<th align="left">season</th>
+<th align="left">neutral</th>
+<th align="left">playoff</th>
+<th align="left">team1</th>
+<th align="left">team2</th>
+<th align="left">elo1_pre</th>
+<th align="left">elo2_pre</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1920-09-26</td>
+<td align="left">1920</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">RII</td>
+<td align="left">STP</td>
+<td align="left">1503.947</td>
+<td align="left">1300.000</td>
+</tr>
+<tr class="even">
+<td align="left">1920-10-03</td>
+<td align="left">1920</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">DAY</td>
+<td align="left">COL</td>
+<td align="left">1493.002</td>
+<td align="left">1504.908</td>
+</tr>
+<tr class="odd">
+<td align="left">1920-10-03</td>
+<td align="left">1920</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">RII</td>
+<td align="left">MUN</td>
+<td align="left">1516.108</td>
+<td align="left">1478.004</td>
+</tr>
+<tr class="even">
+<td align="left">1920-10-03</td>
+<td align="left">1920</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">CHI</td>
+<td align="left">MUT</td>
+<td align="left">1368.333</td>
+<td align="left">1300.000</td>
+</tr>
+<tr class="odd">
+<td align="left">1920-10-03</td>
+<td align="left">1920</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">CBD</td>
+<td align="left">PTQ</td>
+<td align="left">1504.688</td>
+<td align="left">1300.000</td>
+</tr>
+<tr class="even">
+<td align="left">1920-10-03</td>
+<td align="left">1920</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">BFF</td>
+<td align="left">WBU</td>
+<td align="left">1478.004</td>
+<td align="left">1300.000</td>
+</tr>
+</tbody>
+</table>
+<p>The full description of the data can be found on <a href="https://github.com/fivethirtyeight/data/tree/master/nfl-elo">FiveThirtyEight’s GitHub</a>.</p>
+<p>We’re interested in a few variables in this data:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">variable</th>
+<th align="left">definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">elo1_pre</td>
+<td align="left">Home team’s Elo rating before the game</td>
+</tr>
+<tr class="even">
+<td align="left">elo2_pre</td>
+<td align="left">Away team’s Elo rating before the game</td>
+</tr>
+<tr class="odd">
+<td align="left">qbelo1_pre</td>
+<td align="left">Home team’s quarterback-adjusted base rating before the game</td>
+</tr>
+<tr class="even">
+<td align="left">qbelo2_pre</td>
+<td align="left">Away team’s quarterback-adjusted base rating before the game</td>
+</tr>
+<tr class="odd">
+<td align="left">score1</td>
+<td align="left">Home team’s score</td>
+</tr>
+<tr class="even">
+<td align="left">score2</td>
+<td align="left">Away team’s score</td>
+</tr>
+</tbody>
+</table>
+<p>To quantify home field advantage, we can look at the home vs away score differential for all games <strong>not played at a neutral site</strong>. We excluded playoff games from this analysis.</p>
+<p>Here’s the summary of that score differential:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">measure</th>
+<th align="left">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Min.</td>
+<td align="left">-57.00000</td>
+</tr>
+<tr class="even">
+<td align="left">1st Qu.</td>
+<td align="left">-7.00000</td>
+</tr>
+<tr class="odd">
+<td align="left">Median</td>
+<td align="left">3.00000</td>
+</tr>
+<tr class="even">
+<td align="left">Mean</td>
+<td align="left">2.59056</td>
+</tr>
+<tr class="odd">
+<td align="left">3rd Qu.</td>
+<td align="left">12.00000</td>
+</tr>
+<tr class="even">
+<td align="left">Max.</td>
+<td align="left">59.00000</td>
+</tr>
+</tbody>
+</table>
+<p>The median margin of victory is 3. Since this number is positive, it implies that there <em>is</em> a noticeable home field advantage.</p>
+<p>You might be wondering, has home field advantage been changing over time?</p>
+<p><img src="/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>If you look at the most recent decades, you’ll notice that the distribution has been becoming <a href="https://en.wikipedia.org/wiki/Multimodal_distribution">bimodal</a>, meaning there are two “peaks” in the distribution. The peaks belong to margins of victory of three points (a field goal) for the home and away teams:</p>
+<table>
+<caption><span id="tab:unnamed-chunk-9">Table 1: </span>Two most frequently occurring outcomes for each decade</caption>
+<thead>
+<tr class="header">
+<th align="left">Decade</th>
+<th align="left">Home - Away</th>
+<th align="left">Count of Games</th>
+<th align="left">% of Games</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">2010</td>
+<td align="left">3</td>
+<td align="left">203</td>
+<td align="left">8.02%</td>
+</tr>
+<tr class="even">
+<td align="left">2010</td>
+<td align="left">-3</td>
+<td align="left">165</td>
+<td align="left">6.52%</td>
+</tr>
+<tr class="odd">
+<td align="left">2000</td>
+<td align="left">3</td>
+<td align="left">225</td>
+<td align="left">8.87%</td>
+</tr>
+<tr class="even">
+<td align="left">2000</td>
+<td align="left">-3</td>
+<td align="left">173</td>
+<td align="left">6.82%</td>
+</tr>
+<tr class="odd">
+<td align="left">1990</td>
+<td align="left">3</td>
+<td align="left">196</td>
+<td align="left">8.419%</td>
+</tr>
+<tr class="even">
+<td align="left">1990</td>
+<td align="left">-3</td>
+<td align="left">181</td>
+<td align="left">7.775%</td>
+</tr>
+<tr class="odd">
+<td align="left">1980</td>
+<td align="left">3</td>
+<td align="left">159</td>
+<td align="left">7.472%</td>
+</tr>
+<tr class="even">
+<td align="left">1980</td>
+<td align="left">-3</td>
+<td align="left">139</td>
+<td align="left">6.532%</td>
+</tr>
+<tr class="odd">
+<td align="left">1970</td>
+<td align="left">3</td>
+<td align="left">102</td>
+<td align="left">5.280%</td>
+</tr>
+<tr class="even">
+<td align="left">1970</td>
+<td align="left">-3</td>
+<td align="left">98</td>
+<td align="left">5.072%</td>
+</tr>
+<tr class="odd">
+<td align="left">1960</td>
+<td align="left">3</td>
+<td align="left">84</td>
+<td align="left">5.214%</td>
+</tr>
+<tr class="even">
+<td align="left">1960</td>
+<td align="left">0</td>
+<td align="left">72</td>
+<td align="left">4.469%</td>
+</tr>
+<tr class="odd">
+<td align="left">1950</td>
+<td align="left">3</td>
+<td align="left">37</td>
+<td align="left">5.096%</td>
+</tr>
+<tr class="even">
+<td align="left">1950</td>
+<td align="left">-4</td>
+<td align="left">35</td>
+<td align="left">4.821%</td>
+</tr>
+</tbody>
+</table>
+<p>It’s not just good enough to take the average or median of all home vs away score differentials. Each NFL game is different, and by just blindly taking a summary statistic, we are assuming that the teams playing in each game are evenly matched. In my opinion, this assumption is <strong>invalid</strong>.</p>
+<p>We can use linear models to get closer to understanding home field advantage, by adjusting for the differences between the two teams. But before we get too deep into that, let’s take a closer look at linear regression.</p>
+</div>
+<div id="linear-regression-basics" class="section level2">
+<h2>Linear Regression Basics</h2>
+<p>A lot of people are familiar with linear models, having performed “line of best fit” calculations sometime in high school. Most people cringe when they see the <span class="math inline">\(y = mx + b\)</span> formula, but statisticians and data scientists feel their hearts warm and get very excited after glancing at that formula.</p>
+<p>Linear models are incredibly powerful tools of statistical analysis. Most of the time, we spend a lot of energy interpreting the <span class="math inline">\(m\)</span> in the equation above. This gives us insight into how much we expect <span class="math inline">\(y\)</span> to change (<strong>on average</strong>) when <span class="math inline">\(x\)</span> changes by some amount.</p>
+<p>To illustrate, let’s use the mtcars data set to predict a car’s miles per gallon using its weight in pounds.</p>
+<p><img src="/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>The linear model’s formula is displayed in the upper right hand corner of the plot. The coefficient for <span class="math inline">\(wt\)</span> is -5.3, this is the <span class="math inline">\(m\)</span> in the <span class="math inline">\(y = mx + b\)</span> equation. The coefficient is negative, meaning that as the weight of the car increases, we expect its fuel efficiency to get worse. But what about <span class="math inline">\(b\)</span>, the intercept of the line?</p>
+<p>The intercept of the best fit line is our “predicted” value of <span class="math inline">\(y\)</span> when <span class="math inline">\(x\)</span> equals 0. So, when the weight of a car is 0 pounds, we expect it to get 37.29 miles per gallon. This doesn’t make any sense! A car that weighs 0 pounds doesn’t get any miles per gallon, it doesn’t even exist!</p>
+<p>In a lot of linear models, the intercept isn’t really worth interpreting. However, we can use the intercept to understand home field advantage using our NFL data.</p>
+</div>
+<div id="interpreting-the-intercept-in-a-model-of-the-nfl" class="section level2">
+<h2>Interpreting the Intercept in a Model of the NFL</h2>
+<p>We first fit a model trying to predict the home vs away score differential using the home vs away pre game Elo differential and the home vs away pre game QB Elo differential.</p>
+<p>When the Elo differentials are equal to zero, it means the teams are effectively even matched (our best guess for the power rankings of the respective teams are basically equal). This gets us closer to understanding true home field advantage than taking a summary statistic would.</p>
+<p>Our model will look like:</p>
+<p><span class="math display">\[ \text{Home - Away Score} = \beta_{0} + \beta_{1} *\text{Elo Difference} + \beta_{2} * \text{QB Elo Difference}\]</span></p>
+<p>While <span class="math inline">\(\beta_{1}\)</span> and <span class="math inline">\(\beta_{2}\)</span> above are interesting, we’re most interested in <span class="math inline">\(\beta_{0}\)</span>, since this quantifies the home field advantage for evenly matched teams.</p>
+<p>Enough talking, let’s fit the model:</p>
+<pre class="r"><code>score_diff_model &lt;- lm(home_away_score_diff ~ home_away_elo_diff+home_away_qb_elo_diff,
+                       data = model_data)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">term</th>
+<th align="right">estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">2.586</td>
+</tr>
+<tr class="even">
+<td align="left">home_away_elo_diff</td>
+<td align="right">0.037</td>
+</tr>
+<tr class="odd">
+<td align="left">home_away_qb_elo_diff</td>
+<td align="right">0.021</td>
+</tr>
+</tbody>
+</table>
+<p>Touchdown!</p>
+<p>If we look at the intercept, the value is about 2.59. This means that if the two teams are basically evenly matched (i.e. <span class="math inline">\(x=0\)</span> in <span class="math inline">\(y = mx+b\)</span>), we can expect the home team to win by about 2.59 points (<strong>on average</strong>).</p>
+<p>Taking it one step further, here are the home field advantages for each decade.</p>
+<p><img src="/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div id="wrapping-up" class="section level2">
+<h2>Wrapping Up</h2>
+<p>We can learn some pretty cool things about our data if we pay close attention to the output of our linear models. I think a lot of people forget to pay attention to the intercepts in their linear models. This makes sense most of the time, because the intercept doesn’t really mean much in many of our models (e.g. if we predict a person’s height using their weight, the intercept is meaningless).</p>
+<p>However, in some cases the intercept is really important. In this example using NFL data, we were able to use the intercept to quantify home field advantage for evenly matched teams. Hopefully this post will give a data point to bring up at a nice dinner party where you and your acquaintances are discussing what home field advantage <em>really</em> means.</p>
+</div>
+</content:encoded>
+
+    </item>
     
     <item>
       <title>7 Tips for Delivering a Great Data Science Presentation</title>
@@ -1412,7 +2061,7 @@ knitr::kable(calc_cos_sim(shots))</code></pre>
 &lt;p&gt;The following function takes three arguments:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_name&lt;/code&gt;&lt;/strong&gt;: this is what you want the name to be in your file. In the example above, it was &lt;em&gt;Set1 3 Color Qual Palette&lt;/em&gt;. Make sure you name it something descriptive enough to be found easily in Tableau.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_colors&lt;/code&gt;&lt;/strong&gt;: this is a character vector of colors which will be added to the palette. You should use HEX codes (e.g. &lt;code&gt;&amp;quot;#E41A1C&amp;quot;&lt;/code&gt;, &lt;code&gt;&amp;quot;#377EB8&amp;quot;&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_colors&lt;/code&gt;&lt;/strong&gt;: this is a character vector of colors which will be added to the palette. You should use HEX codes (e.g. &lt;code&gt;&#34;#E41A1C&#34;&lt;/code&gt;, &lt;code&gt;&#34;#377EB8&#34;&lt;/code&gt;)&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;palette_type&lt;/code&gt;&lt;/strong&gt;: this is one of the three palette types described above. In the previous example, it was &lt;em&gt;regular&lt;/em&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The function will then print the resulting color palette to the console, so you can copy and paste the results. It uses the &lt;code&gt;cat&lt;/code&gt; function, so it &lt;strong&gt;only&lt;/strong&gt; prints stuff to the console, it isn’t necessary to store the result in a variable.&lt;/p&gt;
@@ -1525,7 +2174,7 @@ x&amp;lt;-purrr::map(4:7,
 <p>The following function takes three arguments:</p>
 <ul>
 <li><strong><code>palette_name</code></strong>: this is what you want the name to be in your file. In the example above, it was <em>Set1 3 Color Qual Palette</em>. Make sure you name it something descriptive enough to be found easily in Tableau.</li>
-<li><strong><code>palette_colors</code></strong>: this is a character vector of colors which will be added to the palette. You should use HEX codes (e.g. <code>&quot;#E41A1C&quot;</code>, <code>&quot;#377EB8&quot;</code>)</li>
+<li><strong><code>palette_colors</code></strong>: this is a character vector of colors which will be added to the palette. You should use HEX codes (e.g. <code>"#E41A1C"</code>, <code>"#377EB8"</code>)</li>
 <li><strong><code>palette_type</code></strong>: this is one of the three palette types described above. In the previous example, it was <em>regular</em>.</li>
 </ul>
 <p>The function will then print the resulting color palette to the console, so you can copy and paste the results. It uses the <code>cat</code> function, so it <strong>only</strong> prints stuff to the console, it isn’t necessary to store the result in a variable.</p>
@@ -1995,20 +2644,6 @@ library(caret) # caret or carrot? :)&lt;/code&gt;&lt;/pre&gt;
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;5.5&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.3&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;4.0&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.3&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;4.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;left&#34;&gt;6.1&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;2.6&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
@@ -2016,24 +2651,38 @@ library(caret) # caret or carrot? :)&lt;/code&gt;&lt;/pre&gt;
 &lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;5.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;4.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.8&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.9&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;0.4&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
 &lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;4.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0.2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
+&lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.8&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.2&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.8&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;5.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.5&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;5.0&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;7.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.3&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
@@ -2090,7 +2739,7 @@ iris_rfe &amp;lt;- rfe(x = iris_X_train_cs,
                 rfeControl = rf_control)
 
 iris_rfe$optVariables&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Petal.Length:Petal.Width&amp;quot; &amp;quot;Petal.Length_sq&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;Petal.Length:Petal.Width&amp;quot; &amp;quot;Sepal.Length:Petal.Width&amp;quot;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The procedure we used for variable selection suggested an interaction between the petal length and petal width variables, and petal length squared. It’s usually a bad idea to include higher ordered terms without also including the lower order terms, so our final model will have three variables: petal width, petal length, and petal width * petal length interaction.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;cooking-methods&#34; class=&#34;section level2&#34;&gt;
@@ -2120,7 +2769,7 @@ plot(cv_glm1)&lt;/code&gt;&lt;/pre&gt;
 lambda_2 &amp;lt;- exp(-6.5)
 plot(cv_glm2)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
-&lt;p&gt;Cross-validation suggests a rather small value of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; to fit the model (&lt;span class=&#34;math inline&#34;&gt;\(\lambda_1\)&lt;/span&gt; = 0.0775, &lt;span class=&#34;math inline&#34;&gt;\(\lambda_2\)&lt;/span&gt; = 0.0015), and then investigate the results.&lt;/p&gt;
+&lt;p&gt;Cross-validation suggests a rather small value of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; to fit the model (&lt;span class=&#34;math inline&#34;&gt;\(\lambda_1\)&lt;/span&gt; = 0.0698, &lt;span class=&#34;math inline&#34;&gt;\(\lambda_2\)&lt;/span&gt; = 0.0015), and then investigate the results.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;tasting-the-soup&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Tasting the soup&lt;/h2&gt;
@@ -2157,22 +2806,22 @@ glm2 &amp;lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Pet
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;left&#34;&gt;ridge_1&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;regularized-lambda1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;91.11%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;84.4%&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;left&#34;&gt;ridge_2&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;regularized-lambda2&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;95.56%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;95.6%&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;left&#34;&gt;glm1&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;full&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;100.00%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;100.0%&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
 &lt;td align=&#34;left&#34;&gt;glm2&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;original&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;100.00%&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;100.0%&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -2272,20 +2921,6 @@ library(caret) # caret or carrot? :)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">5.5</td>
-<td align="left">2.3</td>
-<td align="left">4.0</td>
-<td align="left">1.3</td>
-<td align="left">versicolor</td>
-</tr>
-<tr class="even">
-<td align="left">6.7</td>
-<td align="left">3.1</td>
-<td align="left">4.4</td>
-<td align="left">1.4</td>
-<td align="left">versicolor</td>
-</tr>
-<tr class="odd">
 <td align="left">6.1</td>
 <td align="left">2.6</td>
 <td align="left">5.6</td>
@@ -2293,24 +2928,38 @@ library(caret) # caret or carrot? :)</code></pre>
 <td align="left">virginica</td>
 </tr>
 <tr class="even">
-<td align="left">5.7</td>
-<td align="left">4.4</td>
-<td align="left">1.5</td>
+<td align="left">6.9</td>
+<td align="left">3.1</td>
+<td align="left">5.1</td>
+<td align="left">2.3</td>
+<td align="left">virginica</td>
+</tr>
+<tr class="odd">
+<td align="left">5.1</td>
+<td align="left">3.8</td>
+<td align="left">1.9</td>
 <td align="left">0.4</td>
 <td align="left">setosa</td>
 </tr>
+<tr class="even">
+<td align="left">4.9</td>
+<td align="left">3.1</td>
+<td align="left">1.5</td>
+<td align="left">0.2</td>
+<td align="left">setosa</td>
+</tr>
 <tr class="odd">
-<td align="left">6.4</td>
-<td align="left">2.8</td>
-<td align="left">5.6</td>
-<td align="left">2.2</td>
-<td align="left">virginica</td>
+<td align="left">4.8</td>
+<td align="left">3.0</td>
+<td align="left">1.4</td>
+<td align="left">0.3</td>
+<td align="left">setosa</td>
 </tr>
 <tr class="even">
-<td align="left">5.7</td>
-<td align="left">2.5</td>
-<td align="left">5.0</td>
-<td align="left">2.0</td>
+<td align="left">7.7</td>
+<td align="left">2.6</td>
+<td align="left">6.9</td>
+<td align="left">2.3</td>
 <td align="left">virginica</td>
 </tr>
 </tbody>
@@ -2367,7 +3016,7 @@ iris_rfe &lt;- rfe(x = iris_X_train_cs,
                 rfeControl = rf_control)
 
 iris_rfe$optVariables</code></pre>
-<pre><code>## [1] &quot;Petal.Length:Petal.Width&quot; &quot;Petal.Length_sq&quot;</code></pre>
+<pre><code>## [1] &quot;Petal.Length:Petal.Width&quot; &quot;Sepal.Length:Petal.Width&quot;</code></pre>
 <p>The procedure we used for variable selection suggested an interaction between the petal length and petal width variables, and petal length squared. It’s usually a bad idea to include higher ordered terms without also including the lower order terms, so our final model will have three variables: petal width, petal length, and petal width * petal length interaction.</p>
 </div>
 <div id="cooking-methods" class="section level2">
@@ -2397,7 +3046,7 @@ plot(cv_glm1)</code></pre>
 lambda_2 &lt;- exp(-6.5)
 plot(cv_glm2)</code></pre>
 <p><img src="/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p>Cross-validation suggests a rather small value of <span class="math inline">\(\lambda\)</span>, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of <span class="math inline">\(\lambda\)</span> to fit the model (<span class="math inline">\(\lambda_1\)</span> = 0.0775, <span class="math inline">\(\lambda_2\)</span> = 0.0015), and then investigate the results.</p>
+<p>Cross-validation suggests a rather small value of <span class="math inline">\(\lambda\)</span>, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of <span class="math inline">\(\lambda\)</span> to fit the model (<span class="math inline">\(\lambda_1\)</span> = 0.0698, <span class="math inline">\(\lambda_2\)</span> = 0.0015), and then investigate the results.</p>
 </div>
 <div id="tasting-the-soup" class="section level2">
 <h2>Tasting the soup</h2>
@@ -2434,22 +3083,22 @@ glm2 &lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.W
 <tr class="odd">
 <td align="left">ridge_1</td>
 <td align="left">regularized-lambda1</td>
-<td align="left">91.11%</td>
+<td align="left">84.4%</td>
 </tr>
 <tr class="even">
 <td align="left">ridge_2</td>
 <td align="left">regularized-lambda2</td>
-<td align="left">95.56%</td>
+<td align="left">95.6%</td>
 </tr>
 <tr class="odd">
 <td align="left">glm1</td>
 <td align="left">full</td>
-<td align="left">100.00%</td>
+<td align="left">100.0%</td>
 </tr>
 <tr class="even">
 <td align="left">glm2</td>
 <td align="left">original</td>
-<td align="left">100.00%</td>
+<td align="left">100.0%</td>
 </tr>
 </tbody>
 </table>
@@ -2856,7 +3505,7 @@ untidy_scores &amp;lt;- read_csv(paste0(gh, &amp;#39;/untidy_golf_scores.csv&amp
   gather(hole, score, -name)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## # A tibble: 8,496 x 3
 ##    name  hole  score
-##    &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt;
+##    &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
 ##  1 A1    1         7
 ##  2 A2    1         5
 ##  3 A3    1         7
@@ -2931,10 +3580,10 @@ simple_mod &amp;lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tou
 &lt;p&gt;Let’s see what a summary of the model looks like&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(simple_mod)$coefficients&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##                         Estimate Std. Error     t value
-## (Intercept)           1.88291300 0.09070793  20.7579763
+## (Intercept)           1.88291318 0.09070961  20.7575928
 ## hole_f4              -0.06991525 0.06812176  -1.0263278
 ## hole_f7              -0.18432203 0.06812176  -2.7057733
-## hole_f1              -0.22881356 0.06812176  -3.3588910
+## hole_f1              -0.22881356 0.06812176  -3.3588911
 ## hole_f18             -0.40889831 0.06812176  -6.0024627
 ## hole_f15             -0.44279661 0.06812176  -6.5000762
 ## hole_f10             -0.44703390 0.06812176  -6.5622779
@@ -2943,13 +3592,13 @@ simple_mod &amp;lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tou
 ## hole_f17             -0.53813559 0.06812176  -7.8996141
 ## hole_f6              -0.54661017 0.06812176  -8.0240175
 ## hole_f2              -0.55296610 0.06812176  -8.1173200
-## hole_f16             -0.61864407 0.06812176  -9.0814461
+## hole_f16             -0.61864407 0.06812176  -9.0814462
 ## hole_f8              -0.64406780 0.06812176  -9.4546563
 ## hole_f14             -0.67372881 0.06812176  -9.8900681
 ## hole_f9              -0.68008475 0.06812176  -9.9833706
 ## hole_f5              -0.68432203 0.06812176 -10.0455723
-## hole_f11             -0.80084746 0.06812176 -11.7561186
-## tourn_typesectionals -0.06353005 0.09519269  -0.6673837&lt;/code&gt;&lt;/pre&gt;
+## hole_f11             -0.80084746 0.06812176 -11.7561187
+## tourn_typesectionals -0.06353020 0.09519525  -0.6673673&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;These results aren’t too interesting, but note that I set up the &lt;code&gt;hole&lt;/code&gt; factor variable to compare the other holes to #12, the hardest on the course. The only hole that wasn’t significantly easier than 12 was #4.&lt;/p&gt;
 &lt;p&gt;We can also look at the estimate for the &lt;code&gt;tourn_type&lt;/code&gt; variable. &lt;em&gt;Directionally&lt;/em&gt;, we got the result we were expecting, i.e. sectionals have lower scores relative to par than regionals on average. However, the coefficient is not significant (thumb rule &lt;span class=&#34;math inline&#34;&gt;\(|t| &amp;lt; 2\)&lt;/span&gt;) and its effect size is small, indicating that although the directional effect is negative, we’d have a hard time concluding that the effect is really that meaningful.&lt;/p&gt;
 &lt;p&gt;Oh well, let’s do something more interesting with the results from the model&lt;/p&gt;
@@ -3436,7 +4085,7 @@ untidy_scores &lt;- read_csv(paste0(gh, &#39;/untidy_golf_scores.csv&#39;)) %&gt
   gather(hole, score, -name)</code></pre>
 <pre><code>## # A tibble: 8,496 x 3
 ##    name  hole  score
-##    &lt;chr&gt; &lt;chr&gt; &lt;int&gt;
+##    &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;
 ##  1 A1    1         7
 ##  2 A2    1         5
 ##  3 A3    1         7
@@ -3511,10 +4160,10 @@ simple_mod &lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tourn_y
 <p>Let’s see what a summary of the model looks like</p>
 <pre class="r"><code>summary(simple_mod)$coefficients</code></pre>
 <pre><code>##                         Estimate Std. Error     t value
-## (Intercept)           1.88291300 0.09070793  20.7579763
+## (Intercept)           1.88291318 0.09070961  20.7575928
 ## hole_f4              -0.06991525 0.06812176  -1.0263278
 ## hole_f7              -0.18432203 0.06812176  -2.7057733
-## hole_f1              -0.22881356 0.06812176  -3.3588910
+## hole_f1              -0.22881356 0.06812176  -3.3588911
 ## hole_f18             -0.40889831 0.06812176  -6.0024627
 ## hole_f15             -0.44279661 0.06812176  -6.5000762
 ## hole_f10             -0.44703390 0.06812176  -6.5622779
@@ -3523,13 +4172,13 @@ simple_mod &lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tourn_y
 ## hole_f17             -0.53813559 0.06812176  -7.8996141
 ## hole_f6              -0.54661017 0.06812176  -8.0240175
 ## hole_f2              -0.55296610 0.06812176  -8.1173200
-## hole_f16             -0.61864407 0.06812176  -9.0814461
+## hole_f16             -0.61864407 0.06812176  -9.0814462
 ## hole_f8              -0.64406780 0.06812176  -9.4546563
 ## hole_f14             -0.67372881 0.06812176  -9.8900681
 ## hole_f9              -0.68008475 0.06812176  -9.9833706
 ## hole_f5              -0.68432203 0.06812176 -10.0455723
-## hole_f11             -0.80084746 0.06812176 -11.7561186
-## tourn_typesectionals -0.06353005 0.09519269  -0.6673837</code></pre>
+## hole_f11             -0.80084746 0.06812176 -11.7561187
+## tourn_typesectionals -0.06353020 0.09519525  -0.6673673</code></pre>
 <p>These results aren’t too interesting, but note that I set up the <code>hole</code> factor variable to compare the other holes to #12, the hardest on the course. The only hole that wasn’t significantly easier than 12 was #4.</p>
 <p>We can also look at the estimate for the <code>tourn_type</code> variable. <em>Directionally</em>, we got the result we were expecting, i.e. sectionals have lower scores relative to par than regionals on average. However, the coefficient is not significant (thumb rule <span class="math inline">\(|t| &lt; 2\)</span>) and its effect size is small, indicating that although the directional effect is negative, we’d have a hard time concluding that the effect is really that meaningful.</p>
 <p>Oh well, let’s do something more interesting with the results from the model</p>
@@ -3670,12 +4319,10 @@ cbind(dummy_table2,
 &lt;p&gt;First, we randomly select &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; balls (&lt;span class=&#34;math inline&#34;&gt;\(balls_{init}\)&lt;/span&gt;), and assign the rest of the balls (&lt;span class=&#34;math inline&#34;&gt;\(n-k\)&lt;/span&gt;) to whichever &lt;span class=&#34;math inline&#34;&gt;\(balls_{init}\)&lt;/span&gt; it is closest to. After this first assignment, we calculate the centroid of each (&lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt;) collection of balls. The centroids are the averages of the &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; characteristics of the balls in each cluster. So, for each cluster, there will be a vector of length &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; with the means of the characteristics of the balls &lt;em&gt;in that cluster&lt;/em&gt;.&lt;/p&gt;
 &lt;p&gt;After the calculation of the centroid, we then calculate (for each ball) the distances between its &lt;span class=&#34;math inline&#34;&gt;\(p\)&lt;/span&gt; characteristics and the centroids for each cluster. We assign the ball to the cluster with the centroid it is closest to. Then, we recalculate the centroids and repeat the process. We leave the number of clusters (&lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt;) fixed, but we allow the balls to move between the clusters, depending on which cluster they are closest to.&lt;/p&gt;
 &lt;p&gt;Either the algorithm will “converge” and between time &lt;span class=&#34;math inline&#34;&gt;\(t\)&lt;/span&gt; and &lt;span class=&#34;math inline&#34;&gt;\(t+1\)&lt;/span&gt; no reassignments will occur, or we’ll reach the maximum number of iterations allowed by the algorithm.&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id=&#34;kmeans-in-r&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;&lt;code&gt;kmeans&lt;/code&gt; in &lt;code&gt;R&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;##&lt;code&gt;kmeans&lt;/code&gt; in &lt;code&gt;R&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;Here’s how we use the &lt;code&gt;kmeans&lt;/code&gt; function in &lt;code&gt;R&lt;/code&gt;:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;kmeans(x, centers, iters.max, nstart)&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 &lt;div id=&#34;arguments&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;arguments&lt;/h3&gt;
 &lt;ul&gt;
@@ -3684,9 +4331,7 @@ cbind(dummy_table2,
 &lt;li&gt;&lt;code&gt;iters.max&lt;/code&gt; controls the &lt;strong&gt;maximum number of iterations&lt;/strong&gt;, if the algorithm has not converged, it’s good to bump this number up&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;nstart&lt;/code&gt; controls the initial configurations (step 1 in the algorithm), bumping this number up is a good idea, since kmeans tends to be sensitive to initial conditions (which may remind you of &lt;a href=&#34;https://en.wikipedia.org/wiki/Chaos_theory#Sensitivity_to_initial_conditions&#34;&gt;sensitivity to initial conditions in chaos theory&lt;/a&gt;)&lt;/li&gt;
 &lt;/ul&gt;
-&lt;/div&gt;
-&lt;div id=&#34;values-it-returns&#34; class=&#34;section level3&#34;&gt;
-&lt;h3&gt;values it returns&lt;/h3&gt;
+&lt;p&gt;###values it returns&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;kmeans&lt;/code&gt; returns an object of class “kmeans” which has a &lt;code&gt;print&lt;/code&gt; and a &lt;code&gt;fitted&lt;/code&gt; method. It is a list with at least the following components:&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;cluster&lt;/strong&gt; - A vector of integers (from 1:k) indicating the cluster to which each point is allocated.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;centers&lt;/strong&gt; - A matrix of cluster centers &lt;strong&gt;these are the centroids for each cluster&lt;/strong&gt;&lt;/p&gt;
@@ -3696,10 +4341,7 @@ cbind(dummy_table2,
 &lt;p&gt;&lt;strong&gt;betweenss&lt;/strong&gt; - The between-cluster sum of squares, i.e. totss-tot.withinss.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;size&lt;/strong&gt; - The number of points in each cluster.&lt;/p&gt;
 &lt;p&gt;To use &lt;code&gt;kmeans&lt;/code&gt;, we first need to specify the &lt;code&gt;k&lt;/code&gt;. How should we do this?&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id=&#34;data&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Data&lt;/h2&gt;
+&lt;p&gt;##Data&lt;/p&gt;
 &lt;p&gt;For this post, we’ll be using the &lt;a href=&#34;https://archive.ics.uci.edu/ml/datasets/Housing&#34;&gt;Boston housing data set&lt;/a&gt;. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
 ## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
@@ -3715,6 +4357,7 @@ cbind(dummy_table2,
 ## 4 33.4
 ## 5 36.2
 ## 6 28.7&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 &lt;/div&gt;
 &lt;div id=&#34;visualize-within-cluster-error&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Visualize within Cluster Error&lt;/h2&gt;
@@ -3965,7 +4608,7 @@ system.time(
   test_clusters.clue &amp;lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    user  system elapsed 
-##       0       0       0&lt;/code&gt;&lt;/pre&gt;
+##    0.02    0.00    0.01&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.clue)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## test_clusters.clue
 ##  1  2  3  4 
@@ -3986,7 +4629,7 @@ system.time(
   test_clusters.hand &amp;lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    user  system elapsed 
-##    0.95    0.01    0.97&lt;/code&gt;&lt;/pre&gt;
+##    1.36    0.00    1.36&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.hand)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## test_clusters.hand
 ##  1  2  3  4 
@@ -4025,12 +4668,10 @@ system.time(
 <p>First, we randomly select <span class="math inline">\(k\)</span> balls (<span class="math inline">\(balls_{init}\)</span>), and assign the rest of the balls (<span class="math inline">\(n-k\)</span>) to whichever <span class="math inline">\(balls_{init}\)</span> it is closest to. After this first assignment, we calculate the centroid of each (<span class="math inline">\(k\)</span>) collection of balls. The centroids are the averages of the <span class="math inline">\(p\)</span> characteristics of the balls in each cluster. So, for each cluster, there will be a vector of length <span class="math inline">\(p\)</span> with the means of the characteristics of the balls <em>in that cluster</em>.</p>
 <p>After the calculation of the centroid, we then calculate (for each ball) the distances between its <span class="math inline">\(p\)</span> characteristics and the centroids for each cluster. We assign the ball to the cluster with the centroid it is closest to. Then, we recalculate the centroids and repeat the process. We leave the number of clusters (<span class="math inline">\(k\)</span>) fixed, but we allow the balls to move between the clusters, depending on which cluster they are closest to.</p>
 <p>Either the algorithm will “converge” and between time <span class="math inline">\(t\)</span> and <span class="math inline">\(t+1\)</span> no reassignments will occur, or we’ll reach the maximum number of iterations allowed by the algorithm.</p>
-</div>
-</div>
-<div id="kmeans-in-r" class="section level2">
-<h2><code>kmeans</code> in <code>R</code></h2>
+<p>##<code>kmeans</code> in <code>R</code></p>
 <p>Here’s how we use the <code>kmeans</code> function in <code>R</code>:</p>
 <pre class="r"><code>kmeans(x, centers, iters.max, nstart)</code></pre>
+</div>
 <div id="arguments" class="section level3">
 <h3>arguments</h3>
 <ul>
@@ -4039,9 +4680,7 @@ system.time(
 <li><code>iters.max</code> controls the <strong>maximum number of iterations</strong>, if the algorithm has not converged, it’s good to bump this number up</li>
 <li><code>nstart</code> controls the initial configurations (step 1 in the algorithm), bumping this number up is a good idea, since kmeans tends to be sensitive to initial conditions (which may remind you of <a href="https://en.wikipedia.org/wiki/Chaos_theory#Sensitivity_to_initial_conditions">sensitivity to initial conditions in chaos theory</a>)</li>
 </ul>
-</div>
-<div id="values-it-returns" class="section level3">
-<h3>values it returns</h3>
+<p>###values it returns</p>
 <p><code>kmeans</code> returns an object of class “kmeans” which has a <code>print</code> and a <code>fitted</code> method. It is a list with at least the following components:</p>
 <p><strong>cluster</strong> - A vector of integers (from 1:k) indicating the cluster to which each point is allocated.</p>
 <p><strong>centers</strong> - A matrix of cluster centers <strong>these are the centroids for each cluster</strong></p>
@@ -4051,10 +4690,7 @@ system.time(
 <p><strong>betweenss</strong> - The between-cluster sum of squares, i.e. totss-tot.withinss.</p>
 <p><strong>size</strong> - The number of points in each cluster.</p>
 <p>To use <code>kmeans</code>, we first need to specify the <code>k</code>. How should we do this?</p>
-</div>
-</div>
-<div id="data" class="section level2">
-<h2>Data</h2>
+<p>##Data</p>
 <p>For this post, we’ll be using the <a href="https://archive.ics.uci.edu/ml/datasets/Housing">Boston housing data set</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.</p>
 <pre><code>##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
 ## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
@@ -4070,6 +4706,7 @@ system.time(
 ## 4 33.4
 ## 5 36.2
 ## 6 28.7</code></pre>
+</div>
 </div>
 <div id="visualize-within-cluster-error" class="section level2">
 <h2>Visualize within Cluster Error</h2>
@@ -4320,7 +4957,7 @@ system.time(
   test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##       0       0       0</code></pre>
+##    0.02    0.00    0.01</code></pre>
 <pre class="r"><code>table(test_clusters.clue)</code></pre>
 <pre><code>## test_clusters.clue
 ##  1  2  3  4 
@@ -4341,7 +4978,7 @@ system.time(
   test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.95    0.01    0.97</code></pre>
+##    1.36    0.00    1.36</code></pre>
 <pre class="r"><code>table(test_clusters.hand)</code></pre>
 <pre><code>## test_clusters.hand
 ##  1  2  3  4 
@@ -4422,27 +5059,41 @@ system.time(
       <guid>/blogroll/</guid>
       <description>&lt;div id=&#34;blogs-im-reading&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Blogs I’m reading:&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://www.r-bloggers.com/&#34;&gt;R-bloggers&lt;/a&gt; - Blog aggregator of content contributed by bloggers who write about R (in English).&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://blog.revolutionanalytics.com/&#34;&gt;Revolutions&lt;/a&gt; - Blog dedicated to news and information of interest to members of the R community.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.r-bloggers.com/&#34;&gt;R-bloggers&lt;/a&gt;
+- Blog aggregator of content contributed by bloggers who write about R (in English).&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://blog.revolutionanalytics.com/&#34;&gt;Revolutions&lt;/a&gt;
+- Blog dedicated to news and information of interest to members of the R community.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;http://andrewgelman.com/&#34;&gt;Statistical Modeling, Causal Inference, and Social Science&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://eagereyes.org/&#34;&gt;eagereyes&lt;/a&gt; - Robert Kosara’s website, mostly about data visualization&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://juliasilge.com/blog/&#34;&gt;Julia Silge’s blog&lt;/a&gt; - Great blog about a wide array of data science topics&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;http://varianceexplained.org/&#34;&gt;Variance Explained&lt;/a&gt; - David Robinson’s (the data scientist, not the &lt;a href=&#34;https://en.wikipedia.org/wiki/David_Robinson_(basketball)&#34;&gt;basketball player&lt;/a&gt;) blog on data science.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://flowingdata.com/&#34;&gt;FlowingData&lt;/a&gt; - Nathan Yau’s blog, mostly about data visualization&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://www.analyticsvidhya.com/blog/&#34;&gt;Analytics Vidhya&lt;/a&gt; - Good blog with data science tutorials&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://eagereyes.org/&#34;&gt;eagereyes&lt;/a&gt;
+- Robert Kosara’s website, mostly about data visualization&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://juliasilge.com/blog/&#34;&gt;Julia Silge’s blog&lt;/a&gt;
+- Great blog about a wide array of data science topics&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;http://varianceexplained.org/&#34;&gt;Variance Explained&lt;/a&gt;
+- David Robinson’s (the data scientist, not the &lt;a href=&#34;https://en.wikipedia.org/wiki/David_Robinson_(basketball)&#34;&gt;basketball player&lt;/a&gt;) blog on data science.&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://flowingdata.com/&#34;&gt;FlowingData&lt;/a&gt;
+- Nathan Yau’s blog, mostly about data visualization&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.analyticsvidhya.com/blog/&#34;&gt;Analytics Vidhya&lt;/a&gt;
+- Good blog with data science tutorials&lt;/p&gt;
 &lt;p&gt;…more to come&lt;/p&gt;
 &lt;/div&gt;
 </description>
       <content:encoded><div id="blogs-im-reading" class="section level2">
 <h2>Blogs I’m reading:</h2>
-<p><a href="https://www.r-bloggers.com/">R-bloggers</a> - Blog aggregator of content contributed by bloggers who write about R (in English).</p>
-<p><a href="http://blog.revolutionanalytics.com/">Revolutions</a> - Blog dedicated to news and information of interest to members of the R community.</p>
+<p><a href="https://www.r-bloggers.com/">R-bloggers</a>
+- Blog aggregator of content contributed by bloggers who write about R (in English).</p>
+<p><a href="http://blog.revolutionanalytics.com/">Revolutions</a>
+- Blog dedicated to news and information of interest to members of the R community.</p>
 <p><a href="http://andrewgelman.com/">Statistical Modeling, Causal Inference, and Social Science</a></p>
-<p><a href="https://eagereyes.org/">eagereyes</a> - Robert Kosara’s website, mostly about data visualization</p>
-<p><a href="https://juliasilge.com/blog/">Julia Silge’s blog</a> - Great blog about a wide array of data science topics</p>
-<p><a href="http://varianceexplained.org/">Variance Explained</a> - David Robinson’s (the data scientist, not the <a href="https://en.wikipedia.org/wiki/David_Robinson_(basketball)">basketball player</a>) blog on data science.</p>
-<p><a href="https://flowingdata.com/">FlowingData</a> - Nathan Yau’s blog, mostly about data visualization</p>
-<p><a href="https://www.analyticsvidhya.com/blog/">Analytics Vidhya</a> - Good blog with data science tutorials</p>
+<p><a href="https://eagereyes.org/">eagereyes</a>
+- Robert Kosara’s website, mostly about data visualization</p>
+<p><a href="https://juliasilge.com/blog/">Julia Silge’s blog</a>
+- Great blog about a wide array of data science topics</p>
+<p><a href="http://varianceexplained.org/">Variance Explained</a>
+- David Robinson’s (the data scientist, not the <a href="https://en.wikipedia.org/wiki/David_Robinson_(basketball)">basketball player</a>) blog on data science.</p>
+<p><a href="https://flowingdata.com/">FlowingData</a>
+- Nathan Yau’s blog, mostly about data visualization</p>
+<p><a href="https://www.analyticsvidhya.com/blog/">Analytics Vidhya</a>
+- Good blog with data science tutorials</p>
 <p>…more to come</p>
 </div>
 </content:encoded>

@@ -583,7 +583,7 @@ untidy_scores &lt;- read_csv(paste0(gh, &#39;/untidy_golf_scores.csv&#39;)) %&gt
   gather(hole, score, -name)</code></pre>
 <pre><code>## # A tibble: 8,496 x 3
 ##    name  hole  score
-##    &lt;chr&gt; &lt;chr&gt; &lt;int&gt;
+##    &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;
 ##  1 A1    1         7
 ##  2 A2    1         5
 ##  3 A3    1         7
@@ -658,10 +658,10 @@ simple_mod &lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tourn_y
 <p>Let’s see what a summary of the model looks like</p>
 <pre class="r"><code>summary(simple_mod)$coefficients</code></pre>
 <pre><code>##                         Estimate Std. Error     t value
-## (Intercept)           1.88291300 0.09070793  20.7579763
+## (Intercept)           1.88291318 0.09070961  20.7575928
 ## hole_f4              -0.06991525 0.06812176  -1.0263278
 ## hole_f7              -0.18432203 0.06812176  -2.7057733
-## hole_f1              -0.22881356 0.06812176  -3.3588910
+## hole_f1              -0.22881356 0.06812176  -3.3588911
 ## hole_f18             -0.40889831 0.06812176  -6.0024627
 ## hole_f15             -0.44279661 0.06812176  -6.5000762
 ## hole_f10             -0.44703390 0.06812176  -6.5622779
@@ -670,13 +670,13 @@ simple_mod &lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tourn_y
 ## hole_f17             -0.53813559 0.06812176  -7.8996141
 ## hole_f6              -0.54661017 0.06812176  -8.0240175
 ## hole_f2              -0.55296610 0.06812176  -8.1173200
-## hole_f16             -0.61864407 0.06812176  -9.0814461
+## hole_f16             -0.61864407 0.06812176  -9.0814462
 ## hole_f8              -0.64406780 0.06812176  -9.4546563
 ## hole_f14             -0.67372881 0.06812176  -9.8900681
 ## hole_f9              -0.68008475 0.06812176  -9.9833706
 ## hole_f5              -0.68432203 0.06812176 -10.0455723
-## hole_f11             -0.80084746 0.06812176 -11.7561186
-## tourn_typesectionals -0.06353005 0.09519269  -0.6673837</code></pre>
+## hole_f11             -0.80084746 0.06812176 -11.7561187
+## tourn_typesectionals -0.06353020 0.09519525  -0.6673673</code></pre>
 <p>These results aren’t too interesting, but note that I set up the <code>hole</code> factor variable to compare the other holes to #12, the hardest on the course. The only hole that wasn’t significantly easier than 12 was #4.</p>
 <p>We can also look at the estimate for the <code>tourn_type</code> variable. <em>Directionally</em>, we got the result we were expecting, i.e. sectionals have lower scores relative to par than regionals on average. However, the coefficient is not significant (thumb rule <span class="math inline">\(|t| &lt; 2\)</span>) and its effect size is small, indicating that although the directional effect is negative, we’d have a hard time concluding that the effect is really that meaningful.</p>
 <p>Oh well, let’s do something more interesting with the results from the model</p>
@@ -956,7 +956,7 @@ cbind(dummy_table2,
           
 
           &nbsp;&bull;&nbsp;
-          2019
+          2020
 
           
             &nbsp;&bull;&nbsp;

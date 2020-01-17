@@ -228,12 +228,10 @@ if (!doNotTrack) {
 <p>First, we randomly select <span class="math inline">\(k\)</span> balls (<span class="math inline">\(balls_{init}\)</span>), and assign the rest of the balls (<span class="math inline">\(n-k\)</span>) to whichever <span class="math inline">\(balls_{init}\)</span> it is closest to. After this first assignment, we calculate the centroid of each (<span class="math inline">\(k\)</span>) collection of balls. The centroids are the averages of the <span class="math inline">\(p\)</span> characteristics of the balls in each cluster. So, for each cluster, there will be a vector of length <span class="math inline">\(p\)</span> with the means of the characteristics of the balls <em>in that cluster</em>.</p>
 <p>After the calculation of the centroid, we then calculate (for each ball) the distances between its <span class="math inline">\(p\)</span> characteristics and the centroids for each cluster. We assign the ball to the cluster with the centroid it is closest to. Then, we recalculate the centroids and repeat the process. We leave the number of clusters (<span class="math inline">\(k\)</span>) fixed, but we allow the balls to move between the clusters, depending on which cluster they are closest to.</p>
 <p>Either the algorithm will “converge” and between time <span class="math inline">\(t\)</span> and <span class="math inline">\(t+1\)</span> no reassignments will occur, or we’ll reach the maximum number of iterations allowed by the algorithm.</p>
-</div>
-</div>
-<div id="kmeans-in-r" class="section level2">
-<h2><code>kmeans</code> in <code>R</code></h2>
+<p>##<code>kmeans</code> in <code>R</code></p>
 <p>Here’s how we use the <code>kmeans</code> function in <code>R</code>:</p>
 <pre class="r"><code>kmeans(x, centers, iters.max, nstart)</code></pre>
+</div>
 <div id="arguments" class="section level3">
 <h3>arguments</h3>
 <ul>
@@ -242,9 +240,7 @@ if (!doNotTrack) {
 <li><code>iters.max</code> controls the <strong>maximum number of iterations</strong>, if the algorithm has not converged, it’s good to bump this number up</li>
 <li><code>nstart</code> controls the initial configurations (step 1 in the algorithm), bumping this number up is a good idea, since kmeans tends to be sensitive to initial conditions (which may remind you of <a href="https://en.wikipedia.org/wiki/Chaos_theory#Sensitivity_to_initial_conditions">sensitivity to initial conditions in chaos theory</a>)</li>
 </ul>
-</div>
-<div id="values-it-returns" class="section level3">
-<h3>values it returns</h3>
+<p>###values it returns</p>
 <p><code>kmeans</code> returns an object of class “kmeans” which has a <code>print</code> and a <code>fitted</code> method. It is a list with at least the following components:</p>
 <p><strong>cluster</strong> - A vector of integers (from 1:k) indicating the cluster to which each point is allocated.</p>
 <p><strong>centers</strong> - A matrix of cluster centers <strong>these are the centroids for each cluster</strong></p>
@@ -254,10 +250,7 @@ if (!doNotTrack) {
 <p><strong>betweenss</strong> - The between-cluster sum of squares, i.e. totss-tot.withinss.</p>
 <p><strong>size</strong> - The number of points in each cluster.</p>
 <p>To use <code>kmeans</code>, we first need to specify the <code>k</code>. How should we do this?</p>
-</div>
-</div>
-<div id="data" class="section level2">
-<h2>Data</h2>
+<p>##Data</p>
 <p>For this post, we’ll be using the <a href="https://archive.ics.uci.edu/ml/datasets/Housing">Boston housing data set</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.</p>
 <pre><code>##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
 ## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
@@ -273,6 +266,7 @@ if (!doNotTrack) {
 ## 4 33.4
 ## 5 36.2
 ## 6 28.7</code></pre>
+</div>
 </div>
 <div id="visualize-within-cluster-error" class="section level2">
 <h2>Visualize within Cluster Error</h2>
@@ -523,7 +517,7 @@ system.time(
   test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##       0       0       0</code></pre>
+##    0.02    0.00    0.01</code></pre>
 <pre class="r"><code>table(test_clusters.clue)</code></pre>
 <pre><code>## test_clusters.clue
 ##  1  2  3  4 
@@ -544,7 +538,7 @@ system.time(
   test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.95    0.01    0.97</code></pre>
+##    1.36    0.00    1.36</code></pre>
 <pre class="r"><code>table(test_clusters.hand)</code></pre>
 <pre><code>## test_clusters.hand
 ##  1  2  3  4 
@@ -725,7 +719,7 @@ system.time(
           
 
           &nbsp;&bull;&nbsp;
-          2019
+          2020
 
           
             &nbsp;&bull;&nbsp;
