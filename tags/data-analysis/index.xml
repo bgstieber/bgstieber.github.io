@@ -5,10 +5,20 @@
     <link>/tags/data-analysis/</link>
     <description>Recent content in Data Analysis on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 17 Jan 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 02 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/data-analysis/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>An Introduction to Reading Data into R</title>
+      <link>/post/a-brief-overview-on-ways-to-read-data-into-r/</link>
+      <pubDate>Sun, 02 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/a-brief-overview-on-ways-to-read-data-into-r/</guid>
+      <description>This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a tutorial on reading data into R.
+There are a lot of different ways to get data into R, and this post highlights a few of the common ways of doing that. This post assumes you have some flat file of data (e.</description>
+    </item>
     
     <item>
       <title>Quantifying Home Field Advantage in the NFL Using Linear Models in R</title>
