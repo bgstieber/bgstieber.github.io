@@ -261,7 +261,7 @@ A few things to note about `read_excel`
 
 ## Wrapping Up
 
-Today, we've looked at a few different ways of getting data into R from flat files. For nice flat files, it's pretty straightforward to get your data into R. If your data isn't so nice, you can generally be successful using the `fread` or `read_csv` functions, but you'll need to be very aware of the structure of your data, as well as the arguments for whatever function decide to use.
+In this post, we've looked at a few different ways of getting data into R from flat files. For nice flat files, it's pretty straightforward to get your data into R. If your data isn't so nice, you can generally be successful using the `fread` or `read_csv` functions, but you'll need to be very aware of the structure of your data, as well as the arguments for whatever function decide to use.
 
 ## Further Reading
 
