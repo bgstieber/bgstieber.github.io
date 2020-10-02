@@ -245,6 +245,9 @@ ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
 
 Let's demonstrate a typical calculation you might do in R: an aggregation of two columns based on grouping by three columns. In this specific example, we're calculating the average departure delay and average arrival delay by origin airport, destination airport, and month of flight.
 
+We use the [__`microbenchmark`__](https://cran.r-project.org/package=microbenchmark) package to time how long it takes to perform the different operations. We can then take the results and visualize them
+
+
 ```{r cache = TRUE}
 set.seed(1848)
 benchmark_data <- microbenchmark(
@@ -293,6 +296,7 @@ dcast(benchmark_data_dt,
                     .SDcols = c("base_R", "tidy_verse", "data_table")]
 ```
 
+The short demo above demonstrates just how much more performant using `data.table` can be.
 
 [Here's a more complete reference](https://h2oai.github.io/db-benchmark/) on benchmarking, with comparisons across R and Python.
 
@@ -323,7 +327,7 @@ By no means did I intend for this introduction to be an exhaustive guide to all 
 - [Blazing Fast Data Wrangling With R data.table](https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d)
 - [Chapter 3: Tables](https://franknarf1.github.io/r-tutorial/_book/tables.html#tables)
 
-## Fun fact
+## Postscript: Fun fact
 
 Fun `R` fact: `<-` and `=` are actually functions, and can be called like so:
 
@@ -336,6 +340,8 @@ x
 x
 `<-`("ill-advised variable name", 1:3)
 `ill-advised variable name`
+`=`("Christopher Guest Movies", "awesome")
+`Christopher Guest Movies`
 ```
 
 

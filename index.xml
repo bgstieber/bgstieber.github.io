@@ -365,6 +365,7 @@ ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
 &lt;div id=&#34;performance-evaluation-base-r-tidyverse-and-data.table&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Performance evaluation: base &lt;strong&gt;&lt;code&gt;R&lt;/code&gt;&lt;/strong&gt;, &lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;, and &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;Let’s demonstrate a typical calculation you might do in R: an aggregation of two columns based on grouping by three columns. In this specific example, we’re calculating the average departure delay and average arrival delay by origin airport, destination airport, and month of flight.&lt;/p&gt;
+&lt;p&gt;We use the &lt;a href=&#34;https://cran.r-project.org/package=microbenchmark&#34;&gt;&lt;strong&gt;&lt;code&gt;microbenchmark&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package to time how long it takes to perform the different operations. We can then take the results and visualize them&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(1848)
 benchmark_data &amp;lt;- microbenchmark(
   # base R solution
@@ -405,6 +406,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
                     .SDcols = c(&amp;quot;base_R&amp;quot;, &amp;quot;tidy_verse&amp;quot;, &amp;quot;data_table&amp;quot;)]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    base_R tidy_verse data_table
 ## 1:   17.2        5.5          1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The short demo above demonstrates just how much more performant using &lt;code&gt;data.table&lt;/code&gt; can be.&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://h2oai.github.io/db-benchmark/&#34;&gt;Here’s a more complete reference&lt;/a&gt; on benchmarking, with comparisons across R and Python.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -430,8 +432,8 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
 &lt;li&gt;&lt;a href=&#34;https://franknarf1.github.io/r-tutorial/_book/tables.html#tables&#34;&gt;Chapter 3: Tables&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/div&gt;
-&lt;div id=&#34;fun-fact&#34; class=&#34;section level2&#34;&gt;
-&lt;h2&gt;Fun fact&lt;/h2&gt;
+&lt;div id=&#34;postscript-fun-fact&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Postscript: Fun fact&lt;/h2&gt;
 &lt;p&gt;Fun &lt;code&gt;R&lt;/code&gt; fact: &lt;code&gt;&amp;lt;-&lt;/code&gt; and &lt;code&gt;=&lt;/code&gt; are actually functions, and can be called like so:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`&amp;lt;-`(x, 1:5)
 x&lt;/code&gt;&lt;/pre&gt;
@@ -445,6 +447,9 @@ x&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`&amp;lt;-`(&amp;quot;ill-advised variable name&amp;quot;, 1:3)
 `ill-advised variable name`&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 1 2 3&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`=`(&amp;quot;Christopher Guest Movies&amp;quot;, &amp;quot;awesome&amp;quot;)
+`Christopher Guest Movies`&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;awesome&amp;quot;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 </description>
       <content:encoded><p>This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a short introduction to the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package.</p>
@@ -796,6 +801,7 @@ ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
 <div id="performance-evaluation-base-r-tidyverse-and-data.table" class="section level3">
 <h3>Performance evaluation: base <strong><code>R</code></strong>, <strong><code>tidyverse</code></strong>, and <strong><code>data.table</code></strong></h3>
 <p>Let’s demonstrate a typical calculation you might do in R: an aggregation of two columns based on grouping by three columns. In this specific example, we’re calculating the average departure delay and average arrival delay by origin airport, destination airport, and month of flight.</p>
+<p>We use the <a href="https://cran.r-project.org/package=microbenchmark"><strong><code>microbenchmark</code></strong></a> package to time how long it takes to perform the different operations. We can then take the results and visualize them</p>
 <pre class="r"><code>set.seed(1848)
 benchmark_data &lt;- microbenchmark(
   # base R solution
@@ -836,6 +842,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
                     .SDcols = c(&quot;base_R&quot;, &quot;tidy_verse&quot;, &quot;data_table&quot;)]</code></pre>
 <pre><code>##    base_R tidy_verse data_table
 ## 1:   17.2        5.5          1</code></pre>
+<p>The short demo above demonstrates just how much more performant using <code>data.table</code> can be.</p>
 <p><a href="https://h2oai.github.io/db-benchmark/">Here’s a more complete reference</a> on benchmarking, with comparisons across R and Python.</p>
 </div>
 </div>
@@ -861,8 +868,8 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
 <li><a href="https://franknarf1.github.io/r-tutorial/_book/tables.html#tables">Chapter 3: Tables</a></li>
 </ul>
 </div>
-<div id="fun-fact" class="section level2">
-<h2>Fun fact</h2>
+<div id="postscript-fun-fact" class="section level2">
+<h2>Postscript: Fun fact</h2>
 <p>Fun <code>R</code> fact: <code>&lt;-</code> and <code>=</code> are actually functions, and can be called like so:</p>
 <pre class="r"><code>`&lt;-`(x, 1:5)
 x</code></pre>
@@ -876,6 +883,9 @@ x</code></pre>
 <pre class="r"><code>`&lt;-`(&quot;ill-advised variable name&quot;, 1:3)
 `ill-advised variable name`</code></pre>
 <pre><code>## [1] 1 2 3</code></pre>
+<pre class="r"><code>`=`(&quot;Christopher Guest Movies&quot;, &quot;awesome&quot;)
+`Christopher Guest Movies`</code></pre>
+<pre><code>## [1] &quot;awesome&quot;</code></pre>
 </div>
 </content:encoded>
 
