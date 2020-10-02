@@ -16,7 +16,9 @@ This post was originally meant for the R Users Group at my organization. I thoug
 
 Although the primary data wrangling package I use is [__`tidyverse`__](https://www.tidyverse.org/), it's worthwhile to explore other packages that do similar data manipulations. The closest "competitor" to the [__`tidyverse`__](https://www.tidyverse.org/) is the [__`data.table`__](https://rdatatable.gitlab.io/data.table/) package. 
 
+
 ![Data Wrangling](https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif)
+
 
 Three of the main selling points for using [__`data.table`__](https://rdatatable.gitlab.io/data.table/) are that it's 
 
@@ -78,6 +80,8 @@ To demonstrate, let's take a look at each of these components.
 
 #### Subset and sort with `i`
 
+The first three examples look at using `i` to filter/subset your data.
+
 ```{r}
 # flights departing in January
 flights_dt[month == 1]
@@ -130,13 +134,15 @@ flights_dt[,total_delay := arr_delay + dep_delay]
 
 One major difference between "standard" operations in R and some operations in `data.table` is that `data.table` will make [__modifications in place__](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html#section-2), meaning we don't have to use the assignment operator (`<-` or `=`).
 
-<br>
-<br>
-
-If we expect `flights_dt`, we can confirm that the `total_delay` column was added.
+If we inspect `flights_dt`, we can confirm that the `total_delay` column was added.
 
 ```{r}
 flights_dt
+```
+
+We can remove a column by setting it `:=` to `NULL`.
+
+```{r}
 # remove that column
 flights_dt[,total_delay:=NULL] 
 flights_dt

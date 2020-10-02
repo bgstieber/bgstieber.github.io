@@ -82,6 +82,7 @@ library(tidyverse)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;To demonstrate, let’s take a look at each of these components.&lt;/p&gt;
 &lt;div id=&#34;subset-and-sort-with-i&#34; class=&#34;section level4&#34;&gt;
 &lt;h4&gt;Subset and sort with &lt;code&gt;i&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;The first three examples look at using &lt;code&gt;i&lt;/code&gt; to filter/subset your data.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# flights departing in January
 flights_dt[month == 1]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##        year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -204,9 +205,7 @@ flights_dt[,.(Origin = origin, Destination = dest)]&lt;/code&gt;&lt;/pre&gt;
 flights_dt[,total_delay := arr_delay + dep_delay]&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;https://media.giphy.com/media/l2JIk0sWj9sUvbvCU/giphy.gif&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;One major difference between “standard” operations in R and some operations in &lt;code&gt;data.table&lt;/code&gt; is that &lt;code&gt;data.table&lt;/code&gt; will make &lt;a href=&#34;https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html#section-2&#34;&gt;&lt;strong&gt;modifications in place&lt;/strong&gt;&lt;/a&gt;, meaning we don’t have to use the assignment operator (&lt;code&gt;&amp;lt;-&lt;/code&gt; or &lt;code&gt;=&lt;/code&gt;).&lt;/p&gt;
-&lt;p&gt;&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-&lt;p&gt;If we expect &lt;code&gt;flights_dt&lt;/code&gt;, we can confirm that the &lt;code&gt;total_delay&lt;/code&gt; column was added.&lt;/p&gt;
+&lt;p&gt;If we inspect &lt;code&gt;flights_dt&lt;/code&gt;, we can confirm that the &lt;code&gt;total_delay&lt;/code&gt; column was added.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;flights_dt&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##         year month day dep_time sched_dep_time dep_delay arr_time
 ##      1: 2013     1   1      517            515         2      830
@@ -226,6 +225,7 @@ flights_dt[,total_delay := arr_delay + dep_delay]&lt;/code&gt;&lt;/pre&gt;
 ##     ---                                                     
 ## 336775:      419   11     59 2013-09-30 11:00:00          NA
 ## 336776:      431    8     40 2013-09-30 08:00:00          NA&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can remove a column by setting it &lt;code&gt;:=&lt;/code&gt; to &lt;code&gt;NULL&lt;/code&gt;.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# remove that column
 flights_dt[,total_delay:=NULL] 
 flights_dt&lt;/code&gt;&lt;/pre&gt;
@@ -346,7 +346,7 @@ ggplot(cumulative_delay_by_origin,
   geom_line()+
   theme_bw()+
   xlab(&amp;quot;Date&amp;quot;) + ylab(&amp;quot;Cumulative total delay (hours)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Let’s get even crazier with chaining.&lt;/p&gt;
 &lt;p&gt;The next example finds the “biggest loser” on each day (i.e. which flight had the worst total delay). We then count up (using the &lt;code&gt;ones&lt;/code&gt; column) which origin airport the biggest loser was departing from. We calculate this cumulatively over the course of the year.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;top_delay &amp;lt;- flights_dt[!is.na(arr_delay) &amp;amp; !is.na(dep_delay)
@@ -360,7 +360,7 @@ ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
   theme_bw()+
   xlab(&amp;quot;Date&amp;quot;)+
   ylab(&amp;quot;Cumulative # of Days with Worst Delay&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-19-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;performance-evaluation-base-r-tidyverse-and-data.table&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Performance evaluation: base &lt;strong&gt;&lt;code&gt;R&lt;/code&gt;&lt;/strong&gt;, &lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;, and &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/h3&gt;
@@ -396,7 +396,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
                               &amp;quot;tidy_verse&amp;quot; = &amp;quot;tidyverse&amp;quot;,
                               &amp;quot;data_table&amp;quot; = &amp;quot;data.table&amp;quot;))+
   ggtitle(&amp;quot;Grouped Aggregation Timing Summary&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-20-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-21-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Here is how much slower the median operation is compared to &lt;code&gt;data.table&lt;/code&gt;. Since this &lt;em&gt;is&lt;/em&gt; a tutorial about &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;, we use its &lt;a href=&#34;https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html&#34;&gt;&lt;code&gt;dcast&lt;/code&gt;&lt;/a&gt; function to convert long data to wide.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dcast(benchmark_data_dt, 
       .~expr, 
@@ -404,7 +404,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
       fun = median)[, round(.SD/data_table,1), 
                     .SDcols = c(&amp;quot;base_R&amp;quot;, &amp;quot;tidy_verse&amp;quot;, &amp;quot;data_table&amp;quot;)]&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    base_R tidy_verse data_table
-## 1:   16.6        5.5          1&lt;/code&gt;&lt;/pre&gt;
+## 1:   17.2        5.5          1&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;a href=&#34;https://h2oai.github.io/db-benchmark/&#34;&gt;Here’s a more complete reference&lt;/a&gt; on benchmarking, with comparisons across R and Python.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
@@ -513,6 +513,7 @@ library(tidyverse)</code></pre>
 <p>To demonstrate, let’s take a look at each of these components.</p>
 <div id="subset-and-sort-with-i" class="section level4">
 <h4>Subset and sort with <code>i</code></h4>
+<p>The first three examples look at using <code>i</code> to filter/subset your data.</p>
 <pre class="r"><code># flights departing in January
 flights_dt[month == 1]</code></pre>
 <pre><code>##        year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -635,9 +636,7 @@ flights_dt[,.(Origin = origin, Destination = dest)]</code></pre>
 flights_dt[,total_delay := arr_delay + dep_delay]</code></pre>
 <p><img src="https://media.giphy.com/media/l2JIk0sWj9sUvbvCU/giphy.gif" /></p>
 <p>One major difference between “standard” operations in R and some operations in <code>data.table</code> is that <code>data.table</code> will make <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html#section-2"><strong>modifications in place</strong></a>, meaning we don’t have to use the assignment operator (<code>&lt;-</code> or <code>=</code>).</p>
-<p><br>
-<br></p>
-<p>If we expect <code>flights_dt</code>, we can confirm that the <code>total_delay</code> column was added.</p>
+<p>If we inspect <code>flights_dt</code>, we can confirm that the <code>total_delay</code> column was added.</p>
 <pre class="r"><code>flights_dt</code></pre>
 <pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
 ##      1: 2013     1   1      517            515         2      830
@@ -657,6 +656,7 @@ flights_dt[,total_delay := arr_delay + dep_delay]</code></pre>
 ##     ---                                                     
 ## 336775:      419   11     59 2013-09-30 11:00:00          NA
 ## 336776:      431    8     40 2013-09-30 08:00:00          NA</code></pre>
+<p>We can remove a column by setting it <code>:=</code> to <code>NULL</code>.</p>
 <pre class="r"><code># remove that column
 flights_dt[,total_delay:=NULL] 
 flights_dt</code></pre>
@@ -777,7 +777,7 @@ ggplot(cumulative_delay_by_origin,
   geom_line()+
   theme_bw()+
   xlab(&quot;Date&quot;) + ylab(&quot;Cumulative total delay (hours)&quot;)</code></pre>
-<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>Let’s get even crazier with chaining.</p>
 <p>The next example finds the “biggest loser” on each day (i.e. which flight had the worst total delay). We then count up (using the <code>ones</code> column) which origin airport the biggest loser was departing from. We calculate this cumulatively over the course of the year.</p>
 <pre class="r"><code>top_delay &lt;- flights_dt[!is.na(arr_delay) &amp; !is.na(dep_delay)
@@ -791,7 +791,7 @@ ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
   theme_bw()+
   xlab(&quot;Date&quot;)+
   ylab(&quot;Cumulative # of Days with Worst Delay&quot;)</code></pre>
-<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
 </div>
 <div id="performance-evaluation-base-r-tidyverse-and-data.table" class="section level3">
 <h3>Performance evaluation: base <strong><code>R</code></strong>, <strong><code>tidyverse</code></strong>, and <strong><code>data.table</code></strong></h3>
@@ -827,7 +827,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
                               &quot;tidy_verse&quot; = &quot;tidyverse&quot;,
                               &quot;data_table&quot; = &quot;data.table&quot;))+
   ggtitle(&quot;Grouped Aggregation Timing Summary&quot;)</code></pre>
-<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>Here is how much slower the median operation is compared to <code>data.table</code>. Since this <em>is</em> a tutorial about <strong><code>data.table</code></strong>, we use its <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html"><code>dcast</code></a> function to convert long data to wide.</p>
 <pre class="r"><code>dcast(benchmark_data_dt, 
       .~expr, 
@@ -835,7 +835,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
       fun = median)[, round(.SD/data_table,1), 
                     .SDcols = c(&quot;base_R&quot;, &quot;tidy_verse&quot;, &quot;data_table&quot;)]</code></pre>
 <pre><code>##    base_R tidy_verse data_table
-## 1:   16.6        5.5          1</code></pre>
+## 1:   17.2        5.5          1</code></pre>
 <p><a href="https://h2oai.github.io/db-benchmark/">Here’s a more complete reference</a> on benchmarking, with comparisons across R and Python.</p>
 </div>
 </div>
