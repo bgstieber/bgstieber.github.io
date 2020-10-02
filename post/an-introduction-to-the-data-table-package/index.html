@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>An Introduction to the data.table Package</title>
+  <meta property="og:title" content="An Introduction to the data.table Package" />
+  <meta name="twitter:title" content="An Introduction to the data.table Package" />
+  <meta name="description" content="Although the primary data wrangling package I use is tidyverse, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the tidyverse is the data.table package.
+Data Wrangling
+Three of the main selling points for using data.table are that it’s
+Fastfread and fwrite should be a part of any data scientist’s data file management toolboxConciseWe’ll go through a few examples using the data.">
+  <meta property="og:description" content="Although the primary data wrangling package I use is tidyverse, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the tidyverse is the data.table package.
+Data Wrangling
+Three of the main selling points for using data.table are that it’s
+Fastfread and fwrite should be a part of any data scientist’s data file management toolboxConciseWe’ll go through a few examples using the data.">
+  <meta name="twitter:description" content="Although the primary data wrangling package I use is tidyverse, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the tidyverse is the …">
+  <meta name="author" content="Brad Stieber"/>
+  <link href='/img/favicon2.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="/post/an-introduction-to-the-data-table-package/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Brad Stieber" />
+
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="canonical" href="/post/an-introduction-to-the-data-table-package/" />
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Brad Stieber">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="/css/highlight.min.css" /><link rel="stylesheet" href="/css/codeblock.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-119936954-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Brad Stieber</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Posts" href="/post">Posts</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Blogroll" href="/blogroll">Blogroll</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Brad Stieber" href="/">
+            <img class="avatar-img" src="/img/brad-avatar.png" alt="Brad Stieber" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>An Introduction to the data.table Package</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on October 1, 2020
+  
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>Although the primary data wrangling package I use is <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a>, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a> is the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package.</p>
+<div class="figure">
+<img src="https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif" alt="" />
+<p class="caption">Data Wrangling</p>
+</div>
+<p>Three of the main selling points for using <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> are that it’s</p>
+<ul>
+<li>Fast
+<ul>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>fread</code></a> and <a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html"><code>fwrite</code></a> should be a part of any data scientist’s data file management toolbox</li>
+</ul></li>
+<li>Concise
+<ul>
+<li>We’ll go through a few examples using the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> syntax</li>
+</ul></li>
+<li>Efficient
+<ul>
+<li>Works well with large data</li>
+</ul></li>
+</ul>
+<p>These are three qualities we look for in data manipulation.</p>
+<p>If you’re frustrated by how verbose data manipulation chains can get using <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a> packages, <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> might be right for you.</p>
+<p>Here are the packages we’ll need for this post.</p>
+<pre class="r"><code>library(data.table)
+library(nycflights13)
+library(microbenchmark)
+library(tidyverse)</code></pre>
+<p>The data set we’ll be working with in this post comes from the <a href="https://cran.r-project.org/package=nycflights13"><strong><code>nycflights13</code></strong></a> package. It shows on-time data for all flights that departed NYC in 2013.</p>
+<pre class="r"><code>(flights_dt &lt;- as.data.table(flights)) # convert to a data.table</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     1400    5     15 2013-01-01 05:00:00
+##      2:     1416    5     29 2013-01-01 05:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00</code></pre>
+<pre class="r"><code>paste(dim(flights_dt), c(&quot;rows&quot;, &quot;columns&quot;))</code></pre>
+<pre><code>## [1] &quot;336776 rows&quot; &quot;19 columns&quot;</code></pre>
+<div id="demo" class="section level2">
+<h2>Demo</h2>
+<div id="the-basics" class="section level3">
+<h3>The basics</h3>
+<p>If you’re familiar with <code>SQL</code>, <code>data.table</code> syntax should make a good amount of sense. The syntax allows you to do a lot more than the common operations we expect with a base <code>data.frame</code>. Here is the general form of <code>data.table</code> syntax:</p>
+<pre class="r"><code>DT[i, j, by]</code></pre>
+<ul>
+<li><code>i</code>: where (subset) / order by (sort)</li>
+<li><code>j</code>: select (grab certain columns) / update (add/modify columns)</li>
+<li><code>by</code>: group by</li>
+</ul>
+<p><img src="https://miro.medium.com/max/700/1*odc8US0simd-2Le1OHwlhw.png" /></p>
+<p>Image source: <a href="https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d">Blazing Fast Data Wrangling With R data.table</a></p>
+<p>To demonstrate, let’s take a look at each of these components.</p>
+<div id="subset-and-sort-with-i" class="section level4">
+<h4>Subset and sort with <code>i</code></h4>
+<pre class="r"><code># flights departing in January
+flights_dt[month == 1]</code></pre>
+<pre><code>##        year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##     1: 2013     1   1      517            515         2      830            819
+##     2: 2013     1   1      533            529         4      850            830
+##    ---                                                                         
+## 27003: 2013     1  31       NA           1446        NA       NA           1757
+## 27004: 2013     1  31       NA            625        NA       NA            934
+##        arr_delay carrier flight tailnum origin dest air_time distance hour
+##     1:        11      UA   1545  N14228    EWR  IAH      227     1400    5
+##     2:        20      UA   1714  N24211    LGA  IAH      227     1416    5
+##    ---                                                                    
+## 27003:        NA      UA    337    &lt;NA&gt;    LGA  IAH       NA     1416   14
+## 27004:        NA      UA   1497    &lt;NA&gt;    LGA  IAH       NA     1416    6
+##        minute           time_hour
+##     1:     15 2013-01-01 05:00:00
+##     2:     29 2013-01-01 05:00:00
+##    ---                           
+## 27003:     46 2013-01-31 14:00:00
+## 27004:     25 2013-01-31 06:00:00</code></pre>
+<pre class="r"><code># flights departing on March 10th
+flights_dt[month == 3 &amp; day == 10]</code></pre>
+<pre><code>##      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   1: 2013     3  10        6           2359         7      336            338
+##   2: 2013     3  10       41           2100       221      230           2257
+##  ---                                                                         
+## 907: 2013     3  10       NA           2000        NA       NA           2335
+## 908: 2013     3  10       NA           1730        NA       NA           1923
+##      arr_delay carrier flight tailnum origin dest air_time distance hour minute
+##   1:        -2      B6    727  N547JB    JFK  BQN      186     1576   23     59
+##   2:       213      EV   4368  N14116    EWR  DAY       82      533   21      0
+##  ---                                                                           
+## 907:        NA      UA    424    &lt;NA&gt;    EWR  SAT       NA     1569   20      0
+## 908:        NA      US    449    &lt;NA&gt;    EWR  CLT       NA      529   17     30
+##                time_hour
+##   1: 2013-03-10 23:00:00
+##   2: 2013-03-10 21:00:00
+##  ---                    
+## 907: 2013-03-10 20:00:00
+## 908: 2013-03-10 17:00:00</code></pre>
+<pre class="r"><code># flights where the total delay (dep_delay + arr_delay) is 10 minutes or more,
+# the destination was Dallas (DFW) and was in January, February, or March
+flights_dt[(dep_delay + arr_delay) &gt;= 10 &amp; dest == &quot;DFW&quot; &amp; month &lt;= 3]</code></pre>
+<pre><code>##      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   1: 2013     1   1      559            600        -1      941            910
+##   2: 2013     1   1      635            635         0     1028            940
+##  ---                                                                         
+## 574: 2013     3  31     1308           1300         8     1622           1605
+## 575: 2013     3  31     1923           1825        58     2202           2127
+##      arr_delay carrier flight tailnum origin dest air_time distance hour minute
+##   1:        31      AA    707  N3DUAA    LGA  DFW      257     1389    6      0
+##   2:        48      AA    711  N3GKAA    LGA  DFW      248     1389    6     35
+##  ---                                                                           
+## 574:        17      AA    745  N3CAAA    LGA  DFW      218     1389   13      0
+## 575:        35      UA   1221  N35271    EWR  DFW      196     1372   18     25
+##                time_hour
+##   1: 2013-01-01 06:00:00
+##   2: 2013-01-01 06:00:00
+##  ---                    
+## 574: 2013-03-31 13:00:00
+## 575: 2013-03-31 18:00:00</code></pre>
+<p>We can also sort using <code>i</code>:</p>
+<pre class="r"><code># sort by total delay
+flights_dt[order(dep_delay + arr_delay, decreasing = T)]</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   9      641            900      1301     1242
+##      2: 2013     6  15     1432           1935      1137     1607
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:           1530      1272      HA     51  N384HA    JFK  HNL      640
+##      2:           2120      1127      MQ   3535  N504MQ    JFK  CMH       74
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     4983    9      0 2013-01-09 09:00:00
+##      2:      483   19     35 2013-06-15 19:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00</code></pre>
+</div>
+<div id="select-and-create-new-columns-using-j" class="section level4">
+<h4>Select and create new columns using <code>j</code></h4>
+<p>This first example shows how to select a column. It looks very similar to what we’d do in base R.</p>
+<pre class="r"><code># get flight destination
+destination &lt;- flights_dt[, dest]
+head(destination)</code></pre>
+<pre><code>## [1] &quot;IAH&quot; &quot;IAH&quot; &quot;MIA&quot; &quot;BQN&quot; &quot;ATL&quot; &quot;ORD&quot;</code></pre>
+<p>You’ll notice that the result of the previous operation was a vector. Sometimes this is what we want, other times it’s not. So, how can we select a column and have a <code>data.table</code> returned instead of a vector?</p>
+<p>We can use <code>.(column_I_want, another_column_I_want)</code> or <code>list(this_column_too, and_this_one_also)</code>.</p>
+<pre class="r"><code># use .(columns_to_select) or list(columns_to_select)
+# .(columns_to_select) acts as &quot;shorthand&quot; for list(columns_to_select)
+flights_dt[,.(dest)]</code></pre>
+<pre><code>##         dest
+##      1:  IAH
+##      2:  IAH
+##     ---     
+## 336775:  CLE
+## 336776:  RDU</code></pre>
+<pre class="r"><code># we can select multiple columns using .()
+flights_dt[,.(year, month, day, origin, dest)]</code></pre>
+<pre><code>##         year month day origin dest
+##      1: 2013     1   1    EWR  IAH
+##      2: 2013     1   1    LGA  IAH
+##     ---                           
+## 336775: 2013     9  30    LGA  CLE
+## 336776: 2013     9  30    LGA  RDU</code></pre>
+<pre class="r"><code># rename columns
+flights_dt[,.(Origin = origin, Destination = dest)]</code></pre>
+<pre><code>##         Origin Destination
+##      1:    EWR         IAH
+##      2:    LGA         IAH
+##     ---                   
+## 336775:    LGA         CLE
+## 336776:    LGA         RDU</code></pre>
+<p>We can create columns using <code>:=</code>:</p>
+<pre class="r"><code># create total delay column
+flights_dt[,total_delay := arr_delay + dep_delay]</code></pre>
+<p><img src="https://media.giphy.com/media/l2JIk0sWj9sUvbvCU/giphy.gif" /></p>
+<p>One major difference between “standard” operations in R and some operations in <code>data.table</code> is that <code>data.table</code> will make <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html#section-2"><strong>modifications in place</strong></a>, meaning we don’t have to use the assignment operator (<code>&lt;-</code> or <code>=</code>).</p>
+<p><br>
+<br></p>
+<p>If we expect <code>flights_dt</code>, we can confirm that the <code>total_delay</code> column was added.</p>
+<pre class="r"><code>flights_dt</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour total_delay
+##      1:     1400    5     15 2013-01-01 05:00:00          13
+##      2:     1416    5     29 2013-01-01 05:00:00          24
+##     ---                                                     
+## 336775:      419   11     59 2013-09-30 11:00:00          NA
+## 336776:      431    8     40 2013-09-30 08:00:00          NA</code></pre>
+<pre class="r"><code># remove that column
+flights_dt[,total_delay:=NULL] 
+flights_dt</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     1400    5     15 2013-01-01 05:00:00
+##      2:     1416    5     29 2013-01-01 05:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00</code></pre>
+<pre class="r"><code># add multiple columns
+flights_dt[, `:=`(date = lubridate::ymd(paste(year, month, day, sep = &quot;-&quot;)),
+                  log_distance = log(distance),
+                  air_time_in_hours = air_time / 60)]
+flights_dt</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour       date log_distance
+##      1:     1400    5     15 2013-01-01 05:00:00 2013-01-01     7.244228
+##      2:     1416    5     29 2013-01-01 05:00:00 2013-01-01     7.255591
+##     ---                                                                 
+## 336775:      419   11     59 2013-09-30 11:00:00 2013-09-30     6.037871
+## 336776:      431    8     40 2013-09-30 08:00:00 2013-09-30     6.066108
+##         air_time_in_hours
+##      1:          3.783333
+##      2:          3.783333
+##     ---                  
+## 336775:                NA
+## 336776:                NA</code></pre>
+</div>
+<div id="grouping-with-by" class="section level4">
+<h4>Grouping with <code>by</code></h4>
+<p>In the first two examples, we use <code>.N</code>, which is a <a href="https://rdatatable.gitlab.io/data.table/reference/special-symbols.html">special symbol</a> which allows us to count rows in our data. <code>.SD</code>, which is used later on in this post, is also a special symbol in <strong><code>data.table</code></strong>.</p>
+<p>A simple example, counting by origin of flight.</p>
+<pre class="r"><code>flights_dt[,.N,origin]</code></pre>
+<pre><code>##    origin      N
+## 1:    EWR 120835
+## 2:    LGA 104662
+## 3:    JFK 111279</code></pre>
+<p>A little more complicated, counting by origin and destination, then sorting to show most frequent, then slice top 10 rows.</p>
+<pre class="r"><code>flights_dt[,.N, .(origin, dest)][order(-N)][1:10]</code></pre>
+<pre><code>##     origin dest     N
+##  1:    JFK  LAX 11262
+##  2:    LGA  ATL 10263
+##  3:    LGA  ORD  8857
+##  4:    JFK  SFO  8204
+##  5:    LGA  CLT  6168
+##  6:    EWR  ORD  6100
+##  7:    JFK  BOS  5898
+##  8:    LGA  MIA  5781
+##  9:    JFK  MCO  5464
+## 10:    EWR  BOS  5327</code></pre>
+<p>To wrap up this section, let’s show the median and average total delay by origin and destination airport, and then sort by average total delay. We also add in <code>.N</code>, because it’s always good to show the sample size.</p>
+<pre class="r"><code>flights_dt[!is.na(arr_delay) &amp; !is.na(dep_delay),
+           .(avg_delay = mean(arr_delay + dep_delay),
+             median_delay = median(arr_delay + dep_delay),
+             .N),
+           .(origin, dest)
+           ][order(-avg_delay)]</code></pre>
+<pre><code>##      origin dest avg_delay median_delay   N
+##   1:    EWR  TYS  82.80511           18 313
+##   2:    EWR  CAE  78.94681           40  94
+##  ---                                       
+## 222:    JFK  PSP -15.66667          -14  18
+## 223:    LGA  LEX -31.00000          -31   1</code></pre>
+</div>
+</div>
+<div id="a-little-more-advanced" class="section level3">
+<h3>A little more advanced</h3>
+<div class="figure">
+<img src="https://media.giphy.com/media/5MGFEJS7FIxK8/giphy.gif" alt="" />
+<p class="caption">Turning it up</p>
+</div>
+<p>We often want to perform multiple operations on a single <code>data.frame</code>. If we keep all of the code to perform these operations on a single line, our scripts can become illegible and unwieldy. Similar to how <strong><code>tidyverse</code></strong> pipes might span multiple lines:</p>
+<pre class="r"><code>data %&gt;%
+  mutate(new_columns) %&gt;%
+  group_by(grouping_columns) %&gt;%
+  summarise(other_columns) %&gt;%
+  arrange(desc(some_column))</code></pre>
+<p>We can “chain” <strong><code>data.table</code></strong> expressions:</p>
+<pre class="r"><code>DT[ ...
+   ][ ...
+     ][ ...
+       ]</code></pre>
+<p>This example gets the cumulative total delay over the course of a year by origin airport. It utilizes filtering, sorting, and grouping.</p>
+<pre class="r"><code># get cumulative delay by origin airport
+# uses &quot;chaining&quot;
+cumulative_delay_by_origin &lt;-
+  flights_dt[!is.na(dep_delay) &amp; !is.na(arr_delay) # keep valid flights
+             ][order(time_hour),                   # sort by date 
+               .(time_hour,                        # select date and cumsum delay
+                 cumu_delay=cumsum(arr_delay+dep_delay)), 
+               origin]                             # group by origin airport
+
+ggplot(cumulative_delay_by_origin,
+       aes(time_hour, cumu_delay/60, colour = origin))+
+  geom_line()+
+  theme_bw()+
+  xlab(&quot;Date&quot;) + ylab(&quot;Cumulative total delay (hours)&quot;)</code></pre>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>Let’s get even crazier with chaining.</p>
+<p>The next example finds the “biggest loser” on each day (i.e. which flight had the worst total delay). We then count up (using the <code>ones</code> column) which origin airport the biggest loser was departing from. We calculate this cumulatively over the course of the year.</p>
+<pre class="r"><code>top_delay &lt;- flights_dt[!is.na(arr_delay) &amp; !is.na(dep_delay)
+                        ][,`:=`(total_delay=arr_delay+dep_delay, ones=1)
+                          ][, .SD[ which.max(total_delay) ], date
+                            ][order(date)
+                              ][,.(cumu_obs = cumsum(ones), date),.(origin)]
+
+ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
+  geom_line()+
+  theme_bw()+
+  xlab(&quot;Date&quot;)+
+  ylab(&quot;Cumulative # of Days with Worst Delay&quot;)</code></pre>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+<div id="performance-evaluation-base-r-tidyverse-and-data.table" class="section level3">
+<h3>Performance evaluation: base <strong><code>R</code></strong>, <strong><code>tidyverse</code></strong>, and <strong><code>data.table</code></strong></h3>
+<p>Let’s demonstrate a typical calculation you might do in R: an aggregation of two columns based on grouping by three columns. In this specific example, we’re calculating the average departure delay and average arrival delay by origin airport, destination airport, and month of flight.</p>
+<pre class="r"><code>set.seed(1848)
+benchmark_data &lt;- microbenchmark(
+  # base R solution
+  base_R = aggregate(list(flights$dep_delay, flights$arr_delay),
+                     list(flights$origin, flights$dest, flights$month),
+                     mean, na.rm = TRUE),
+  # tidyverse solution
+  tidy_verse = flights %&gt;% 
+    group_by(origin, dest, month) %&gt;% 
+    summarise_at(c(&quot;dep_delay&quot;, &quot;arr_delay&quot;), mean, na.rm = TRUE),
+  
+  #data.table
+  data_table = flights_dt[,lapply(.SD, mean, na.rm = TRUE), 
+                          .(origin, dest, month), 
+                          .SDcols = c(&quot;dep_delay&quot;, &quot;arr_delay&quot;)],
+  
+  times = 100)</code></pre>
+<pre class="r"><code>library(ggridges)
+benchmark_data_dt &lt;- as.data.table(benchmark_data)
+benchmark_data_dt[,time_in_ms := time / 1000000]
+
+ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
+  geom_density_ridges2(rel_min_height = 0.01, scale = 1.5, fill = &quot;#c5050c&quot;)+
+  geom_boxplot(width = 0.25)+
+  theme_bw()+
+  scale_x_log10(&quot;Time (milliseconds, log10)&quot;)+
+  scale_y_discrete(&quot;Operation&quot;,
+                   labels = c(&quot;base_R&quot; = &quot;Base R&quot;,
+                              &quot;tidy_verse&quot; = &quot;tidyverse&quot;,
+                              &quot;data_table&quot; = &quot;data.table&quot;))+
+  ggtitle(&quot;Grouped Aggregation Timing Summary&quot;)</code></pre>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>Here is how much slower the median operation is compared to <code>data.table</code>. Since this <em>is</em> a tutorial about <strong><code>data.table</code></strong>, we use its <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html"><code>dcast</code></a> function to convert long data to wide.</p>
+<pre class="r"><code>dcast(benchmark_data_dt, 
+      .~expr, 
+      value.var = &quot;time_in_ms&quot;, 
+      fun = median)[, round(.SD/data_table,1), 
+                    .SDcols = c(&quot;base_R&quot;, &quot;tidy_verse&quot;, &quot;data_table&quot;)]</code></pre>
+<pre><code>##    base_R tidy_verse data_table
+## 1:   16.6        5.5          1</code></pre>
+<p><a href="https://h2oai.github.io/db-benchmark/">Here’s a more complete reference</a> on benchmarking, with comparisons across R and Python.</p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>I hope this was a gentle introduction to the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package. I think the key to getting off on the right foot with this package is understanding the syntax.</p>
+<p>The syntax allows you to do a lot more than the common operations we expect with a base <code>data.frame</code>. Here is the general form of <strong><code>data.table</code></strong> syntax:</p>
+<pre class="r"><code>DT[i, j, by]</code></pre>
+<ul>
+<li><code>i</code>: where (subset) / order by (sort)</li>
+<li><code>j</code>: select (grab certain columns) / update (add/modify columns)</li>
+<li><code>by</code>: group by</li>
+</ul>
+<p><img src="https://miro.medium.com/max/700/1*odc8US0simd-2Le1OHwlhw.png" /></p>
+<p>Image source: <a href="https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d">Blazing Fast Data Wrangling With R data.table</a></p>
+<p>By no means did I intend for this introduction to be an exhaustive guide to all things <strong><code>data.table</code></strong>. If you’re interested in exploring the package further, take a look at these resources:</p>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html">Introduction to data.table</a></li>
+<li><a href="https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf"><code>data.table</code> cheat sheet</a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html#examples"><code>data.table</code> examples</a></li>
+<li><a href="https://brooksandrew.github.io/simpleblog/articles/advanced-data-table/">Advanced tips and tricks with data.table</a></li>
+<li><a href="https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d">Blazing Fast Data Wrangling With R data.table</a></li>
+<li><a href="https://franknarf1.github.io/r-tutorial/_book/tables.html#tables">Chapter 3: Tables</a></li>
+</ul>
+</div>
+<div id="fun-fact" class="section level2">
+<h2>Fun fact</h2>
+<p>Fun <code>R</code> fact: <code>&lt;-</code> and <code>=</code> are actually functions, and can be called like so:</p>
+<pre class="r"><code>`&lt;-`(x, 1:5)
+x</code></pre>
+<pre><code>## [1] 1 2 3 4 5</code></pre>
+<pre class="r"><code>`=`(x, 5:1)
+x</code></pre>
+<pre><code>## [1] 5 4 3 2 1</code></pre>
+<pre class="r"><code>`&lt;-`(x, c(rev(x), x))
+x</code></pre>
+<pre><code>##  [1] 1 2 3 4 5 5 4 3 2 1</code></pre>
+<pre class="r"><code>`&lt;-`(&quot;ill-advised variable name&quot;, 1:3)
+`ill-advised variable name`</code></pre>
+<pre><code>## [1] 1 2 3</code></pre>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              
+              <a href="/tags/data-analysis/">data-analysis</a>&nbsp;
+            
+              
+              <a href="/tags/data-science/">data-science</a>&nbsp;
+            
+              
+              <a href="/tags/r/">r</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <ul class="list-inline footer-links">
+                
+
+
+<li>
+    <a href="//twitter.com/share?url=%2fpost%2fan-introduction-to-the-data-table-package%2f&amp;text=An%20Introduction%20to%20the%20data.table%20Package&amp;via="
+       target="_blank" alt="" title="Share on Twitter">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.facebook.com/sharer/sharer.php?u=%2fpost%2fan-introduction-to-the-data-table-package%2f" target="_blank" title="Share on Facebook">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.linkedin.com/shareArticle?url=%2fpost%2fan-introduction-to-the-data-table-package%2f&amp;title=An%20Introduction%20to%20the%20data.table%20Package" target="_blank"
+       title="Share on LinkedIn">
+         <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+              </ul>
+            </section>
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="/post/a-brief-overview-on-ways-to-read-data-into-r/" data-toggle="tooltip" data-placement="top" title="An Introduction to Reading Data into R">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "bgstieber-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="https://github.com/bgstieber" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/brad-stieber-2227b2131" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/5619526/bouncyball" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="/index.xml" title="RSS">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Brad Stieber
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2020
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="/">Brad Stieber</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.41</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+

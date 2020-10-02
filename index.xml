@@ -5,10 +5,879 @@
     <link>/</link>
     <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>February 2, 2020</lastBuildDate>
+    <lastBuildDate>October 1, 2020</lastBuildDate>
     
         <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>An Introduction to the data.table Package</title>
+      <link>/post/an-introduction-to-the-data-table-package/</link>
+      <pubDate>October 1, 2020</pubDate>
+      
+      <guid>/post/an-introduction-to-the-data-table-package/</guid>
+      <description>&lt;p&gt;Although the primary data wrangling package I use is &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt;, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; is the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
+&lt;div class=&#34;figure&#34;&gt;
+&lt;img src=&#34;https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif&#34; alt=&#34;&#34; /&gt;
+&lt;p class=&#34;caption&#34;&gt;Data Wrangling&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Three of the main selling points for using &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; are that it’s&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Fast
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://rdatatable.gitlab.io/data.table/reference/fread.html&#34;&gt;&lt;code&gt;fread&lt;/code&gt;&lt;/a&gt; and &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/reference/fwrite.html&#34;&gt;&lt;code&gt;fwrite&lt;/code&gt;&lt;/a&gt; should be a part of any data scientist’s data file management toolbox&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Concise
+&lt;ul&gt;
+&lt;li&gt;We’ll go through a few examples using the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; syntax&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Efficient
+&lt;ul&gt;
+&lt;li&gt;Works well with large data&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;These are three qualities we look for in data manipulation.&lt;/p&gt;
+&lt;p&gt;If you’re frustrated by how verbose data manipulation chains can get using &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; packages, &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; might be right for you.&lt;/p&gt;
+&lt;p&gt;Here are the packages we’ll need for this post.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(data.table)
+library(nycflights13)
+library(microbenchmark)
+library(tidyverse)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The data set we’ll be working with in this post comes from the &lt;a href=&#34;https://cran.r-project.org/package=nycflights13&#34;&gt;&lt;strong&gt;&lt;code&gt;nycflights13&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package. It shows on-time data for all flights that departed NYC in 2013.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(flights_dt &amp;lt;- as.data.table(flights)) # convert to a data.table&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     1400    5     15 2013-01-01 05:00:00
+##      2:     1416    5     29 2013-01-01 05:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;paste(dim(flights_dt), c(&amp;quot;rows&amp;quot;, &amp;quot;columns&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;336776 rows&amp;quot; &amp;quot;19 columns&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;div id=&#34;demo&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Demo&lt;/h2&gt;
+&lt;div id=&#34;the-basics&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;The basics&lt;/h3&gt;
+&lt;p&gt;If you’re familiar with &lt;code&gt;SQL&lt;/code&gt;, &lt;code&gt;data.table&lt;/code&gt; syntax should make a good amount of sense. The syntax allows you to do a lot more than the common operations we expect with a base &lt;code&gt;data.frame&lt;/code&gt;. Here is the general form of &lt;code&gt;data.table&lt;/code&gt; syntax:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;DT[i, j, by]&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;i&lt;/code&gt;: where (subset) / order by (sort)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;j&lt;/code&gt;: select (grab certain columns) / update (add/modify columns)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;by&lt;/code&gt;: group by&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://miro.medium.com/max/700/1*odc8US0simd-2Le1OHwlhw.png&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Image source: &lt;a href=&#34;https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d&#34;&gt;Blazing Fast Data Wrangling With R data.table&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;To demonstrate, let’s take a look at each of these components.&lt;/p&gt;
+&lt;div id=&#34;subset-and-sort-with-i&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Subset and sort with &lt;code&gt;i&lt;/code&gt;&lt;/h4&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# flights departing in January
+flights_dt[month == 1]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##        year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##     1: 2013     1   1      517            515         2      830            819
+##     2: 2013     1   1      533            529         4      850            830
+##    ---                                                                         
+## 27003: 2013     1  31       NA           1446        NA       NA           1757
+## 27004: 2013     1  31       NA            625        NA       NA            934
+##        arr_delay carrier flight tailnum origin dest air_time distance hour
+##     1:        11      UA   1545  N14228    EWR  IAH      227     1400    5
+##     2:        20      UA   1714  N24211    LGA  IAH      227     1416    5
+##    ---                                                                    
+## 27003:        NA      UA    337    &amp;lt;NA&amp;gt;    LGA  IAH       NA     1416   14
+## 27004:        NA      UA   1497    &amp;lt;NA&amp;gt;    LGA  IAH       NA     1416    6
+##        minute           time_hour
+##     1:     15 2013-01-01 05:00:00
+##     2:     29 2013-01-01 05:00:00
+##    ---                           
+## 27003:     46 2013-01-31 14:00:00
+## 27004:     25 2013-01-31 06:00:00&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# flights departing on March 10th
+flights_dt[month == 3 &amp;amp; day == 10]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   1: 2013     3  10        6           2359         7      336            338
+##   2: 2013     3  10       41           2100       221      230           2257
+##  ---                                                                         
+## 907: 2013     3  10       NA           2000        NA       NA           2335
+## 908: 2013     3  10       NA           1730        NA       NA           1923
+##      arr_delay carrier flight tailnum origin dest air_time distance hour minute
+##   1:        -2      B6    727  N547JB    JFK  BQN      186     1576   23     59
+##   2:       213      EV   4368  N14116    EWR  DAY       82      533   21      0
+##  ---                                                                           
+## 907:        NA      UA    424    &amp;lt;NA&amp;gt;    EWR  SAT       NA     1569   20      0
+## 908:        NA      US    449    &amp;lt;NA&amp;gt;    EWR  CLT       NA      529   17     30
+##                time_hour
+##   1: 2013-03-10 23:00:00
+##   2: 2013-03-10 21:00:00
+##  ---                    
+## 907: 2013-03-10 20:00:00
+## 908: 2013-03-10 17:00:00&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# flights where the total delay (dep_delay + arr_delay) is 10 minutes or more,
+# the destination was Dallas (DFW) and was in January, February, or March
+flights_dt[(dep_delay + arr_delay) &amp;gt;= 10 &amp;amp; dest == &amp;quot;DFW&amp;quot; &amp;amp; month &amp;lt;= 3]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   1: 2013     1   1      559            600        -1      941            910
+##   2: 2013     1   1      635            635         0     1028            940
+##  ---                                                                         
+## 574: 2013     3  31     1308           1300         8     1622           1605
+## 575: 2013     3  31     1923           1825        58     2202           2127
+##      arr_delay carrier flight tailnum origin dest air_time distance hour minute
+##   1:        31      AA    707  N3DUAA    LGA  DFW      257     1389    6      0
+##   2:        48      AA    711  N3GKAA    LGA  DFW      248     1389    6     35
+##  ---                                                                           
+## 574:        17      AA    745  N3CAAA    LGA  DFW      218     1389   13      0
+## 575:        35      UA   1221  N35271    EWR  DFW      196     1372   18     25
+##                time_hour
+##   1: 2013-01-01 06:00:00
+##   2: 2013-01-01 06:00:00
+##  ---                    
+## 574: 2013-03-31 13:00:00
+## 575: 2013-03-31 18:00:00&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can also sort using &lt;code&gt;i&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# sort by total delay
+flights_dt[order(dep_delay + arr_delay, decreasing = T)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   9      641            900      1301     1242
+##      2: 2013     6  15     1432           1935      1137     1607
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:           1530      1272      HA     51  N384HA    JFK  HNL      640
+##      2:           2120      1127      MQ   3535  N504MQ    JFK  CMH       74
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     4983    9      0 2013-01-09 09:00:00
+##      2:      483   19     35 2013-06-15 19:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;select-and-create-new-columns-using-j&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Select and create new columns using &lt;code&gt;j&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;This first example shows how to select a column. It looks very similar to what we’d do in base R.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# get flight destination
+destination &amp;lt;- flights_dt[, dest]
+head(destination)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] &amp;quot;IAH&amp;quot; &amp;quot;IAH&amp;quot; &amp;quot;MIA&amp;quot; &amp;quot;BQN&amp;quot; &amp;quot;ATL&amp;quot; &amp;quot;ORD&amp;quot;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You’ll notice that the result of the previous operation was a vector. Sometimes this is what we want, other times it’s not. So, how can we select a column and have a &lt;code&gt;data.table&lt;/code&gt; returned instead of a vector?&lt;/p&gt;
+&lt;p&gt;We can use &lt;code&gt;.(column_I_want, another_column_I_want)&lt;/code&gt; or &lt;code&gt;list(this_column_too, and_this_one_also)&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# use .(columns_to_select) or list(columns_to_select)
+# .(columns_to_select) acts as &amp;quot;shorthand&amp;quot; for list(columns_to_select)
+flights_dt[,.(dest)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         dest
+##      1:  IAH
+##      2:  IAH
+##     ---     
+## 336775:  CLE
+## 336776:  RDU&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# we can select multiple columns using .()
+flights_dt[,.(year, month, day, origin, dest)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         year month day origin dest
+##      1: 2013     1   1    EWR  IAH
+##      2: 2013     1   1    LGA  IAH
+##     ---                           
+## 336775: 2013     9  30    LGA  CLE
+## 336776: 2013     9  30    LGA  RDU&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# rename columns
+flights_dt[,.(Origin = origin, Destination = dest)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         Origin Destination
+##      1:    EWR         IAH
+##      2:    LGA         IAH
+##     ---                   
+## 336775:    LGA         CLE
+## 336776:    LGA         RDU&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can create columns using &lt;code&gt;:=&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# create total delay column
+flights_dt[,total_delay := arr_delay + dep_delay]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;https://media.giphy.com/media/l2JIk0sWj9sUvbvCU/giphy.gif&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;One major difference between “standard” operations in R and some operations in &lt;code&gt;data.table&lt;/code&gt; is that &lt;code&gt;data.table&lt;/code&gt; will make &lt;a href=&#34;https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html#section-2&#34;&gt;&lt;strong&gt;modifications in place&lt;/strong&gt;&lt;/a&gt;, meaning we don’t have to use the assignment operator (&lt;code&gt;&amp;lt;-&lt;/code&gt; or &lt;code&gt;=&lt;/code&gt;).&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+&lt;p&gt;If we expect &lt;code&gt;flights_dt&lt;/code&gt;, we can confirm that the &lt;code&gt;total_delay&lt;/code&gt; column was added.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;flights_dt&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour total_delay
+##      1:     1400    5     15 2013-01-01 05:00:00          13
+##      2:     1416    5     29 2013-01-01 05:00:00          24
+##     ---                                                     
+## 336775:      419   11     59 2013-09-30 11:00:00          NA
+## 336776:      431    8     40 2013-09-30 08:00:00          NA&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# remove that column
+flights_dt[,total_delay:=NULL] 
+flights_dt&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     1400    5     15 2013-01-01 05:00:00
+##      2:     1416    5     29 2013-01-01 05:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# add multiple columns
+flights_dt[, `:=`(date = lubridate::ymd(paste(year, month, day, sep = &amp;quot;-&amp;quot;)),
+                  log_distance = log(distance),
+                  air_time_in_hours = air_time / 60)]
+flights_dt&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour       date log_distance
+##      1:     1400    5     15 2013-01-01 05:00:00 2013-01-01     7.244228
+##      2:     1416    5     29 2013-01-01 05:00:00 2013-01-01     7.255591
+##     ---                                                                 
+## 336775:      419   11     59 2013-09-30 11:00:00 2013-09-30     6.037871
+## 336776:      431    8     40 2013-09-30 08:00:00 2013-09-30     6.066108
+##         air_time_in_hours
+##      1:          3.783333
+##      2:          3.783333
+##     ---                  
+## 336775:                NA
+## 336776:                NA&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;div id=&#34;grouping-with-by&#34; class=&#34;section level4&#34;&gt;
+&lt;h4&gt;Grouping with &lt;code&gt;by&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;In the first two examples, we use &lt;code&gt;.N&lt;/code&gt;, which is a &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/reference/special-symbols.html&#34;&gt;special symbol&lt;/a&gt; which allows us to count rows in our data. &lt;code&gt;.SD&lt;/code&gt;, which is used later on in this post, is also a special symbol in &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;A simple example, counting by origin of flight.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;flights_dt[,.N,origin]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    origin      N
+## 1:    EWR 120835
+## 2:    LGA 104662
+## 3:    JFK 111279&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A little more complicated, counting by origin and destination, then sorting to show most frequent, then slice top 10 rows.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;flights_dt[,.N, .(origin, dest)][order(-N)][1:10]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##     origin dest     N
+##  1:    JFK  LAX 11262
+##  2:    LGA  ATL 10263
+##  3:    LGA  ORD  8857
+##  4:    JFK  SFO  8204
+##  5:    LGA  CLT  6168
+##  6:    EWR  ORD  6100
+##  7:    JFK  BOS  5898
+##  8:    LGA  MIA  5781
+##  9:    JFK  MCO  5464
+## 10:    EWR  BOS  5327&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To wrap up this section, let’s show the median and average total delay by origin and destination airport, and then sort by average total delay. We also add in &lt;code&gt;.N&lt;/code&gt;, because it’s always good to show the sample size.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;flights_dt[!is.na(arr_delay) &amp;amp; !is.na(dep_delay),
+           .(avg_delay = mean(arr_delay + dep_delay),
+             median_delay = median(arr_delay + dep_delay),
+             .N),
+           .(origin, dest)
+           ][order(-avg_delay)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##      origin dest avg_delay median_delay   N
+##   1:    EWR  TYS  82.80511           18 313
+##   2:    EWR  CAE  78.94681           40  94
+##  ---                                       
+## 222:    JFK  PSP -15.66667          -14  18
+## 223:    LGA  LEX -31.00000          -31   1&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;a-little-more-advanced&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;A little more advanced&lt;/h3&gt;
+&lt;div class=&#34;figure&#34;&gt;
+&lt;img src=&#34;https://media.giphy.com/media/5MGFEJS7FIxK8/giphy.gif&#34; alt=&#34;&#34; /&gt;
+&lt;p class=&#34;caption&#34;&gt;Turning it up&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;We often want to perform multiple operations on a single &lt;code&gt;data.frame&lt;/code&gt;. If we keep all of the code to perform these operations on a single line, our scripts can become illegible and unwieldy. Similar to how &lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt; pipes might span multiple lines:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data %&amp;gt;%
+  mutate(new_columns) %&amp;gt;%
+  group_by(grouping_columns) %&amp;gt;%
+  summarise(other_columns) %&amp;gt;%
+  arrange(desc(some_column))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We can “chain” &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt; expressions:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;DT[ ...
+   ][ ...
+     ][ ...
+       ]&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This example gets the cumulative total delay over the course of a year by origin airport. It utilizes filtering, sorting, and grouping.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# get cumulative delay by origin airport
+# uses &amp;quot;chaining&amp;quot;
+cumulative_delay_by_origin &amp;lt;-
+  flights_dt[!is.na(dep_delay) &amp;amp; !is.na(arr_delay) # keep valid flights
+             ][order(time_hour),                   # sort by date 
+               .(time_hour,                        # select date and cumsum delay
+                 cumu_delay=cumsum(arr_delay+dep_delay)), 
+               origin]                             # group by origin airport
+
+ggplot(cumulative_delay_by_origin,
+       aes(time_hour, cumu_delay/60, colour = origin))+
+  geom_line()+
+  theme_bw()+
+  xlab(&amp;quot;Date&amp;quot;) + ylab(&amp;quot;Cumulative total delay (hours)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Let’s get even crazier with chaining.&lt;/p&gt;
+&lt;p&gt;The next example finds the “biggest loser” on each day (i.e. which flight had the worst total delay). We then count up (using the &lt;code&gt;ones&lt;/code&gt; column) which origin airport the biggest loser was departing from. We calculate this cumulatively over the course of the year.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;top_delay &amp;lt;- flights_dt[!is.na(arr_delay) &amp;amp; !is.na(dep_delay)
+                        ][,`:=`(total_delay=arr_delay+dep_delay, ones=1)
+                          ][, .SD[ which.max(total_delay) ], date
+                            ][order(date)
+                              ][,.(cumu_obs = cumsum(ones), date),.(origin)]
+
+ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
+  geom_line()+
+  theme_bw()+
+  xlab(&amp;quot;Date&amp;quot;)+
+  ylab(&amp;quot;Cumulative # of Days with Worst Delay&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;performance-evaluation-base-r-tidyverse-and-data.table&#34; class=&#34;section level3&#34;&gt;
+&lt;h3&gt;Performance evaluation: base &lt;strong&gt;&lt;code&gt;R&lt;/code&gt;&lt;/strong&gt;, &lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;, and &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;Let’s demonstrate a typical calculation you might do in R: an aggregation of two columns based on grouping by three columns. In this specific example, we’re calculating the average departure delay and average arrival delay by origin airport, destination airport, and month of flight.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(1848)
+benchmark_data &amp;lt;- microbenchmark(
+  # base R solution
+  base_R = aggregate(list(flights$dep_delay, flights$arr_delay),
+                     list(flights$origin, flights$dest, flights$month),
+                     mean, na.rm = TRUE),
+  # tidyverse solution
+  tidy_verse = flights %&amp;gt;% 
+    group_by(origin, dest, month) %&amp;gt;% 
+    summarise_at(c(&amp;quot;dep_delay&amp;quot;, &amp;quot;arr_delay&amp;quot;), mean, na.rm = TRUE),
+  
+  #data.table
+  data_table = flights_dt[,lapply(.SD, mean, na.rm = TRUE), 
+                          .(origin, dest, month), 
+                          .SDcols = c(&amp;quot;dep_delay&amp;quot;, &amp;quot;arr_delay&amp;quot;)],
+  
+  times = 100)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(ggridges)
+benchmark_data_dt &amp;lt;- as.data.table(benchmark_data)
+benchmark_data_dt[,time_in_ms := time / 1000000]
+
+ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
+  geom_density_ridges2(rel_min_height = 0.01, scale = 1.5, fill = &amp;quot;#c5050c&amp;quot;)+
+  geom_boxplot(width = 0.25)+
+  theme_bw()+
+  scale_x_log10(&amp;quot;Time (milliseconds, log10)&amp;quot;)+
+  scale_y_discrete(&amp;quot;Operation&amp;quot;,
+                   labels = c(&amp;quot;base_R&amp;quot; = &amp;quot;Base R&amp;quot;,
+                              &amp;quot;tidy_verse&amp;quot; = &amp;quot;tidyverse&amp;quot;,
+                              &amp;quot;data_table&amp;quot; = &amp;quot;data.table&amp;quot;))+
+  ggtitle(&amp;quot;Grouped Aggregation Timing Summary&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-20-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Here is how much slower the median operation is compared to &lt;code&gt;data.table&lt;/code&gt;. Since this &lt;em&gt;is&lt;/em&gt; a tutorial about &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;, we use its &lt;a href=&#34;https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html&#34;&gt;&lt;code&gt;dcast&lt;/code&gt;&lt;/a&gt; function to convert long data to wide.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dcast(benchmark_data_dt, 
+      .~expr, 
+      value.var = &amp;quot;time_in_ms&amp;quot;, 
+      fun = median)[, round(.SD/data_table,1), 
+                    .SDcols = c(&amp;quot;base_R&amp;quot;, &amp;quot;tidy_verse&amp;quot;, &amp;quot;data_table&amp;quot;)]&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##    base_R tidy_verse data_table
+## 1:   16.6        5.5          1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;a href=&#34;https://h2oai.github.io/db-benchmark/&#34;&gt;Here’s a more complete reference&lt;/a&gt; on benchmarking, with comparisons across R and Python.&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div id=&#34;summary&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Summary&lt;/h2&gt;
+&lt;p&gt;I hope this was a gentle introduction to the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package. I think the key to getting off on the right foot with this package is understanding the syntax.&lt;/p&gt;
+&lt;p&gt;The syntax allows you to do a lot more than the common operations we expect with a base &lt;code&gt;data.frame&lt;/code&gt;. Here is the general form of &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt; syntax:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;DT[i, j, by]&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;i&lt;/code&gt;: where (subset) / order by (sort)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;j&lt;/code&gt;: select (grab certain columns) / update (add/modify columns)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;by&lt;/code&gt;: group by&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;https://miro.medium.com/max/700/1*odc8US0simd-2Le1OHwlhw.png&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Image source: &lt;a href=&#34;https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d&#34;&gt;Blazing Fast Data Wrangling With R data.table&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;By no means did I intend for this introduction to be an exhaustive guide to all things &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;. If you’re interested in exploring the package further, take a look at these resources:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html&#34;&gt;Introduction to data.table&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf&#34;&gt;&lt;code&gt;data.table&lt;/code&gt; cheat sheet&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://rdatatable.gitlab.io/data.table/reference/data.table.html#examples&#34;&gt;&lt;code&gt;data.table&lt;/code&gt; examples&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://brooksandrew.github.io/simpleblog/articles/advanced-data-table/&#34;&gt;Advanced tips and tricks with data.table&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d&#34;&gt;Blazing Fast Data Wrangling With R data.table&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://franknarf1.github.io/r-tutorial/_book/tables.html#tables&#34;&gt;Chapter 3: Tables&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+&lt;div id=&#34;fun-fact&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Fun fact&lt;/h2&gt;
+&lt;p&gt;Fun &lt;code&gt;R&lt;/code&gt; fact: &lt;code&gt;&amp;lt;-&lt;/code&gt; and &lt;code&gt;=&lt;/code&gt; are actually functions, and can be called like so:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`&amp;lt;-`(x, 1:5)
+x&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 1 2 3 4 5&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`=`(x, 5:1)
+x&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 5 4 3 2 1&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`&amp;lt;-`(x, c(rev(x), x))
+x&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##  [1] 1 2 3 4 5 5 4 3 2 1&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;`&amp;lt;-`(&amp;quot;ill-advised variable name&amp;quot;, 1:3)
+`ill-advised variable name`&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## [1] 1 2 3&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+</description>
+      <content:encoded><p>Although the primary data wrangling package I use is <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a>, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a> is the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package.</p>
+<div class="figure">
+<img src="https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif" alt="" />
+<p class="caption">Data Wrangling</p>
+</div>
+<p>Three of the main selling points for using <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> are that it’s</p>
+<ul>
+<li>Fast
+<ul>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>fread</code></a> and <a href="https://rdatatable.gitlab.io/data.table/reference/fwrite.html"><code>fwrite</code></a> should be a part of any data scientist’s data file management toolbox</li>
+</ul></li>
+<li>Concise
+<ul>
+<li>We’ll go through a few examples using the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> syntax</li>
+</ul></li>
+<li>Efficient
+<ul>
+<li>Works well with large data</li>
+</ul></li>
+</ul>
+<p>These are three qualities we look for in data manipulation.</p>
+<p>If you’re frustrated by how verbose data manipulation chains can get using <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a> packages, <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> might be right for you.</p>
+<p>Here are the packages we’ll need for this post.</p>
+<pre class="r"><code>library(data.table)
+library(nycflights13)
+library(microbenchmark)
+library(tidyverse)</code></pre>
+<p>The data set we’ll be working with in this post comes from the <a href="https://cran.r-project.org/package=nycflights13"><strong><code>nycflights13</code></strong></a> package. It shows on-time data for all flights that departed NYC in 2013.</p>
+<pre class="r"><code>(flights_dt &lt;- as.data.table(flights)) # convert to a data.table</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     1400    5     15 2013-01-01 05:00:00
+##      2:     1416    5     29 2013-01-01 05:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00</code></pre>
+<pre class="r"><code>paste(dim(flights_dt), c(&quot;rows&quot;, &quot;columns&quot;))</code></pre>
+<pre><code>## [1] &quot;336776 rows&quot; &quot;19 columns&quot;</code></pre>
+<div id="demo" class="section level2">
+<h2>Demo</h2>
+<div id="the-basics" class="section level3">
+<h3>The basics</h3>
+<p>If you’re familiar with <code>SQL</code>, <code>data.table</code> syntax should make a good amount of sense. The syntax allows you to do a lot more than the common operations we expect with a base <code>data.frame</code>. Here is the general form of <code>data.table</code> syntax:</p>
+<pre class="r"><code>DT[i, j, by]</code></pre>
+<ul>
+<li><code>i</code>: where (subset) / order by (sort)</li>
+<li><code>j</code>: select (grab certain columns) / update (add/modify columns)</li>
+<li><code>by</code>: group by</li>
+</ul>
+<p><img src="https://miro.medium.com/max/700/1*odc8US0simd-2Le1OHwlhw.png" /></p>
+<p>Image source: <a href="https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d">Blazing Fast Data Wrangling With R data.table</a></p>
+<p>To demonstrate, let’s take a look at each of these components.</p>
+<div id="subset-and-sort-with-i" class="section level4">
+<h4>Subset and sort with <code>i</code></h4>
+<pre class="r"><code># flights departing in January
+flights_dt[month == 1]</code></pre>
+<pre><code>##        year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##     1: 2013     1   1      517            515         2      830            819
+##     2: 2013     1   1      533            529         4      850            830
+##    ---                                                                         
+## 27003: 2013     1  31       NA           1446        NA       NA           1757
+## 27004: 2013     1  31       NA            625        NA       NA            934
+##        arr_delay carrier flight tailnum origin dest air_time distance hour
+##     1:        11      UA   1545  N14228    EWR  IAH      227     1400    5
+##     2:        20      UA   1714  N24211    LGA  IAH      227     1416    5
+##    ---                                                                    
+## 27003:        NA      UA    337    &lt;NA&gt;    LGA  IAH       NA     1416   14
+## 27004:        NA      UA   1497    &lt;NA&gt;    LGA  IAH       NA     1416    6
+##        minute           time_hour
+##     1:     15 2013-01-01 05:00:00
+##     2:     29 2013-01-01 05:00:00
+##    ---                           
+## 27003:     46 2013-01-31 14:00:00
+## 27004:     25 2013-01-31 06:00:00</code></pre>
+<pre class="r"><code># flights departing on March 10th
+flights_dt[month == 3 &amp; day == 10]</code></pre>
+<pre><code>##      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   1: 2013     3  10        6           2359         7      336            338
+##   2: 2013     3  10       41           2100       221      230           2257
+##  ---                                                                         
+## 907: 2013     3  10       NA           2000        NA       NA           2335
+## 908: 2013     3  10       NA           1730        NA       NA           1923
+##      arr_delay carrier flight tailnum origin dest air_time distance hour minute
+##   1:        -2      B6    727  N547JB    JFK  BQN      186     1576   23     59
+##   2:       213      EV   4368  N14116    EWR  DAY       82      533   21      0
+##  ---                                                                           
+## 907:        NA      UA    424    &lt;NA&gt;    EWR  SAT       NA     1569   20      0
+## 908:        NA      US    449    &lt;NA&gt;    EWR  CLT       NA      529   17     30
+##                time_hour
+##   1: 2013-03-10 23:00:00
+##   2: 2013-03-10 21:00:00
+##  ---                    
+## 907: 2013-03-10 20:00:00
+## 908: 2013-03-10 17:00:00</code></pre>
+<pre class="r"><code># flights where the total delay (dep_delay + arr_delay) is 10 minutes or more,
+# the destination was Dallas (DFW) and was in January, February, or March
+flights_dt[(dep_delay + arr_delay) &gt;= 10 &amp; dest == &quot;DFW&quot; &amp; month &lt;= 3]</code></pre>
+<pre><code>##      year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time
+##   1: 2013     1   1      559            600        -1      941            910
+##   2: 2013     1   1      635            635         0     1028            940
+##  ---                                                                         
+## 574: 2013     3  31     1308           1300         8     1622           1605
+## 575: 2013     3  31     1923           1825        58     2202           2127
+##      arr_delay carrier flight tailnum origin dest air_time distance hour minute
+##   1:        31      AA    707  N3DUAA    LGA  DFW      257     1389    6      0
+##   2:        48      AA    711  N3GKAA    LGA  DFW      248     1389    6     35
+##  ---                                                                           
+## 574:        17      AA    745  N3CAAA    LGA  DFW      218     1389   13      0
+## 575:        35      UA   1221  N35271    EWR  DFW      196     1372   18     25
+##                time_hour
+##   1: 2013-01-01 06:00:00
+##   2: 2013-01-01 06:00:00
+##  ---                    
+## 574: 2013-03-31 13:00:00
+## 575: 2013-03-31 18:00:00</code></pre>
+<p>We can also sort using <code>i</code>:</p>
+<pre class="r"><code># sort by total delay
+flights_dt[order(dep_delay + arr_delay, decreasing = T)]</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   9      641            900      1301     1242
+##      2: 2013     6  15     1432           1935      1137     1607
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:           1530      1272      HA     51  N384HA    JFK  HNL      640
+##      2:           2120      1127      MQ   3535  N504MQ    JFK  CMH       74
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     4983    9      0 2013-01-09 09:00:00
+##      2:      483   19     35 2013-06-15 19:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00</code></pre>
+</div>
+<div id="select-and-create-new-columns-using-j" class="section level4">
+<h4>Select and create new columns using <code>j</code></h4>
+<p>This first example shows how to select a column. It looks very similar to what we’d do in base R.</p>
+<pre class="r"><code># get flight destination
+destination &lt;- flights_dt[, dest]
+head(destination)</code></pre>
+<pre><code>## [1] &quot;IAH&quot; &quot;IAH&quot; &quot;MIA&quot; &quot;BQN&quot; &quot;ATL&quot; &quot;ORD&quot;</code></pre>
+<p>You’ll notice that the result of the previous operation was a vector. Sometimes this is what we want, other times it’s not. So, how can we select a column and have a <code>data.table</code> returned instead of a vector?</p>
+<p>We can use <code>.(column_I_want, another_column_I_want)</code> or <code>list(this_column_too, and_this_one_also)</code>.</p>
+<pre class="r"><code># use .(columns_to_select) or list(columns_to_select)
+# .(columns_to_select) acts as &quot;shorthand&quot; for list(columns_to_select)
+flights_dt[,.(dest)]</code></pre>
+<pre><code>##         dest
+##      1:  IAH
+##      2:  IAH
+##     ---     
+## 336775:  CLE
+## 336776:  RDU</code></pre>
+<pre class="r"><code># we can select multiple columns using .()
+flights_dt[,.(year, month, day, origin, dest)]</code></pre>
+<pre><code>##         year month day origin dest
+##      1: 2013     1   1    EWR  IAH
+##      2: 2013     1   1    LGA  IAH
+##     ---                           
+## 336775: 2013     9  30    LGA  CLE
+## 336776: 2013     9  30    LGA  RDU</code></pre>
+<pre class="r"><code># rename columns
+flights_dt[,.(Origin = origin, Destination = dest)]</code></pre>
+<pre><code>##         Origin Destination
+##      1:    EWR         IAH
+##      2:    LGA         IAH
+##     ---                   
+## 336775:    LGA         CLE
+## 336776:    LGA         RDU</code></pre>
+<p>We can create columns using <code>:=</code>:</p>
+<pre class="r"><code># create total delay column
+flights_dt[,total_delay := arr_delay + dep_delay]</code></pre>
+<p><img src="https://media.giphy.com/media/l2JIk0sWj9sUvbvCU/giphy.gif" /></p>
+<p>One major difference between “standard” operations in R and some operations in <code>data.table</code> is that <code>data.table</code> will make <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reference-semantics.html#section-2"><strong>modifications in place</strong></a>, meaning we don’t have to use the assignment operator (<code>&lt;-</code> or <code>=</code>).</p>
+<p><br>
+<br></p>
+<p>If we expect <code>flights_dt</code>, we can confirm that the <code>total_delay</code> column was added.</p>
+<pre class="r"><code>flights_dt</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour total_delay
+##      1:     1400    5     15 2013-01-01 05:00:00          13
+##      2:     1416    5     29 2013-01-01 05:00:00          24
+##     ---                                                     
+## 336775:      419   11     59 2013-09-30 11:00:00          NA
+## 336776:      431    8     40 2013-09-30 08:00:00          NA</code></pre>
+<pre class="r"><code># remove that column
+flights_dt[,total_delay:=NULL] 
+flights_dt</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour
+##      1:     1400    5     15 2013-01-01 05:00:00
+##      2:     1416    5     29 2013-01-01 05:00:00
+##     ---                                         
+## 336775:      419   11     59 2013-09-30 11:00:00
+## 336776:      431    8     40 2013-09-30 08:00:00</code></pre>
+<pre class="r"><code># add multiple columns
+flights_dt[, `:=`(date = lubridate::ymd(paste(year, month, day, sep = &quot;-&quot;)),
+                  log_distance = log(distance),
+                  air_time_in_hours = air_time / 60)]
+flights_dt</code></pre>
+<pre><code>##         year month day dep_time sched_dep_time dep_delay arr_time
+##      1: 2013     1   1      517            515         2      830
+##      2: 2013     1   1      533            529         4      850
+##     ---                                                          
+## 336775: 2013     9  30       NA           1159        NA       NA
+## 336776: 2013     9  30       NA            840        NA       NA
+##         sched_arr_time arr_delay carrier flight tailnum origin dest air_time
+##      1:            819        11      UA   1545  N14228    EWR  IAH      227
+##      2:            830        20      UA   1714  N24211    LGA  IAH      227
+##     ---                                                                     
+## 336775:           1344        NA      MQ   3572  N511MQ    LGA  CLE       NA
+## 336776:           1020        NA      MQ   3531  N839MQ    LGA  RDU       NA
+##         distance hour minute           time_hour       date log_distance
+##      1:     1400    5     15 2013-01-01 05:00:00 2013-01-01     7.244228
+##      2:     1416    5     29 2013-01-01 05:00:00 2013-01-01     7.255591
+##     ---                                                                 
+## 336775:      419   11     59 2013-09-30 11:00:00 2013-09-30     6.037871
+## 336776:      431    8     40 2013-09-30 08:00:00 2013-09-30     6.066108
+##         air_time_in_hours
+##      1:          3.783333
+##      2:          3.783333
+##     ---                  
+## 336775:                NA
+## 336776:                NA</code></pre>
+</div>
+<div id="grouping-with-by" class="section level4">
+<h4>Grouping with <code>by</code></h4>
+<p>In the first two examples, we use <code>.N</code>, which is a <a href="https://rdatatable.gitlab.io/data.table/reference/special-symbols.html">special symbol</a> which allows us to count rows in our data. <code>.SD</code>, which is used later on in this post, is also a special symbol in <strong><code>data.table</code></strong>.</p>
+<p>A simple example, counting by origin of flight.</p>
+<pre class="r"><code>flights_dt[,.N,origin]</code></pre>
+<pre><code>##    origin      N
+## 1:    EWR 120835
+## 2:    LGA 104662
+## 3:    JFK 111279</code></pre>
+<p>A little more complicated, counting by origin and destination, then sorting to show most frequent, then slice top 10 rows.</p>
+<pre class="r"><code>flights_dt[,.N, .(origin, dest)][order(-N)][1:10]</code></pre>
+<pre><code>##     origin dest     N
+##  1:    JFK  LAX 11262
+##  2:    LGA  ATL 10263
+##  3:    LGA  ORD  8857
+##  4:    JFK  SFO  8204
+##  5:    LGA  CLT  6168
+##  6:    EWR  ORD  6100
+##  7:    JFK  BOS  5898
+##  8:    LGA  MIA  5781
+##  9:    JFK  MCO  5464
+## 10:    EWR  BOS  5327</code></pre>
+<p>To wrap up this section, let’s show the median and average total delay by origin and destination airport, and then sort by average total delay. We also add in <code>.N</code>, because it’s always good to show the sample size.</p>
+<pre class="r"><code>flights_dt[!is.na(arr_delay) &amp; !is.na(dep_delay),
+           .(avg_delay = mean(arr_delay + dep_delay),
+             median_delay = median(arr_delay + dep_delay),
+             .N),
+           .(origin, dest)
+           ][order(-avg_delay)]</code></pre>
+<pre><code>##      origin dest avg_delay median_delay   N
+##   1:    EWR  TYS  82.80511           18 313
+##   2:    EWR  CAE  78.94681           40  94
+##  ---                                       
+## 222:    JFK  PSP -15.66667          -14  18
+## 223:    LGA  LEX -31.00000          -31   1</code></pre>
+</div>
+</div>
+<div id="a-little-more-advanced" class="section level3">
+<h3>A little more advanced</h3>
+<div class="figure">
+<img src="https://media.giphy.com/media/5MGFEJS7FIxK8/giphy.gif" alt="" />
+<p class="caption">Turning it up</p>
+</div>
+<p>We often want to perform multiple operations on a single <code>data.frame</code>. If we keep all of the code to perform these operations on a single line, our scripts can become illegible and unwieldy. Similar to how <strong><code>tidyverse</code></strong> pipes might span multiple lines:</p>
+<pre class="r"><code>data %&gt;%
+  mutate(new_columns) %&gt;%
+  group_by(grouping_columns) %&gt;%
+  summarise(other_columns) %&gt;%
+  arrange(desc(some_column))</code></pre>
+<p>We can “chain” <strong><code>data.table</code></strong> expressions:</p>
+<pre class="r"><code>DT[ ...
+   ][ ...
+     ][ ...
+       ]</code></pre>
+<p>This example gets the cumulative total delay over the course of a year by origin airport. It utilizes filtering, sorting, and grouping.</p>
+<pre class="r"><code># get cumulative delay by origin airport
+# uses &quot;chaining&quot;
+cumulative_delay_by_origin &lt;-
+  flights_dt[!is.na(dep_delay) &amp; !is.na(arr_delay) # keep valid flights
+             ][order(time_hour),                   # sort by date 
+               .(time_hour,                        # select date and cumsum delay
+                 cumu_delay=cumsum(arr_delay+dep_delay)), 
+               origin]                             # group by origin airport
+
+ggplot(cumulative_delay_by_origin,
+       aes(time_hour, cumu_delay/60, colour = origin))+
+  geom_line()+
+  theme_bw()+
+  xlab(&quot;Date&quot;) + ylab(&quot;Cumulative total delay (hours)&quot;)</code></pre>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>Let’s get even crazier with chaining.</p>
+<p>The next example finds the “biggest loser” on each day (i.e. which flight had the worst total delay). We then count up (using the <code>ones</code> column) which origin airport the biggest loser was departing from. We calculate this cumulatively over the course of the year.</p>
+<pre class="r"><code>top_delay &lt;- flights_dt[!is.na(arr_delay) &amp; !is.na(dep_delay)
+                        ][,`:=`(total_delay=arr_delay+dep_delay, ones=1)
+                          ][, .SD[ which.max(total_delay) ], date
+                            ][order(date)
+                              ][,.(cumu_obs = cumsum(ones), date),.(origin)]
+
+ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
+  geom_line()+
+  theme_bw()+
+  xlab(&quot;Date&quot;)+
+  ylab(&quot;Cumulative # of Days with Worst Delay&quot;)</code></pre>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+<div id="performance-evaluation-base-r-tidyverse-and-data.table" class="section level3">
+<h3>Performance evaluation: base <strong><code>R</code></strong>, <strong><code>tidyverse</code></strong>, and <strong><code>data.table</code></strong></h3>
+<p>Let’s demonstrate a typical calculation you might do in R: an aggregation of two columns based on grouping by three columns. In this specific example, we’re calculating the average departure delay and average arrival delay by origin airport, destination airport, and month of flight.</p>
+<pre class="r"><code>set.seed(1848)
+benchmark_data &lt;- microbenchmark(
+  # base R solution
+  base_R = aggregate(list(flights$dep_delay, flights$arr_delay),
+                     list(flights$origin, flights$dest, flights$month),
+                     mean, na.rm = TRUE),
+  # tidyverse solution
+  tidy_verse = flights %&gt;% 
+    group_by(origin, dest, month) %&gt;% 
+    summarise_at(c(&quot;dep_delay&quot;, &quot;arr_delay&quot;), mean, na.rm = TRUE),
+  
+  #data.table
+  data_table = flights_dt[,lapply(.SD, mean, na.rm = TRUE), 
+                          .(origin, dest, month), 
+                          .SDcols = c(&quot;dep_delay&quot;, &quot;arr_delay&quot;)],
+  
+  times = 100)</code></pre>
+<pre class="r"><code>library(ggridges)
+benchmark_data_dt &lt;- as.data.table(benchmark_data)
+benchmark_data_dt[,time_in_ms := time / 1000000]
+
+ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
+  geom_density_ridges2(rel_min_height = 0.01, scale = 1.5, fill = &quot;#c5050c&quot;)+
+  geom_boxplot(width = 0.25)+
+  theme_bw()+
+  scale_x_log10(&quot;Time (milliseconds, log10)&quot;)+
+  scale_y_discrete(&quot;Operation&quot;,
+                   labels = c(&quot;base_R&quot; = &quot;Base R&quot;,
+                              &quot;tidy_verse&quot; = &quot;tidyverse&quot;,
+                              &quot;data_table&quot; = &quot;data.table&quot;))+
+  ggtitle(&quot;Grouped Aggregation Timing Summary&quot;)</code></pre>
+<p><img src="/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>Here is how much slower the median operation is compared to <code>data.table</code>. Since this <em>is</em> a tutorial about <strong><code>data.table</code></strong>, we use its <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html"><code>dcast</code></a> function to convert long data to wide.</p>
+<pre class="r"><code>dcast(benchmark_data_dt, 
+      .~expr, 
+      value.var = &quot;time_in_ms&quot;, 
+      fun = median)[, round(.SD/data_table,1), 
+                    .SDcols = c(&quot;base_R&quot;, &quot;tidy_verse&quot;, &quot;data_table&quot;)]</code></pre>
+<pre><code>##    base_R tidy_verse data_table
+## 1:   16.6        5.5          1</code></pre>
+<p><a href="https://h2oai.github.io/db-benchmark/">Here’s a more complete reference</a> on benchmarking, with comparisons across R and Python.</p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>I hope this was a gentle introduction to the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package. I think the key to getting off on the right foot with this package is understanding the syntax.</p>
+<p>The syntax allows you to do a lot more than the common operations we expect with a base <code>data.frame</code>. Here is the general form of <strong><code>data.table</code></strong> syntax:</p>
+<pre class="r"><code>DT[i, j, by]</code></pre>
+<ul>
+<li><code>i</code>: where (subset) / order by (sort)</li>
+<li><code>j</code>: select (grab certain columns) / update (add/modify columns)</li>
+<li><code>by</code>: group by</li>
+</ul>
+<p><img src="https://miro.medium.com/max/700/1*odc8US0simd-2Le1OHwlhw.png" /></p>
+<p>Image source: <a href="https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d">Blazing Fast Data Wrangling With R data.table</a></p>
+<p>By no means did I intend for this introduction to be an exhaustive guide to all things <strong><code>data.table</code></strong>. If you’re interested in exploring the package further, take a look at these resources:</p>
+<ul>
+<li><a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html">Introduction to data.table</a></li>
+<li><a href="https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf"><code>data.table</code> cheat sheet</a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html#examples"><code>data.table</code> examples</a></li>
+<li><a href="https://brooksandrew.github.io/simpleblog/articles/advanced-data-table/">Advanced tips and tricks with data.table</a></li>
+<li><a href="https://towardsdatascience.com/blazing-fast-data-wrangling-with-r-data-table-de5045cc4b4d">Blazing Fast Data Wrangling With R data.table</a></li>
+<li><a href="https://franknarf1.github.io/r-tutorial/_book/tables.html#tables">Chapter 3: Tables</a></li>
+</ul>
+</div>
+<div id="fun-fact" class="section level2">
+<h2>Fun fact</h2>
+<p>Fun <code>R</code> fact: <code>&lt;-</code> and <code>=</code> are actually functions, and can be called like so:</p>
+<pre class="r"><code>`&lt;-`(x, 1:5)
+x</code></pre>
+<pre><code>## [1] 1 2 3 4 5</code></pre>
+<pre class="r"><code>`=`(x, 5:1)
+x</code></pre>
+<pre><code>## [1] 5 4 3 2 1</code></pre>
+<pre class="r"><code>`&lt;-`(x, c(rev(x), x))
+x</code></pre>
+<pre><code>##  [1] 1 2 3 4 5 5 4 3 2 1</code></pre>
+<pre class="r"><code>`&lt;-`(&quot;ill-advised variable name&quot;, 1:3)
+`ill-advised variable name`</code></pre>
+<pre><code>## [1] 1 2 3</code></pre>
+</div>
+</content:encoded>
+
+    </item>
     
     <item>
       <title>An Introduction to Reading Data into R</title>
@@ -3513,46 +4382,46 @@ library(caret) # caret or carrot? :)&lt;/code&gt;&lt;/pre&gt;
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.6&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.9&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.3&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.8&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.9&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;0.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
 &lt;td align=&#34;left&#34;&gt;4.9&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;0.2&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
 &lt;/tr&gt;
-&lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;4.8&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;0.3&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
-&lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;7.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.6&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;6.9&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.3&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.7&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;0.2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -3790,46 +4659,46 @@ library(caret) # caret or carrot? :)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">6.1</td>
-<td align="left">2.6</td>
 <td align="left">5.6</td>
-<td align="left">1.4</td>
-<td align="left">virginica</td>
+<td align="left">2.5</td>
+<td align="left">3.9</td>
+<td align="left">1.1</td>
+<td align="left">versicolor</td>
 </tr>
 <tr class="even">
-<td align="left">6.9</td>
-<td align="left">3.1</td>
-<td align="left">5.1</td>
-<td align="left">2.3</td>
-<td align="left">virginica</td>
+<td align="left">5.6</td>
+<td align="left">2.7</td>
+<td align="left">4.2</td>
+<td align="left">1.3</td>
+<td align="left">versicolor</td>
 </tr>
 <tr class="odd">
-<td align="left">5.1</td>
-<td align="left">3.8</td>
-<td align="left">1.9</td>
-<td align="left">0.4</td>
-<td align="left">setosa</td>
+<td align="left">6.6</td>
+<td align="left">2.9</td>
+<td align="left">4.6</td>
+<td align="left">1.3</td>
+<td align="left">versicolor</td>
 </tr>
 <tr class="even">
+<td align="left">5.5</td>
+<td align="left">2.6</td>
+<td align="left">4.4</td>
+<td align="left">1.2</td>
+<td align="left">versicolor</td>
+</tr>
+<tr class="odd">
 <td align="left">4.9</td>
-<td align="left">3.1</td>
-<td align="left">1.5</td>
+<td align="left">3.0</td>
+<td align="left">1.4</td>
 <td align="left">0.2</td>
 <td align="left">setosa</td>
 </tr>
-<tr class="odd">
-<td align="left">4.8</td>
-<td align="left">3.0</td>
-<td align="left">1.4</td>
-<td align="left">0.3</td>
-<td align="left">setosa</td>
-</tr>
 <tr class="even">
-<td align="left">7.7</td>
-<td align="left">2.6</td>
-<td align="left">6.9</td>
-<td align="left">2.3</td>
-<td align="left">virginica</td>
+<td align="left">4.7</td>
+<td align="left">3.2</td>
+<td align="left">1.6</td>
+<td align="left">0.2</td>
+<td align="left">setosa</td>
 </tr>
 </tbody>
 </table>
@@ -4448,26 +5317,26 @@ simple_mod &amp;lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tou
 &lt;h3&gt;Check out the coefficients&lt;/h3&gt;
 &lt;p&gt;Let’s see what a summary of the model looks like&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary(simple_mod)$coefficients&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;##                         Estimate Std. Error     t value
-## (Intercept)           1.88291318 0.09070961  20.7575928
-## hole_f4              -0.06991525 0.06812176  -1.0263278
-## hole_f7              -0.18432203 0.06812176  -2.7057733
-## hole_f1              -0.22881356 0.06812176  -3.3588911
-## hole_f18             -0.40889831 0.06812176  -6.0024627
-## hole_f15             -0.44279661 0.06812176  -6.5000762
-## hole_f10             -0.44703390 0.06812176  -6.5622779
-## hole_f3              -0.48728814 0.06812176  -7.1531939
-## hole_f13             -0.53601695 0.06812176  -7.8685133
-## hole_f17             -0.53813559 0.06812176  -7.8996141
-## hole_f6              -0.54661017 0.06812176  -8.0240175
-## hole_f2              -0.55296610 0.06812176  -8.1173200
-## hole_f16             -0.61864407 0.06812176  -9.0814462
-## hole_f8              -0.64406780 0.06812176  -9.4546563
-## hole_f14             -0.67372881 0.06812176  -9.8900681
-## hole_f9              -0.68008475 0.06812176  -9.9833706
-## hole_f5              -0.68432203 0.06812176 -10.0455723
-## hole_f11             -0.80084746 0.06812176 -11.7561187
-## tourn_typesectionals -0.06353020 0.09519525  -0.6673673&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##                         Estimate Std. Error    t value
+## (Intercept)           1.88291299 0.09070789  20.757985
+## hole_f4              -0.06991525 0.06812175  -1.026328
+## hole_f7              -0.18432203 0.06812175  -2.705774
+## hole_f1              -0.22881356 0.06812175  -3.358891
+## hole_f18             -0.40889831 0.06812175  -6.002463
+## hole_f15             -0.44279661 0.06812175  -6.500077
+## hole_f10             -0.44703390 0.06812175  -6.562278
+## hole_f3              -0.48728814 0.06812175  -7.153194
+## hole_f13             -0.53601695 0.06812175  -7.868514
+## hole_f17             -0.53813559 0.06812175  -7.899615
+## hole_f6              -0.54661017 0.06812175  -8.024018
+## hole_f2              -0.55296610 0.06812175  -8.117321
+## hole_f16             -0.61864407 0.06812175  -9.081447
+## hole_f8              -0.64406780 0.06812175  -9.454657
+## hole_f14             -0.67372881 0.06812175  -9.890069
+## hole_f9              -0.68008475 0.06812175  -9.983371
+## hole_f5              -0.68432203 0.06812175 -10.045573
+## hole_f11             -0.80084746 0.06812175 -11.756119
+## tourn_typesectionals -0.06353004 0.09519262  -0.667384&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;These results aren’t too interesting, but note that I set up the &lt;code&gt;hole&lt;/code&gt; factor variable to compare the other holes to #12, the hardest on the course. The only hole that wasn’t significantly easier than 12 was #4.&lt;/p&gt;
 &lt;p&gt;We can also look at the estimate for the &lt;code&gt;tourn_type&lt;/code&gt; variable. &lt;em&gt;Directionally&lt;/em&gt;, we got the result we were expecting, i.e. sectionals have lower scores relative to par than regionals on average. However, the coefficient is not significant (thumb rule &lt;span class=&#34;math inline&#34;&gt;\(|t| &amp;lt; 2\)&lt;/span&gt;) and its effect size is small, indicating that although the directional effect is negative, we’d have a hard time concluding that the effect is really that meaningful.&lt;/p&gt;
 &lt;p&gt;Oh well, let’s do something more interesting with the results from the model&lt;/p&gt;
@@ -4528,7 +5397,7 @@ dummy_table_boot %&amp;gt;% head&lt;/code&gt;&lt;/pre&gt;
   ggtitle(&amp;#39;Final Score Percentile Plot by Tournament Type&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Breaking 90 is generally a sign of a fairly accomplished high school golfer. In the plot above, we can see that the 90 mark is right around the 30th percentile for both the regional and sectional tournaments. This means that about 30% of the competitors scored 90 or lower. One other interesting insight from this chart is that the performance between the regional and sectional tournament is fairly similar (the scores by percentile are pretty close) except for between the 50th and 75th percentiles (the red dots tend to rise a bit above the blue). It could be interesting to dig into this divergence a bit more in a follow-up analysis.&lt;/p&gt;
-&lt;p&gt;To explore the difference between those that broke 90 (29.7% of the field) from those that didn’t, we’ll fit a simple linear model. We’ll use the results of the model to make predictions on a dummy data set and then look at the differences between predicted scores relative to par for each hole for the top 30% and the bottom 70%. We use a linear model to give our analysis a bit more precision than using simple averages across the data. We could also return to this analysis and investigate the coefficients or add complexity to the model if appropriate.&lt;/p&gt;
+&lt;p&gt;To explore the difference between those that broke 90 (30% of the field) from those that didn’t, we’ll fit a simple linear model. We’ll use the results of the model to make predictions on a dummy data set and then look at the differences between predicted scores relative to par for each hole for the top 30% and the bottom 70%. We use a linear model to give our analysis a bit more precision than using simple averages across the data. We could also return to this analysis and investigate the coefficients or add complexity to the model if appropriate.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tidy_scores3 &amp;lt;- tidy_scores2 %&amp;gt;%
   mutate(broke_90 = ifelse(tot &amp;lt; 90, &amp;#39;Broke 90&amp;#39;, &amp;#39;Did not Break 90&amp;#39;))
 # linear model with effects for hole, broke_90 indicator
@@ -5028,26 +5897,26 @@ simple_mod &lt;- lmer(rel_to_par ~ hole_f+tourn_type+(1|tourn_year_f)+(1|tourn_y
 <h3>Check out the coefficients</h3>
 <p>Let’s see what a summary of the model looks like</p>
 <pre class="r"><code>summary(simple_mod)$coefficients</code></pre>
-<pre><code>##                         Estimate Std. Error     t value
-## (Intercept)           1.88291318 0.09070961  20.7575928
-## hole_f4              -0.06991525 0.06812176  -1.0263278
-## hole_f7              -0.18432203 0.06812176  -2.7057733
-## hole_f1              -0.22881356 0.06812176  -3.3588911
-## hole_f18             -0.40889831 0.06812176  -6.0024627
-## hole_f15             -0.44279661 0.06812176  -6.5000762
-## hole_f10             -0.44703390 0.06812176  -6.5622779
-## hole_f3              -0.48728814 0.06812176  -7.1531939
-## hole_f13             -0.53601695 0.06812176  -7.8685133
-## hole_f17             -0.53813559 0.06812176  -7.8996141
-## hole_f6              -0.54661017 0.06812176  -8.0240175
-## hole_f2              -0.55296610 0.06812176  -8.1173200
-## hole_f16             -0.61864407 0.06812176  -9.0814462
-## hole_f8              -0.64406780 0.06812176  -9.4546563
-## hole_f14             -0.67372881 0.06812176  -9.8900681
-## hole_f9              -0.68008475 0.06812176  -9.9833706
-## hole_f5              -0.68432203 0.06812176 -10.0455723
-## hole_f11             -0.80084746 0.06812176 -11.7561187
-## tourn_typesectionals -0.06353020 0.09519525  -0.6673673</code></pre>
+<pre><code>##                         Estimate Std. Error    t value
+## (Intercept)           1.88291299 0.09070789  20.757985
+## hole_f4              -0.06991525 0.06812175  -1.026328
+## hole_f7              -0.18432203 0.06812175  -2.705774
+## hole_f1              -0.22881356 0.06812175  -3.358891
+## hole_f18             -0.40889831 0.06812175  -6.002463
+## hole_f15             -0.44279661 0.06812175  -6.500077
+## hole_f10             -0.44703390 0.06812175  -6.562278
+## hole_f3              -0.48728814 0.06812175  -7.153194
+## hole_f13             -0.53601695 0.06812175  -7.868514
+## hole_f17             -0.53813559 0.06812175  -7.899615
+## hole_f6              -0.54661017 0.06812175  -8.024018
+## hole_f2              -0.55296610 0.06812175  -8.117321
+## hole_f16             -0.61864407 0.06812175  -9.081447
+## hole_f8              -0.64406780 0.06812175  -9.454657
+## hole_f14             -0.67372881 0.06812175  -9.890069
+## hole_f9              -0.68008475 0.06812175  -9.983371
+## hole_f5              -0.68432203 0.06812175 -10.045573
+## hole_f11             -0.80084746 0.06812175 -11.756119
+## tourn_typesectionals -0.06353004 0.09519262  -0.667384</code></pre>
 <p>These results aren’t too interesting, but note that I set up the <code>hole</code> factor variable to compare the other holes to #12, the hardest on the course. The only hole that wasn’t significantly easier than 12 was #4.</p>
 <p>We can also look at the estimate for the <code>tourn_type</code> variable. <em>Directionally</em>, we got the result we were expecting, i.e. sectionals have lower scores relative to par than regionals on average. However, the coefficient is not significant (thumb rule <span class="math inline">\(|t| &lt; 2\)</span>) and its effect size is small, indicating that although the directional effect is negative, we’d have a hard time concluding that the effect is really that meaningful.</p>
 <p>Oh well, let’s do something more interesting with the results from the model</p>
@@ -5108,7 +5977,7 @@ dummy_table_boot %&gt;% head</code></pre>
   ggtitle(&#39;Final Score Percentile Plot by Tournament Type&#39;)</code></pre>
 <p><img src="/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <p>Breaking 90 is generally a sign of a fairly accomplished high school golfer. In the plot above, we can see that the 90 mark is right around the 30th percentile for both the regional and sectional tournaments. This means that about 30% of the competitors scored 90 or lower. One other interesting insight from this chart is that the performance between the regional and sectional tournament is fairly similar (the scores by percentile are pretty close) except for between the 50th and 75th percentiles (the red dots tend to rise a bit above the blue). It could be interesting to dig into this divergence a bit more in a follow-up analysis.</p>
-<p>To explore the difference between those that broke 90 (29.7% of the field) from those that didn’t, we’ll fit a simple linear model. We’ll use the results of the model to make predictions on a dummy data set and then look at the differences between predicted scores relative to par for each hole for the top 30% and the bottom 70%. We use a linear model to give our analysis a bit more precision than using simple averages across the data. We could also return to this analysis and investigate the coefficients or add complexity to the model if appropriate.</p>
+<p>To explore the difference between those that broke 90 (30% of the field) from those that didn’t, we’ll fit a simple linear model. We’ll use the results of the model to make predictions on a dummy data set and then look at the differences between predicted scores relative to par for each hole for the top 30% and the bottom 70%. We use a linear model to give our analysis a bit more precision than using simple averages across the data. We could also return to this analysis and investigate the coefficients or add complexity to the model if appropriate.</p>
 <pre class="r"><code>tidy_scores3 &lt;- tidy_scores2 %&gt;%
   mutate(broke_90 = ifelse(tot &lt; 90, &#39;Broke 90&#39;, &#39;Did not Break 90&#39;))
 # linear model with effects for hole, broke_90 indicator
@@ -5212,20 +6081,13 @@ cbind(dummy_table2,
 &lt;p&gt;To use &lt;code&gt;kmeans&lt;/code&gt;, we first need to specify the &lt;code&gt;k&lt;/code&gt;. How should we do this?&lt;/p&gt;
 &lt;p&gt;##Data&lt;/p&gt;
 &lt;p&gt;For this post, we’ll be using the &lt;a href=&#34;https://archive.ics.uci.edu/ml/datasets/Housing&#34;&gt;Boston housing data set&lt;/a&gt;. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
-## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
-## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14
-## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03
-## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94
-## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33
-## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21
-##   medv
-## 1 24.0
-## 2 21.6
-## 3 34.7
-## 4 33.4
-## 5 36.2
-## 6 28.7&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat medv
+## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98 24.0
+## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14 21.6
+## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03 34.7
+## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94 33.4
+## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33 36.2
+## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21 28.7&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 &lt;div id=&#34;visualize-within-cluster-error&#34; class=&#34;section level2&#34;&gt;
@@ -5498,7 +6360,7 @@ system.time(
   test_clusters.hand &amp;lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    user  system elapsed 
-##    1.36    0.00    1.36&lt;/code&gt;&lt;/pre&gt;
+##    2.20    0.04    2.25&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.hand)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## test_clusters.hand
 ##  1  2  3  4 
@@ -5561,20 +6423,13 @@ system.time(
 <p>To use <code>kmeans</code>, we first need to specify the <code>k</code>. How should we do this?</p>
 <p>##Data</p>
 <p>For this post, we’ll be using the <a href="https://archive.ics.uci.edu/ml/datasets/Housing">Boston housing data set</a>. This dataset contains information collected by the U.S Census Service concerning housing in the area of Boston, MA.</p>
-<pre><code>##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat
-## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98
-## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14
-## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03
-## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94
-## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33
-## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21
-##   medv
-## 1 24.0
-## 2 21.6
-## 3 34.7
-## 4 33.4
-## 5 36.2
-## 6 28.7</code></pre>
+<pre><code>##      crim zn indus   nox    rm  age    dis rad tax ptratio  black lstat medv
+## 1 0.00632 18  2.31 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98 24.0
+## 2 0.02731  0  7.07 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14 21.6
+## 3 0.02729  0  7.07 0.469 7.185 61.1 4.9671   2 242    17.8 392.83  4.03 34.7
+## 4 0.03237  0  2.18 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94 33.4
+## 5 0.06905  0  2.18 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33 36.2
+## 6 0.02985  0  2.18 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21 28.7</code></pre>
 </div>
 </div>
 <div id="visualize-within-cluster-error" class="section level2">
@@ -5847,7 +6702,7 @@ system.time(
   test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    1.36    0.00    1.36</code></pre>
+##    2.20    0.04    2.25</code></pre>
 <pre class="r"><code>table(test_clusters.hand)</code></pre>
 <pre><code>## test_clusters.hand
 ##  1  2  3  4 
