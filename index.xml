@@ -4107,7 +4107,8 @@ results_and_pop_density$resid_model1 &amp;lt;- resid(model1)&lt;/code&gt;&lt;/pr
 model2 &amp;lt;- glm(cbind(votes_dem, votes_gop) ~ I(log(population_density))+
                 I(log(inc))+edu_pct + state_abbr + I(log1p(two_party_2012)),
               data = results_pop_census,
-              family = &amp;#39;binomial&amp;#39;)
+              family = &amp;#39;binomial&amp;#39;,
+              na.action = na.exclude)
 # extract residuals
 results_pop_census$resid_model2 &amp;lt;- resid(model2, type = &amp;#39;response&amp;#39;)
 # join up to geographic data
@@ -4132,9 +4133,9 @@ results_pop_census_map &amp;lt;- county_map_with_fips %&amp;gt;%
     ggplot(aes(reorder(paste0(county_name, &amp;#39;, &amp;#39;, state_abbr), resid_model2), resid_model2))+
     geom_col(aes(fill = resid_model2), colour = &amp;#39;black&amp;#39;)+
     coord_flip()+
-    scale_fill_gradientn(values = rescale(c(-.16, -.05, -.02, 0, .02, .05, .16)),
+    scale_fill_gradientn(values = rescale(c(-.18, -.05, -.02, 0, .02, .05, .18)),
                          colours = brewer_pal(palette = &amp;#39;PiYG&amp;#39;)(7),
-                         limits = c(-.16, .16),
+                         limits = c(-.18, .18),
                          name = &amp;#39;Prediction Error (pink underestimates Trump, green underestimates Clinton)&amp;#39;)+
     theme(legend.position = &amp;#39;none&amp;#39;)+
     xlab(&amp;#39;&amp;#39;)+
@@ -4248,7 +4249,8 @@ results_and_pop_density$resid_model1 &lt;- resid(model1)</code></pre>
 model2 &lt;- glm(cbind(votes_dem, votes_gop) ~ I(log(population_density))+
                 I(log(inc))+edu_pct + state_abbr + I(log1p(two_party_2012)),
               data = results_pop_census,
-              family = &#39;binomial&#39;)
+              family = &#39;binomial&#39;,
+              na.action = na.exclude)
 # extract residuals
 results_pop_census$resid_model2 &lt;- resid(model2, type = &#39;response&#39;)
 # join up to geographic data
@@ -4273,9 +4275,9 @@ results_pop_census_map &lt;- county_map_with_fips %&gt;%
     ggplot(aes(reorder(paste0(county_name, &#39;, &#39;, state_abbr), resid_model2), resid_model2))+
     geom_col(aes(fill = resid_model2), colour = &#39;black&#39;)+
     coord_flip()+
-    scale_fill_gradientn(values = rescale(c(-.16, -.05, -.02, 0, .02, .05, .16)),
+    scale_fill_gradientn(values = rescale(c(-.18, -.05, -.02, 0, .02, .05, .18)),
                          colours = brewer_pal(palette = &#39;PiYG&#39;)(7),
-                         limits = c(-.16, .16),
+                         limits = c(-.18, .18),
                          name = &#39;Prediction Error (pink underestimates Trump, green underestimates Clinton)&#39;)+
     theme(legend.position = &#39;none&#39;)+
     xlab(&#39;&#39;)+
