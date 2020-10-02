@@ -16,7 +16,8 @@
       <pubDate>October 1, 2020</pubDate>
       
       <guid>/post/an-introduction-to-the-data-table-package/</guid>
-      <description>&lt;p&gt;Although the primary data wrangling package I use is &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt;, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; is the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
+      <description>&lt;p&gt;This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a short introduction to the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
+&lt;p&gt;Although the primary data wrangling package I use is &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt;, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; is the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
 &lt;div class=&#34;figure&#34;&gt;
 &lt;img src=&#34;https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif&#34; alt=&#34;&#34; /&gt;
 &lt;p class=&#34;caption&#34;&gt;Data Wrangling&lt;/p&gt;
@@ -446,7 +447,8 @@ x&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## [1] 1 2 3&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 </description>
-      <content:encoded><p>Although the primary data wrangling package I use is <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a>, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a> is the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package.</p>
+      <content:encoded><p>This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a short introduction to the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package.</p>
+<p>Although the primary data wrangling package I use is <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a>, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a> is the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package.</p>
 <div class="figure">
 <img src="https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif" alt="" />
 <p class="caption">Data Wrangling</p>

@@ -12,6 +12,8 @@ tags:
 subtitle: ''
 ---
 
+This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a short introduction to the [__`data.table`__](https://rdatatable.gitlab.io/data.table/) package.
+
 Although the primary data wrangling package I use is [__`tidyverse`__](https://www.tidyverse.org/), it's worthwhile to explore other packages that do similar data manipulations. The closest "competitor" to the [__`tidyverse`__](https://www.tidyverse.org/) is the [__`data.table`__](https://rdatatable.gitlab.io/data.table/) package. 
 
 ![Data Wrangling](https://media.giphy.com/media/wRKeX8o1eIxxu/giphy.gif)
