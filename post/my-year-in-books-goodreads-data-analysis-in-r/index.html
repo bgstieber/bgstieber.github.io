@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>My Year in Books: Goodreads Data Analysis in R</title>
+  <meta property="og:title" content="My Year in Books: Goodreads Data Analysis in R" />
+  <meta name="twitter:title" content="My Year in Books: Goodreads Data Analysis in R" />
+  <meta name="description" content="In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.
+As I was finishing up my year of reading, I started thinking about some of the statistics of my year in books:
+On average, how many pages did I read per day?Did I have any slumps during the year?">
+  <meta property="og:description" content="In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.
+As I was finishing up my year of reading, I started thinking about some of the statistics of my year in books:
+On average, how many pages did I read per day?Did I have any slumps during the year?">
+  <meta name="twitter:description" content="In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.
+As I was finishing up my year of reading, I started …">
+  <meta name="author" content="Brad Stieber"/>
+  <link href='/img/favicon2.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:image" content="/img/brad-avatar.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta property="og:url" content="/post/my-year-in-books-goodreads-data-analysis-in-r/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Brad Stieber" />
+
+  <meta name="generator" content="Hugo 0.41" />
+  <link rel="canonical" href="/post/my-year-in-books-goodreads-data-analysis-in-r/" />
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Brad Stieber">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="/css/highlight.min.css" /><link rel="stylesheet" href="/css/codeblock.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-119936954-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Brad Stieber</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Posts" href="/post">Posts</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="About Me" href="/about">About Me</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Blogroll" href="/blogroll">Blogroll</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Brad Stieber" href="/">
+            <img class="avatar-img" src="/img/brad-avatar.png" alt="Brad Stieber" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>My Year in Books: Goodreads Data Analysis in R</h1>
+                
+                
+                  <span class="post-meta">
+  
+  
+  <i class="fa fa-calendar-o"></i>&nbsp;Posted on January 2, 2021
+  
+  
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.</p>
+<p>As I was finishing up my year of reading, I started thinking about some of the statistics of my year in books:</p>
+<ul>
+<li>On average, how many pages did I read per day?</li>
+<li>Did I have any slumps during the year? If so, could the slumps be explained?</li>
+<li>What would be a reasonable reading goal for 2021?</li>
+</ul>
+<p>I tracked all of my books using <a href="https://www.goodreads.com/">Goodreads</a>, so I started poking around on the Goodreads website to see if I could access my library.</p>
+<p>I used the <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a>, <a href="https://lubridate.tidyverse.org/"><strong><code>lubridate</code></strong></a>, and <a href="https://scales.r-lib.org/"><strong><code>scales</code></strong></a> packages in this analysis. You can find the code for this post <a href="https://github.com/bgstieber/files_for_blog/tree/master/goodreads-data-analysis">on my GitHub</a>.</p>
+<div id="getting-the-data" class="section level2">
+<h2>Getting the Data</h2>
+<p>Getting Goodreads data isn’t too difficult. They have a great export tool, and if you follow <a href="https://www.goodreads.com/review/import">this link</a>, you can export your library. If you have a lot of books in your library the export can take a long time. The data export comes with 31 columns.</p>
+<p>For this analysis, the columns I’m interested in are <strong>Date Read</strong>, <strong>My Rating</strong> (what I rated the book, 0-5 stars), <strong>Average Rating</strong>, <strong>Number of Pages</strong>, and <strong>Original Publication Year</strong>. I added <a href="https://github.com/bgstieber/files_for_blog/blob/master/goodreads-data-analysis/goodreads_library_export.csv">my data</a> to a <a href="https://github.com/bgstieber/files_for_blog/tree/master/goodreads-data-analysis">GitHub repository</a>.</p>
+<p>One thing that’s missing from the Goodreads data export is the description of the book. I wrote a <a href="https://github.com/bgstieber/files_for_blog/blob/master/goodreads-data-analysis/scrape_goodreads.py">python script</a> that uses <a href="https://www.crummy.com/software/BeautifulSoup/">BeautifulSoup</a> to scrape Goodreads for this information. I don’t use it in <em>this post</em>, but I could see using it in a different post down the road.</p>
+<p>The data from Goodreads is mostly good to go, but there are a few tweaks to make before getting started.</p>
+<pre class="r"><code>gh_link1 &lt;- &quot;https://github.com/bgstieber/files_for_blog/raw/master/&quot;
+gh_link2 &lt;- &quot;goodreads-data-analysis/goodreads_library_export.csv&quot;
+
+goodreads_data &lt;- read_csv(paste0(gh_link1, gh_link2)) %&gt;%
+  # fix issue with data export for a book
+  mutate(`Number of Pages` = ifelse(grepl(&quot;Be a Player&quot;, Title),
+                                    256, `Number of Pages`))
+
+books_2020 &lt;- goodreads_data %&gt;%
+  # only 2020 books
+  filter(year(`Date Read`) == 2020) %&gt;%
+  # create rating_diff and publish_year columns
+  mutate(rating_diff = `My Rating` - `Average Rating`,
+         publish_year = coalesce(`Original Publication Year`,
+                                  `Year Published`)) %&gt;%
+  # clean some column names
+  rename(date_read = `Date Read`,
+         page_count = `Number of Pages`,
+         avg_rating = `Average Rating`,
+         my_rating = `My Rating`) %&gt;%
+  # add when the previous book was finished, sort then lag
+  arrange(date_read) %&gt;%
+  mutate(previous_book_date = lag(date_read))</code></pre>
+<p>For this analysis, I make the assumption that I read only one book at a time (not always true), and that I start reading a book immediately after I finish the previous one (not always true either).</p>
+</div>
+<div id="trends-and-analysis" class="section level2">
+<h2>Trends and Analysis</h2>
+<p>Here is the timeline of my year in books:</p>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-4-1.png" width="528" style="display: block; margin: auto;" /></p>
+<p><strong>Sometimes the most basic data visualizations present the most compelling information.</strong></p>
+<p>Here are a few things that stood out to me:</p>
+<ul>
+<li>My sprint at the end of the year to hit my reading goal</li>
+<li>A few books with longer read times: <em>The Remains of the Day</em>, <em>Never Let Me Go</em>, and <em>Be a Player: How to Become a Better Golfer Every Time You Play</em> (to a lesser extent)
+<ul>
+<li>These will come up again in calculating my 2021 goal</li>
+</ul></li>
+<li>Apart from the few books mentioned above, I had pretty consistent read times for my 2020 books. What might be driving this?</li>
+</ul>
+<p>In the code below, I create a <code>data.frame</code> with cumulative pages and books read by date.</p>
+<pre class="r"><code>summary_by_date &lt;- books_2020 %&gt;%
+  group_by(date_read, Title) %&gt;%
+  summarise(pages = sum(page_count),
+            books = n()) %&gt;%
+  ungroup() %&gt;%
+  # add dummy data for beginning of year
+  bind_rows(tibble(date_read = as.Date(&quot;2020-01-01&quot;),
+                   Title = NA_character_,
+                   pages = 0,
+                   books = 0)) %&gt;%
+  arrange(date_read) %&gt;%
+  mutate(previous_date = lag(date_read)) %&gt;%
+  mutate(days_since_last_book = as.numeric(difftime(
+    date_read, previous_date, units = &quot;days&quot;
+  ))) %&gt;%
+  mutate(cumu_pages_read = cumsum(pages),
+         cumu_books_read = cumsum(books))</code></pre>
+<p>Using this data, I can look at my progress toward 30 books through the year.</p>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>My reading certainly slowed down during the summer months. Most of this is due to me doing other things during a beautiful Wisconsin summer like playing golf and riding my bike. Between January and May, I read an average of 39.6 pages per day, between June and September, I read about 14.8 pages per day, and finishing off the year, I read 31.3 pages per day from October through the end of the year.</p>
+<p>For most of the year, I had a fairly consistent book-finishing pace. I think a lot of this can be explained by choosing shorter books in 2020. 70% of the books I read this year were less than 400 pages long.</p>
+<p>Another interesting aspect of the books I read in 2020 was that they were mostly modern. 80% of the books I read in 2020 were published in 1990 or later.</p>
+<pre class="r"><code>books_2020 %&gt;%
+  ggplot(aes(publish_year))+
+  geom_bar()+
+  xlab(&quot;Year Published&quot;)+
+  ylab(&quot;Books&quot;)+
+  ggtitle(&quot;When were my 2020 reads published?&quot;,
+          subtitle = paste0(percent(mean(books_2020$publish_year &gt;= 1990)),
+                            &quot; of books I read in 2020 were published &quot;,
+                            &quot;in 1990 or later.&quot;))</code></pre>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>The oldest book I read was <em>The House of Mirth</em> by Edith Wharton, published in 1905. The most recent book I read was <em>The Art of Solitude</em> by Stephen Batchelor, published in 2020.</p>
+<p>Finally, let’s take a look at how my rating of a book compared to the average rating from other Goodreads users.</p>
+<pre class="r"><code>books_2020 %&gt;%
+    mutate(title_abbrev = 
+               ifelse(nchar(Title) &gt; 60,
+                      paste0(substr(Title, 1, 60), &quot;...&quot;),
+                      Title)) %&gt;%
+    ggplot(aes(reorder(title_abbrev, rating_diff),
+               rating_diff,
+               fill = factor(my_rating)))+
+    geom_col(colour = &quot;black&quot;)+
+    coord_flip()+
+    scale_fill_viridis_d(&quot;My Rating&quot;, option = &quot;cividis&quot;)+
+    xlab(&quot;&quot;)+
+    ylab(&quot;My Rating - Goodreads Avg&quot;)+
+    theme(legend.position = &quot;top&quot;,
+          axis.text.y = element_text(size = 8))+
+    ggtitle(&quot;My Rating Versus the Goodreads Average&quot;)</code></pre>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-9-1.png" width="816" /></p>
+<p>My average rating in 2020 was 4, the average Goodreads rating of the books I read in 2020 was 4.1. I gave 9 books 3 stars, 11 books a rating of 4 stars, and I gave 10 books 5 stars.</p>
+</div>
+<div id="goal" class="section level2">
+<h2>2021 Goal</h2>
+<p>This post has mostly been an exploratory analysis of my Goodreads data. To make it actionable, let’s focus on <strong>setting a data-driven reading goal for 2021</strong>.</p>
+<p>To start, let’s look at the average number of pages I was reading throughout the year.</p>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>I was reading at a pretty consistent pace in the beginning of the year, declined sharply during the warm summer months, and then picked back up at the end of the year.</p>
+<p>On average, it took me about 12.2 days to finish a book in 2020. I read at a pace of about 28.9 pages per day.</p>
+<p>There were a few clear outliers with respect to reading pace throughout the year. I read two novels (<em>The Remains of the Day</em> and <em>Never Let Me Go</em>, both by Kazuo Ishiguro) very slowly, taking 43 and 28 days to finish those books, respectively. I also read two books at a very fast pace (<em>Red Queen</em> and <em>The Art of Solitude</em>), where I was reading at a pace of 76.6 and 66.7 pages per day, respectively.</p>
+<p>If we eliminate those four books, we’re left with a set of books that more closely reflects my typical or baseline reading pace. Looking at the remaining 26 books, I was reading at a pace of about 32.9 pages per day, taking about 11 days to finish a book.</p>
+<p>Using the pace of 11 days to finish a book, I could create a goal of reading 365/11 = 33.2 books in 2021. Rounding up, I’ll set a goal of 34 books in 2021.</p>
+<p>This represents an increase of 13% over my goal last year, which seems pretty reasonable based on this analysis.</p>
+</div>
+<div id="wrapping-up" class="section level2">
+<h2>Wrapping Up</h2>
+<p>In 2020, I set a goal to finish 30 books. On December 31st, I finished <em>The Art of Solitude</em> and completed my reading goal. I explored my Goodreads data to summarize my year in books:</p>
+<ul>
+<li>I read a total of 10,536 pages in 2020, the average length of a book I read in 2020 was 351.2 pages</li>
+<li>I read at a pace of 28.9 pages per day</li>
+<li>On average it took me about 12.2 days to complete each book</li>
+<li>The longest it took me to finish a book was 43 days (<em>Never Let Me Go</em>), my shortest read time was 3 days (<em>The Art of Solitude</em>)</li>
+<li>My average rating was 4 stars, the average Goodreads rating of the books I read was 4.1 stars</li>
+</ul>
+<p>I also used the Goodreads data to set a data-driven reading goal for 2021. I hope to increase my reading by 13% in 2021 by finishing 34 books.</p>
+<p>This was a fun way to look back on my year in books for 2020. There are a few aspects of this data that I could look into like the distribution of genres, the text summary of the book, and text reviews from other Goodreads users. That analysis will have to wait for another day!</p>
+<p>Happy reading!</p>
+</div>
+
+
+        
+          <div class="blog-tags">
+            
+              
+              <a href="/tags/data-analysis/">data-analysis</a>&nbsp;
+            
+              
+              <a href="/tags/data-science/">data-science</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <ul class="list-inline footer-links">
+                
+
+
+<li>
+    <a href="//twitter.com/share?url=%2fpost%2fmy-year-in-books-goodreads-data-analysis-in-r%2f&amp;text=My%20Year%20in%20Books%3a%20Goodreads%20Data%20Analysis%20in%20R&amp;via="
+       target="_blank" alt="" title="Share on Twitter">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.facebook.com/sharer/sharer.php?u=%2fpost%2fmy-year-in-books-goodreads-data-analysis-in-r%2f" target="_blank" title="Share on Facebook">
+        <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+<li>
+    <a href="//www.linkedin.com/shareArticle?url=%2fpost%2fmy-year-in-books-goodreads-data-analysis-in-r%2f&amp;title=My%20Year%20in%20Books%3a%20Goodreads%20Data%20Analysis%20in%20R" target="_blank"
+       title="Share on LinkedIn">
+         <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+              </span>
+    </a>
+</li>
+
+
+              </ul>
+            </section>
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="/post/an-introduction-to-the-data-table-package/" data-toggle="tooltip" data-placement="top" title="An Introduction to the data.table Package">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "bgstieber-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="https://github.com/bgstieber" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/brad-stieber-2227b2131" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/5619526/bouncyball" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            
+            <a href="/index.xml" title="RSS">
+            
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Brad Stieber
+            
+          
+
+          &nbsp;&bull;&nbsp;
+          2021
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="/">Brad Stieber</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.41</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/main.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+  </body>
+</html>
+

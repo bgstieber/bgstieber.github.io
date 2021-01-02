@@ -5,10 +5,289 @@
     <link>/</link>
     <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>October 1, 2020</lastBuildDate>
+    <lastBuildDate>January 2, 2021</lastBuildDate>
     
         <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>My Year in Books: Goodreads Data Analysis in R</title>
+      <link>/post/my-year-in-books-goodreads-data-analysis-in-r/</link>
+      <pubDate>January 2, 2021</pubDate>
+      
+      <guid>/post/my-year-in-books-goodreads-data-analysis-in-r/</guid>
+      <description>&lt;p&gt;In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.&lt;/p&gt;
+&lt;p&gt;As I was finishing up my year of reading, I started thinking about some of the statistics of my year in books:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;On average, how many pages did I read per day?&lt;/li&gt;
+&lt;li&gt;Did I have any slumps during the year? If so, could the slumps be explained?&lt;/li&gt;
+&lt;li&gt;What would be a reasonable reading goal for 2021?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I tracked all of my books using &lt;a href=&#34;https://www.goodreads.com/&#34;&gt;Goodreads&lt;/a&gt;, so I started poking around on the Goodreads website to see if I could access my library.&lt;/p&gt;
+&lt;p&gt;I used the &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt;, &lt;a href=&#34;https://lubridate.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;lubridate&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt;, and &lt;a href=&#34;https://scales.r-lib.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;scales&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; packages in this analysis. You can find the code for this post &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/goodreads-data-analysis&#34;&gt;on my GitHub&lt;/a&gt;.&lt;/p&gt;
+&lt;div id=&#34;getting-the-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Getting the Data&lt;/h2&gt;
+&lt;p&gt;Getting Goodreads data isn’t too difficult. They have a great export tool, and if you follow &lt;a href=&#34;https://www.goodreads.com/review/import&#34;&gt;this link&lt;/a&gt;, you can export your library. If you have a lot of books in your library the export can take a long time. The data export comes with 31 columns.&lt;/p&gt;
+&lt;p&gt;For this analysis, the columns I’m interested in are &lt;strong&gt;Date Read&lt;/strong&gt;, &lt;strong&gt;My Rating&lt;/strong&gt; (what I rated the book, 0-5 stars), &lt;strong&gt;Average Rating&lt;/strong&gt;, &lt;strong&gt;Number of Pages&lt;/strong&gt;, and &lt;strong&gt;Original Publication Year&lt;/strong&gt;. I added &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/goodreads-data-analysis/goodreads_library_export.csv&#34;&gt;my data&lt;/a&gt; to a &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/tree/master/goodreads-data-analysis&#34;&gt;GitHub repository&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;One thing that’s missing from the Goodreads data export is the description of the book. I wrote a &lt;a href=&#34;https://github.com/bgstieber/files_for_blog/blob/master/goodreads-data-analysis/scrape_goodreads.py&#34;&gt;python script&lt;/a&gt; that uses &lt;a href=&#34;https://www.crummy.com/software/BeautifulSoup/&#34;&gt;BeautifulSoup&lt;/a&gt; to scrape Goodreads for this information. I don’t use it in &lt;em&gt;this post&lt;/em&gt;, but I could see using it in a different post down the road.&lt;/p&gt;
+&lt;p&gt;The data from Goodreads is mostly good to go, but there are a few tweaks to make before getting started.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;gh_link1 &amp;lt;- &amp;quot;https://github.com/bgstieber/files_for_blog/raw/master/&amp;quot;
+gh_link2 &amp;lt;- &amp;quot;goodreads-data-analysis/goodreads_library_export.csv&amp;quot;
+
+goodreads_data &amp;lt;- read_csv(paste0(gh_link1, gh_link2)) %&amp;gt;%
+  # fix issue with data export for a book
+  mutate(`Number of Pages` = ifelse(grepl(&amp;quot;Be a Player&amp;quot;, Title),
+                                    256, `Number of Pages`))
+
+books_2020 &amp;lt;- goodreads_data %&amp;gt;%
+  # only 2020 books
+  filter(year(`Date Read`) == 2020) %&amp;gt;%
+  # create rating_diff and publish_year columns
+  mutate(rating_diff = `My Rating` - `Average Rating`,
+         publish_year = coalesce(`Original Publication Year`,
+                                  `Year Published`)) %&amp;gt;%
+  # clean some column names
+  rename(date_read = `Date Read`,
+         page_count = `Number of Pages`,
+         avg_rating = `Average Rating`,
+         my_rating = `My Rating`) %&amp;gt;%
+  # add when the previous book was finished, sort then lag
+  arrange(date_read) %&amp;gt;%
+  mutate(previous_book_date = lag(date_read))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For this analysis, I make the assumption that I read only one book at a time (not always true), and that I start reading a book immediately after I finish the previous one (not always true either).&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;trends-and-analysis&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Trends and Analysis&lt;/h2&gt;
+&lt;p&gt;Here is the timeline of my year in books:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;528&#34; style=&#34;display: block; margin: auto;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Sometimes the most basic data visualizations present the most compelling information.&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Here are a few things that stood out to me:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;My sprint at the end of the year to hit my reading goal&lt;/li&gt;
+&lt;li&gt;A few books with longer read times: &lt;em&gt;The Remains of the Day&lt;/em&gt;, &lt;em&gt;Never Let Me Go&lt;/em&gt;, and &lt;em&gt;Be a Player: How to Become a Better Golfer Every Time You Play&lt;/em&gt; (to a lesser extent)
+&lt;ul&gt;
+&lt;li&gt;These will come up again in calculating my 2021 goal&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Apart from the few books mentioned above, I had pretty consistent read times for my 2020 books. What might be driving this?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In the code below, I create a &lt;code&gt;data.frame&lt;/code&gt; with cumulative pages and books read by date.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;summary_by_date &amp;lt;- books_2020 %&amp;gt;%
+  group_by(date_read, Title) %&amp;gt;%
+  summarise(pages = sum(page_count),
+            books = n()) %&amp;gt;%
+  ungroup() %&amp;gt;%
+  # add dummy data for beginning of year
+  bind_rows(tibble(date_read = as.Date(&amp;quot;2020-01-01&amp;quot;),
+                   Title = NA_character_,
+                   pages = 0,
+                   books = 0)) %&amp;gt;%
+  arrange(date_read) %&amp;gt;%
+  mutate(previous_date = lag(date_read)) %&amp;gt;%
+  mutate(days_since_last_book = as.numeric(difftime(
+    date_read, previous_date, units = &amp;quot;days&amp;quot;
+  ))) %&amp;gt;%
+  mutate(cumu_pages_read = cumsum(pages),
+         cumu_books_read = cumsum(books))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Using this data, I can look at my progress toward 30 books through the year.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;My reading certainly slowed down during the summer months. Most of this is due to me doing other things during a beautiful Wisconsin summer like playing golf and riding my bike. Between January and May, I read an average of 39.6 pages per day, between June and September, I read about 14.8 pages per day, and finishing off the year, I read 31.3 pages per day from October through the end of the year.&lt;/p&gt;
+&lt;p&gt;For most of the year, I had a fairly consistent book-finishing pace. I think a lot of this can be explained by choosing shorter books in 2020. 70% of the books I read this year were less than 400 pages long.&lt;/p&gt;
+&lt;p&gt;Another interesting aspect of the books I read in 2020 was that they were mostly modern. 80% of the books I read in 2020 were published in 1990 or later.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;books_2020 %&amp;gt;%
+  ggplot(aes(publish_year))+
+  geom_bar()+
+  xlab(&amp;quot;Year Published&amp;quot;)+
+  ylab(&amp;quot;Books&amp;quot;)+
+  ggtitle(&amp;quot;When were my 2020 reads published?&amp;quot;,
+          subtitle = paste0(percent(mean(books_2020$publish_year &amp;gt;= 1990)),
+                            &amp;quot; of books I read in 2020 were published &amp;quot;,
+                            &amp;quot;in 1990 or later.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The oldest book I read was &lt;em&gt;The House of Mirth&lt;/em&gt; by Edith Wharton, published in 1905. The most recent book I read was &lt;em&gt;The Art of Solitude&lt;/em&gt; by Stephen Batchelor, published in 2020.&lt;/p&gt;
+&lt;p&gt;Finally, let’s take a look at how my rating of a book compared to the average rating from other Goodreads users.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;books_2020 %&amp;gt;%
+    mutate(title_abbrev = 
+               ifelse(nchar(Title) &amp;gt; 60,
+                      paste0(substr(Title, 1, 60), &amp;quot;...&amp;quot;),
+                      Title)) %&amp;gt;%
+    ggplot(aes(reorder(title_abbrev, rating_diff),
+               rating_diff,
+               fill = factor(my_rating)))+
+    geom_col(colour = &amp;quot;black&amp;quot;)+
+    coord_flip()+
+    scale_fill_viridis_d(&amp;quot;My Rating&amp;quot;, option = &amp;quot;cividis&amp;quot;)+
+    xlab(&amp;quot;&amp;quot;)+
+    ylab(&amp;quot;My Rating - Goodreads Avg&amp;quot;)+
+    theme(legend.position = &amp;quot;top&amp;quot;,
+          axis.text.y = element_text(size = 8))+
+    ggtitle(&amp;quot;My Rating Versus the Goodreads Average&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;816&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;My average rating in 2020 was 4, the average Goodreads rating of the books I read in 2020 was 4.1. I gave 9 books 3 stars, 11 books a rating of 4 stars, and I gave 10 books 5 stars.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;goal&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;2021 Goal&lt;/h2&gt;
+&lt;p&gt;This post has mostly been an exploratory analysis of my Goodreads data. To make it actionable, let’s focus on &lt;strong&gt;setting a data-driven reading goal for 2021&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;To start, let’s look at the average number of pages I was reading throughout the year.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;I was reading at a pretty consistent pace in the beginning of the year, declined sharply during the warm summer months, and then picked back up at the end of the year.&lt;/p&gt;
+&lt;p&gt;On average, it took me about 12.2 days to finish a book in 2020. I read at a pace of about 28.9 pages per day.&lt;/p&gt;
+&lt;p&gt;There were a few clear outliers with respect to reading pace throughout the year. I read two novels (&lt;em&gt;The Remains of the Day&lt;/em&gt; and &lt;em&gt;Never Let Me Go&lt;/em&gt;, both by Kazuo Ishiguro) very slowly, taking 43 and 28 days to finish those books, respectively. I also read two books at a very fast pace (&lt;em&gt;Red Queen&lt;/em&gt; and &lt;em&gt;The Art of Solitude&lt;/em&gt;), where I was reading at a pace of 76.6 and 66.7 pages per day, respectively.&lt;/p&gt;
+&lt;p&gt;If we eliminate those four books, we’re left with a set of books that more closely reflects my typical or baseline reading pace. Looking at the remaining 26 books, I was reading at a pace of about 32.9 pages per day, taking about 11 days to finish a book.&lt;/p&gt;
+&lt;p&gt;Using the pace of 11 days to finish a book, I could create a goal of reading 365/11 = 33.2 books in 2021. Rounding up, I’ll set a goal of 34 books in 2021.&lt;/p&gt;
+&lt;p&gt;This represents an increase of 13% over my goal last year, which seems pretty reasonable based on this analysis.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;wrapping-up&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Wrapping Up&lt;/h2&gt;
+&lt;p&gt;In 2020, I set a goal to finish 30 books. On December 31st, I finished &lt;em&gt;The Art of Solitude&lt;/em&gt; and completed my reading goal. I explored my Goodreads data to summarize my year in books:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;I read a total of 10,536 pages in 2020, the average length of a book I read in 2020 was 351.2 pages&lt;/li&gt;
+&lt;li&gt;I read at a pace of 28.9 pages per day&lt;/li&gt;
+&lt;li&gt;On average it took me about 12.2 days to complete each book&lt;/li&gt;
+&lt;li&gt;The longest it took me to finish a book was 43 days (&lt;em&gt;Never Let Me Go&lt;/em&gt;), my shortest read time was 3 days (&lt;em&gt;The Art of Solitude&lt;/em&gt;)&lt;/li&gt;
+&lt;li&gt;My average rating was 4 stars, the average Goodreads rating of the books I read was 4.1 stars&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I also used the Goodreads data to set a data-driven reading goal for 2021. I hope to increase my reading by 13% in 2021 by finishing 34 books.&lt;/p&gt;
+&lt;p&gt;This was a fun way to look back on my year in books for 2020. There are a few aspects of this data that I could look into like the distribution of genres, the text summary of the book, and text reviews from other Goodreads users. That analysis will have to wait for another day!&lt;/p&gt;
+&lt;p&gt;Happy reading!&lt;/p&gt;
+&lt;/div&gt;
+</description>
+      <content:encoded><p>In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.</p>
+<p>As I was finishing up my year of reading, I started thinking about some of the statistics of my year in books:</p>
+<ul>
+<li>On average, how many pages did I read per day?</li>
+<li>Did I have any slumps during the year? If so, could the slumps be explained?</li>
+<li>What would be a reasonable reading goal for 2021?</li>
+</ul>
+<p>I tracked all of my books using <a href="https://www.goodreads.com/">Goodreads</a>, so I started poking around on the Goodreads website to see if I could access my library.</p>
+<p>I used the <a href="https://www.tidyverse.org/"><strong><code>tidyverse</code></strong></a>, <a href="https://lubridate.tidyverse.org/"><strong><code>lubridate</code></strong></a>, and <a href="https://scales.r-lib.org/"><strong><code>scales</code></strong></a> packages in this analysis. You can find the code for this post <a href="https://github.com/bgstieber/files_for_blog/tree/master/goodreads-data-analysis">on my GitHub</a>.</p>
+<div id="getting-the-data" class="section level2">
+<h2>Getting the Data</h2>
+<p>Getting Goodreads data isn’t too difficult. They have a great export tool, and if you follow <a href="https://www.goodreads.com/review/import">this link</a>, you can export your library. If you have a lot of books in your library the export can take a long time. The data export comes with 31 columns.</p>
+<p>For this analysis, the columns I’m interested in are <strong>Date Read</strong>, <strong>My Rating</strong> (what I rated the book, 0-5 stars), <strong>Average Rating</strong>, <strong>Number of Pages</strong>, and <strong>Original Publication Year</strong>. I added <a href="https://github.com/bgstieber/files_for_blog/blob/master/goodreads-data-analysis/goodreads_library_export.csv">my data</a> to a <a href="https://github.com/bgstieber/files_for_blog/tree/master/goodreads-data-analysis">GitHub repository</a>.</p>
+<p>One thing that’s missing from the Goodreads data export is the description of the book. I wrote a <a href="https://github.com/bgstieber/files_for_blog/blob/master/goodreads-data-analysis/scrape_goodreads.py">python script</a> that uses <a href="https://www.crummy.com/software/BeautifulSoup/">BeautifulSoup</a> to scrape Goodreads for this information. I don’t use it in <em>this post</em>, but I could see using it in a different post down the road.</p>
+<p>The data from Goodreads is mostly good to go, but there are a few tweaks to make before getting started.</p>
+<pre class="r"><code>gh_link1 &lt;- &quot;https://github.com/bgstieber/files_for_blog/raw/master/&quot;
+gh_link2 &lt;- &quot;goodreads-data-analysis/goodreads_library_export.csv&quot;
+
+goodreads_data &lt;- read_csv(paste0(gh_link1, gh_link2)) %&gt;%
+  # fix issue with data export for a book
+  mutate(`Number of Pages` = ifelse(grepl(&quot;Be a Player&quot;, Title),
+                                    256, `Number of Pages`))
+
+books_2020 &lt;- goodreads_data %&gt;%
+  # only 2020 books
+  filter(year(`Date Read`) == 2020) %&gt;%
+  # create rating_diff and publish_year columns
+  mutate(rating_diff = `My Rating` - `Average Rating`,
+         publish_year = coalesce(`Original Publication Year`,
+                                  `Year Published`)) %&gt;%
+  # clean some column names
+  rename(date_read = `Date Read`,
+         page_count = `Number of Pages`,
+         avg_rating = `Average Rating`,
+         my_rating = `My Rating`) %&gt;%
+  # add when the previous book was finished, sort then lag
+  arrange(date_read) %&gt;%
+  mutate(previous_book_date = lag(date_read))</code></pre>
+<p>For this analysis, I make the assumption that I read only one book at a time (not always true), and that I start reading a book immediately after I finish the previous one (not always true either).</p>
+</div>
+<div id="trends-and-analysis" class="section level2">
+<h2>Trends and Analysis</h2>
+<p>Here is the timeline of my year in books:</p>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-4-1.png" width="528" style="display: block; margin: auto;" /></p>
+<p><strong>Sometimes the most basic data visualizations present the most compelling information.</strong></p>
+<p>Here are a few things that stood out to me:</p>
+<ul>
+<li>My sprint at the end of the year to hit my reading goal</li>
+<li>A few books with longer read times: <em>The Remains of the Day</em>, <em>Never Let Me Go</em>, and <em>Be a Player: How to Become a Better Golfer Every Time You Play</em> (to a lesser extent)
+<ul>
+<li>These will come up again in calculating my 2021 goal</li>
+</ul></li>
+<li>Apart from the few books mentioned above, I had pretty consistent read times for my 2020 books. What might be driving this?</li>
+</ul>
+<p>In the code below, I create a <code>data.frame</code> with cumulative pages and books read by date.</p>
+<pre class="r"><code>summary_by_date &lt;- books_2020 %&gt;%
+  group_by(date_read, Title) %&gt;%
+  summarise(pages = sum(page_count),
+            books = n()) %&gt;%
+  ungroup() %&gt;%
+  # add dummy data for beginning of year
+  bind_rows(tibble(date_read = as.Date(&quot;2020-01-01&quot;),
+                   Title = NA_character_,
+                   pages = 0,
+                   books = 0)) %&gt;%
+  arrange(date_read) %&gt;%
+  mutate(previous_date = lag(date_read)) %&gt;%
+  mutate(days_since_last_book = as.numeric(difftime(
+    date_read, previous_date, units = &quot;days&quot;
+  ))) %&gt;%
+  mutate(cumu_pages_read = cumsum(pages),
+         cumu_books_read = cumsum(books))</code></pre>
+<p>Using this data, I can look at my progress toward 30 books through the year.</p>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>My reading certainly slowed down during the summer months. Most of this is due to me doing other things during a beautiful Wisconsin summer like playing golf and riding my bike. Between January and May, I read an average of 39.6 pages per day, between June and September, I read about 14.8 pages per day, and finishing off the year, I read 31.3 pages per day from October through the end of the year.</p>
+<p>For most of the year, I had a fairly consistent book-finishing pace. I think a lot of this can be explained by choosing shorter books in 2020. 70% of the books I read this year were less than 400 pages long.</p>
+<p>Another interesting aspect of the books I read in 2020 was that they were mostly modern. 80% of the books I read in 2020 were published in 1990 or later.</p>
+<pre class="r"><code>books_2020 %&gt;%
+  ggplot(aes(publish_year))+
+  geom_bar()+
+  xlab(&quot;Year Published&quot;)+
+  ylab(&quot;Books&quot;)+
+  ggtitle(&quot;When were my 2020 reads published?&quot;,
+          subtitle = paste0(percent(mean(books_2020$publish_year &gt;= 1990)),
+                            &quot; of books I read in 2020 were published &quot;,
+                            &quot;in 1990 or later.&quot;))</code></pre>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>The oldest book I read was <em>The House of Mirth</em> by Edith Wharton, published in 1905. The most recent book I read was <em>The Art of Solitude</em> by Stephen Batchelor, published in 2020.</p>
+<p>Finally, let’s take a look at how my rating of a book compared to the average rating from other Goodreads users.</p>
+<pre class="r"><code>books_2020 %&gt;%
+    mutate(title_abbrev = 
+               ifelse(nchar(Title) &gt; 60,
+                      paste0(substr(Title, 1, 60), &quot;...&quot;),
+                      Title)) %&gt;%
+    ggplot(aes(reorder(title_abbrev, rating_diff),
+               rating_diff,
+               fill = factor(my_rating)))+
+    geom_col(colour = &quot;black&quot;)+
+    coord_flip()+
+    scale_fill_viridis_d(&quot;My Rating&quot;, option = &quot;cividis&quot;)+
+    xlab(&quot;&quot;)+
+    ylab(&quot;My Rating - Goodreads Avg&quot;)+
+    theme(legend.position = &quot;top&quot;,
+          axis.text.y = element_text(size = 8))+
+    ggtitle(&quot;My Rating Versus the Goodreads Average&quot;)</code></pre>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-9-1.png" width="816" /></p>
+<p>My average rating in 2020 was 4, the average Goodreads rating of the books I read in 2020 was 4.1. I gave 9 books 3 stars, 11 books a rating of 4 stars, and I gave 10 books 5 stars.</p>
+</div>
+<div id="goal" class="section level2">
+<h2>2021 Goal</h2>
+<p>This post has mostly been an exploratory analysis of my Goodreads data. To make it actionable, let’s focus on <strong>setting a data-driven reading goal for 2021</strong>.</p>
+<p>To start, let’s look at the average number of pages I was reading throughout the year.</p>
+<p><img src="/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>I was reading at a pretty consistent pace in the beginning of the year, declined sharply during the warm summer months, and then picked back up at the end of the year.</p>
+<p>On average, it took me about 12.2 days to finish a book in 2020. I read at a pace of about 28.9 pages per day.</p>
+<p>There were a few clear outliers with respect to reading pace throughout the year. I read two novels (<em>The Remains of the Day</em> and <em>Never Let Me Go</em>, both by Kazuo Ishiguro) very slowly, taking 43 and 28 days to finish those books, respectively. I also read two books at a very fast pace (<em>Red Queen</em> and <em>The Art of Solitude</em>), where I was reading at a pace of 76.6 and 66.7 pages per day, respectively.</p>
+<p>If we eliminate those four books, we’re left with a set of books that more closely reflects my typical or baseline reading pace. Looking at the remaining 26 books, I was reading at a pace of about 32.9 pages per day, taking about 11 days to finish a book.</p>
+<p>Using the pace of 11 days to finish a book, I could create a goal of reading 365/11 = 33.2 books in 2021. Rounding up, I’ll set a goal of 34 books in 2021.</p>
+<p>This represents an increase of 13% over my goal last year, which seems pretty reasonable based on this analysis.</p>
+</div>
+<div id="wrapping-up" class="section level2">
+<h2>Wrapping Up</h2>
+<p>In 2020, I set a goal to finish 30 books. On December 31st, I finished <em>The Art of Solitude</em> and completed my reading goal. I explored my Goodreads data to summarize my year in books:</p>
+<ul>
+<li>I read a total of 10,536 pages in 2020, the average length of a book I read in 2020 was 351.2 pages</li>
+<li>I read at a pace of 28.9 pages per day</li>
+<li>On average it took me about 12.2 days to complete each book</li>
+<li>The longest it took me to finish a book was 43 days (<em>Never Let Me Go</em>), my shortest read time was 3 days (<em>The Art of Solitude</em>)</li>
+<li>My average rating was 4 stars, the average Goodreads rating of the books I read was 4.1 stars</li>
+</ul>
+<p>I also used the Goodreads data to set a data-driven reading goal for 2021. I hope to increase my reading by 13% in 2021 by finishing 34 books.</p>
+<p>This was a fun way to look back on my year in books for 2020. There are a few aspects of this data that I could look into like the distribution of genres, the text summary of the book, and text reviews from other Goodreads users. That analysis will have to wait for another day!</p>
+<p>Happy reading!</p>
+</div>
+</content:encoded>
+
+    </item>
     
     <item>
       <title>An Introduction to the data.table Package</title>
