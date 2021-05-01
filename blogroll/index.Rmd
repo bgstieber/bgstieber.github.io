@@ -30,6 +30,5 @@ output: html_document
 [Analytics Vidhya](https://www.analyticsvidhya.com/blog/)
     - Good blog with data science tutorials
 
-
-
-...more to come
+[James D. McCaffrey's blog](https://jamesmccaffrey.wordpress.com/)
+    - Great DS/AI/ML blog. Dr. McCaffrey posts nearly everyday, and his content covers a wide breadth of material. A great blog to readfor generating new ideas.
