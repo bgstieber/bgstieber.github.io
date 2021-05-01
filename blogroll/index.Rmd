@@ -31,4 +31,4 @@ output: html_document
     - Good blog with data science tutorials
 
 [James D. McCaffrey's blog](https://jamesmccaffrey.wordpress.com/)
-    - Great DS/AI/ML blog. Dr. McCaffrey posts nearly everyday, and his content covers a wide breadth of material. A great blog to readfor generating new ideas.
+    - Great DS/AI/ML blog. Dr. McCaffrey posts nearly everyday, and his content covers a wide breadth of material. A great blog to read for generating new ideas.
