@@ -4675,45 +4675,45 @@ library(caret) # caret or carrot? :)&lt;/code&gt;&lt;/pre&gt;
 &lt;/thead&gt;
 &lt;tbody&gt;
 &lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;4.8&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;even&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;6.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.2&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;5.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;odd&#34;&gt;
+&lt;td align=&#34;left&#34;&gt;5.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;0.2&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;5.0&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.6&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;0.4&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.6&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.0&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;5.2&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.9&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;2.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;4.5&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.7&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;virginica&lt;/td&gt;
 &lt;/tr&gt;
 &lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;5.2&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;4.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;0.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;setosa&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr class=&#34;odd&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;3.1&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;6.3&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;3.3&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;4.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.5&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr class=&#34;even&#34;&gt;
-&lt;td align=&#34;left&#34;&gt;6.1&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;2.9&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;4.7&lt;/td&gt;
-&lt;td align=&#34;left&#34;&gt;1.4&lt;/td&gt;
+&lt;td align=&#34;left&#34;&gt;1.6&lt;/td&gt;
 &lt;td align=&#34;left&#34;&gt;versicolor&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
@@ -4952,45 +4952,45 @@ library(caret) # caret or carrot? :)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">4.8</td>
-<td align="left">3.4</td>
-<td align="left">1.9</td>
+<td align="left">5.1</td>
+<td align="left">2.5</td>
+<td align="left">3.0</td>
+<td align="left">1.1</td>
+<td align="left">versicolor</td>
+</tr>
+<tr class="even">
+<td align="left">6.0</td>
+<td align="left">2.2</td>
+<td align="left">5.0</td>
+<td align="left">1.5</td>
+<td align="left">virginica</td>
+</tr>
+<tr class="odd">
+<td align="left">5.1</td>
+<td align="left">3.5</td>
+<td align="left">1.4</td>
 <td align="left">0.2</td>
 <td align="left">setosa</td>
 </tr>
 <tr class="even">
-<td align="left">5.0</td>
-<td align="left">3.4</td>
-<td align="left">1.6</td>
-<td align="left">0.4</td>
-<td align="left">setosa</td>
+<td align="left">6.6</td>
+<td align="left">3.0</td>
+<td align="left">4.4</td>
+<td align="left">1.4</td>
+<td align="left">versicolor</td>
 </tr>
 <tr class="odd">
-<td align="left">6.7</td>
-<td align="left">3.0</td>
-<td align="left">5.2</td>
-<td align="left">2.3</td>
+<td align="left">4.9</td>
+<td align="left">2.5</td>
+<td align="left">4.5</td>
+<td align="left">1.7</td>
 <td align="left">virginica</td>
 </tr>
 <tr class="even">
-<td align="left">5.2</td>
-<td align="left">4.1</td>
-<td align="left">1.5</td>
-<td align="left">0.1</td>
-<td align="left">setosa</td>
-</tr>
-<tr class="odd">
-<td align="left">6.7</td>
-<td align="left">3.1</td>
+<td align="left">6.3</td>
+<td align="left">3.3</td>
 <td align="left">4.7</td>
-<td align="left">1.5</td>
-<td align="left">versicolor</td>
-</tr>
-<tr class="even">
-<td align="left">6.1</td>
-<td align="left">2.9</td>
-<td align="left">4.7</td>
-<td align="left">1.4</td>
+<td align="left">1.6</td>
 <td align="left">versicolor</td>
 </tr>
 </tbody>
@@ -6632,7 +6632,7 @@ system.time(
   test_clusters.clue &amp;lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    user  system elapsed 
-##       0       0       0&lt;/code&gt;&lt;/pre&gt;
+##    0.02    0.00    0.02&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.clue)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## test_clusters.clue
 ##  1  2  3  4 
@@ -6653,7 +6653,7 @@ system.time(
   test_clusters.hand &amp;lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##    user  system elapsed 
-##    1.58    0.02    1.59&lt;/code&gt;&lt;/pre&gt;
+##    1.81    0.00    1.81&lt;/code&gt;&lt;/pre&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(test_clusters.hand)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## test_clusters.hand
 ##  1  2  3  4 
@@ -6974,7 +6974,7 @@ system.time(
   test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##       0       0       0</code></pre>
+##    0.02    0.00    0.02</code></pre>
 <pre class="r"><code>table(test_clusters.clue)</code></pre>
 <pre><code>## test_clusters.clue
 ##  1  2  3  4 
@@ -6995,7 +6995,7 @@ system.time(
   test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    1.58    0.02    1.59</code></pre>
+##    1.81    0.00    1.81</code></pre>
 <pre class="r"><code>table(test_clusters.hand)</code></pre>
 <pre><code>## test_clusters.hand
 ##  1  2  3  4 

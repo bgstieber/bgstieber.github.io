@@ -510,7 +510,7 @@ system.time(
   test_clusters.clue &lt;- cl_predict(object = train.kmeans, newdata = b_hous.test)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##       0       0       0</code></pre>
+##    0.02    0.00    0.02</code></pre>
 <pre class="r"><code>table(test_clusters.clue)</code></pre>
 <pre><code>## test_clusters.clue
 ##  1  2  3  4 
@@ -531,7 +531,7 @@ system.time(
   test_clusters.hand &lt;- clusters(x = b_hous.test, centers = train.kmeans$centers)
   )</code></pre>
 <pre><code>##    user  system elapsed 
-##    1.58    0.02    1.59</code></pre>
+##    1.81    0.00    1.81</code></pre>
 <pre class="r"><code>table(test_clusters.hand)</code></pre>
 <pre><code>## test_clusters.hand
 ##  1  2  3  4 
