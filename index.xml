@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Brad Stieber</title>
-    <link>/</link>
+    <link>https://bgstieber.github.io/</link>
     <description>Recent content on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>January 2, 2021</lastBuildDate>
     
-        <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="https://bgstieber.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>My Year in Books: Goodreads Data Analysis in R</title>
-      <link>/post/my-year-in-books-goodreads-data-analysis-in-r/</link>
+      <link>https://bgstieber.github.io/post/my-year-in-books-goodreads-data-analysis-in-r/</link>
       <pubDate>January 2, 2021</pubDate>
       
-      <guid>/post/my-year-in-books-goodreads-data-analysis-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/my-year-in-books-goodreads-data-analysis-in-r/</guid>
       <description>&lt;p&gt;In 2020, I set a goal of reading 30 books. Aided by a last minute charge, I managed to hit this number. I finished my 30th book on December 31st.&lt;/p&gt;
 &lt;p&gt;As I was finishing up my year of reading, I started thinking about some of the statistics of my year in books:&lt;/p&gt;
 &lt;ul&gt;
@@ -59,7 +59,7 @@ books_2020 &amp;lt;- goodreads_data %&amp;gt;%
 &lt;div id=&#34;trends-and-analysis&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Trends and Analysis&lt;/h2&gt;
 &lt;p&gt;Here is the timeline of my year in books:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;528&#34; style=&#34;display: block; margin: auto;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;528&#34; style=&#34;display: block; margin: auto;&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Sometimes the most basic data visualizations present the most compelling information.&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Here are a few things that stood out to me:&lt;/p&gt;
 &lt;ul&gt;
@@ -89,7 +89,7 @@ books_2020 &amp;lt;- goodreads_data %&amp;gt;%
   mutate(cumu_pages_read = cumsum(pages),
          cumu_books_read = cumsum(books))&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Using this data, I can look at my progress toward 30 books through the year.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;My reading certainly slowed down during the summer months. Most of this is due to me doing other things during a beautiful Wisconsin summer like playing golf and riding my bike. Between January and May, I read an average of 39.6 pages per day, between June and September, I read about 14.8 pages per day, and finishing off the year, I read 31.3 pages per day from October through the end of the year.&lt;/p&gt;
 &lt;p&gt;For most of the year, I had a fairly consistent book-finishing pace. I think a lot of this can be explained by choosing shorter books in 2020. 70% of the books I read this year were less than 400 pages long.&lt;/p&gt;
 &lt;p&gt;Another interesting aspect of the books I read in 2020 was that they were mostly modern. 80% of the books I read in 2020 were published in 1990 or later.&lt;/p&gt;
@@ -102,7 +102,7 @@ books_2020 &amp;lt;- goodreads_data %&amp;gt;%
           subtitle = paste0(percent(mean(books_2020$publish_year &amp;gt;= 1990)),
                             &amp;quot; of books I read in 2020 were published &amp;quot;,
                             &amp;quot;in 1990 or later.&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;The oldest book I read was &lt;em&gt;The House of Mirth&lt;/em&gt; by Edith Wharton, published in 1905. The most recent book I read was &lt;em&gt;The Art of Solitude&lt;/em&gt; by Stephen Batchelor, published in 2020.&lt;/p&gt;
 &lt;p&gt;Finally, let’s take a look at how my rating of a book compared to the average rating from other Goodreads users.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;books_2020 %&amp;gt;%
@@ -121,14 +121,14 @@ books_2020 &amp;lt;- goodreads_data %&amp;gt;%
     theme(legend.position = &amp;quot;top&amp;quot;,
           axis.text.y = element_text(size = 8))+
     ggtitle(&amp;quot;My Rating Versus the Goodreads Average&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;816&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;816&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;My average rating in 2020 was 4, the average Goodreads rating of the books I read in 2020 was 4.1. I gave 9 books 3 stars, 11 books a rating of 4 stars, and I gave 10 books 5 stars.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;goal&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;2021 Goal&lt;/h2&gt;
 &lt;p&gt;This post has mostly been an exploratory analysis of my Goodreads data. To make it actionable, let’s focus on &lt;strong&gt;setting a data-driven reading goal for 2021&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;To start, let’s look at the average number of pages I was reading throughout the year.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2021-01-02-my-year-in-books-goodreads-data-analysis-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;I was reading at a pretty consistent pace in the beginning of the year, declined sharply during the warm summer months, and then picked back up at the end of the year.&lt;/p&gt;
 &lt;p&gt;On average, it took me about 12.2 days to finish a book in 2020. I read at a pace of about 28.9 pages per day.&lt;/p&gt;
 &lt;p&gt;There were a few clear outliers with respect to reading pace throughout the year. I read two novels (&lt;em&gt;The Remains of the Day&lt;/em&gt; and &lt;em&gt;Never Let Me Go&lt;/em&gt;, both by Kazuo Ishiguro) very slowly, taking 43 and 28 days to finish those books, respectively. I also read two books at a very fast pace (&lt;em&gt;Red Queen&lt;/em&gt; and &lt;em&gt;The Art of Solitude&lt;/em&gt;), where I was reading at a pace of 76.6 and 66.7 pages per day, respectively.&lt;/p&gt;
@@ -291,10 +291,10 @@ books_2020 &lt;- goodreads_data %&gt;%
     
     <item>
       <title>An Introduction to the data.table Package</title>
-      <link>/post/an-introduction-to-the-data-table-package/</link>
+      <link>https://bgstieber.github.io/post/an-introduction-to-the-data-table-package/</link>
       <pubDate>October 1, 2020</pubDate>
       
-      <guid>/post/an-introduction-to-the-data-table-package/</guid>
+      <guid>https://bgstieber.github.io/post/an-introduction-to-the-data-table-package/</guid>
       <description>&lt;p&gt;This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a short introduction to the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
 &lt;p&gt;Although the primary data wrangling package I use is &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt;, it’s worthwhile to explore other packages that do similar data manipulations. The closest “competitor” to the &lt;a href=&#34;https://www.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; is the &lt;a href=&#34;https://rdatatable.gitlab.io/data.table/&#34;&gt;&lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package.&lt;/p&gt;
 &lt;div class=&#34;figure&#34;&gt;
@@ -625,7 +625,7 @@ ggplot(cumulative_delay_by_origin,
   geom_line()+
   theme_bw()+
   xlab(&amp;quot;Date&amp;quot;) + ylab(&amp;quot;Cumulative total delay (hours)&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-18-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Let’s get even crazier with chaining.&lt;/p&gt;
 &lt;p&gt;The next example finds the “biggest loser” on each day (i.e. which flight had the worst total delay). We then count up (using the &lt;code&gt;ones&lt;/code&gt; column) which origin airport the biggest loser was departing from. We calculate this cumulatively over the course of the year.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;top_delay &amp;lt;- flights_dt[!is.na(arr_delay) &amp;amp; !is.na(dep_delay)
@@ -639,7 +639,7 @@ ggplot(top_delay, aes(date, cumu_obs, colour = origin))+
   theme_bw()+
   xlab(&amp;quot;Date&amp;quot;)+
   ylab(&amp;quot;Cumulative # of Days with Worst Delay&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-19-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-19-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;performance-evaluation-base-r-tidyverse-and-data.table&#34; class=&#34;section level3&#34;&gt;
 &lt;h3&gt;Performance evaluation: base &lt;strong&gt;&lt;code&gt;R&lt;/code&gt;&lt;/strong&gt;, &lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;, and &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;&lt;/h3&gt;
@@ -676,7 +676,7 @@ ggplot(benchmark_data_dt, aes(x = time_in_ms, y = expr))+
                               &amp;quot;tidy_verse&amp;quot; = &amp;quot;tidyverse&amp;quot;,
                               &amp;quot;data_table&amp;quot; = &amp;quot;data.table&amp;quot;))+
   ggtitle(&amp;quot;Grouped Aggregation Timing Summary&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-21-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2020-10-01-an-introduction-to-the-data-table-package.en_files/figure-html/unnamed-chunk-21-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Here is how much slower the median operation is compared to &lt;code&gt;data.table&lt;/code&gt;. Since this &lt;em&gt;is&lt;/em&gt; a tutorial about &lt;strong&gt;&lt;code&gt;data.table&lt;/code&gt;&lt;/strong&gt;, we use its &lt;a href=&#34;https://cran.r-project.org/web/packages/data.table/vignettes/datatable-reshape.html&#34;&gt;&lt;code&gt;dcast&lt;/code&gt;&lt;/a&gt; function to convert long data to wide.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dcast(benchmark_data_dt, 
       .~expr, 
@@ -1172,10 +1172,10 @@ x</code></pre>
     
     <item>
       <title>An Introduction to Reading Data into R</title>
-      <link>/post/a-brief-overview-on-ways-to-read-data-into-r/</link>
+      <link>https://bgstieber.github.io/post/a-brief-overview-on-ways-to-read-data-into-r/</link>
       <pubDate>February 2, 2020</pubDate>
       
-      <guid>/post/a-brief-overview-on-ways-to-read-data-into-r/</guid>
+      <guid>https://bgstieber.github.io/post/a-brief-overview-on-ways-to-read-data-into-r/</guid>
       <description>&lt;p&gt;This post was originally meant for the R Users Group at my organization. I thought it would be worthwhile to have it on my blog as well, in case anyone out there is searching for a tutorial on reading data into R.&lt;/p&gt;
 &lt;p&gt;There are a lot of different ways to get data into R, and this post highlights a few of the common ways of doing that. This post assumes you have some flat file of data (e.g. csv, txt, excel) you’re trying to read into R. Maybe I’ll write a follow-up post where the data is in a less common format.&lt;/p&gt;
 &lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
@@ -2041,10 +2041,10 @@ tail(people)</code></pre>
     
     <item>
       <title>Quantifying Home Field Advantage in the NFL Using Linear Models in R</title>
-      <link>/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</link>
+      <link>https://bgstieber.github.io/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</link>
       <pubDate>January 17, 2020</pubDate>
       
-      <guid>/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</guid>
       <description>&lt;p&gt;If you pay attention to NFL football, you’re probably used to hearing that &lt;a href=&#34;https://en.wikipedia.org/wiki/Home_advantage&#34;&gt;homefield advantage&lt;/a&gt; is worth about 3 points. I’ve always been interested in this number, and how it was derived. So, using &lt;a href=&#34;https://github.com/fivethirtyeight/data/tree/master/nfl-elo&#34;&gt;some data from FiveThirtyEight&lt;/a&gt;, along with some linear modeling in R, I attempted to quantify home field advantage. My analysis shows that home field advantage (how much we expect the home team to win by, if the teams are evenly matched) is about 2.59 points.&lt;/p&gt;
 &lt;p&gt;Here are the packages we’ll need:&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
@@ -2210,7 +2210,7 @@ nfl_data &amp;lt;- fread(data_link, verbose = FALSE)&lt;/code&gt;&lt;/pre&gt;
 &lt;/table&gt;
 &lt;p&gt;The median margin of victory is 3. Since this number is positive, it implies that there &lt;em&gt;is&lt;/em&gt; a noticeable home field advantage.&lt;/p&gt;
 &lt;p&gt;You might be wondering, has home field advantage been changing over time?&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;If you look at the most recent decades, you’ll notice that the distribution has been becoming &lt;a href=&#34;https://en.wikipedia.org/wiki/Multimodal_distribution&#34;&gt;bimodal&lt;/a&gt;, meaning there are two “peaks” in the distribution. The peaks belong to margins of victory of three points (a field goal) for the home and away teams:&lt;/p&gt;
 &lt;table&gt;
 &lt;caption&gt;&lt;span id=&#34;tab:unnamed-chunk-9&#34;&gt;Table 1: &lt;/span&gt;Two most frequently occurring outcomes for each decade&lt;/caption&gt;
@@ -2317,7 +2317,7 @@ nfl_data &amp;lt;- fread(data_link, verbose = FALSE)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;A lot of people are familiar with linear models, having performed “line of best fit” calculations sometime in high school. Most people cringe when they see the &lt;span class=&#34;math inline&#34;&gt;\(y = mx + b\)&lt;/span&gt; formula, but statisticians and data scientists feel their hearts warm and get very excited after glancing at that formula.&lt;/p&gt;
 &lt;p&gt;Linear models are incredibly powerful tools of statistical analysis. Most of the time, we spend a lot of energy interpreting the &lt;span class=&#34;math inline&#34;&gt;\(m\)&lt;/span&gt; in the equation above. This gives us insight into how much we expect &lt;span class=&#34;math inline&#34;&gt;\(y\)&lt;/span&gt; to change (&lt;strong&gt;on average&lt;/strong&gt;) when &lt;span class=&#34;math inline&#34;&gt;\(x\)&lt;/span&gt; changes by some amount.&lt;/p&gt;
 &lt;p&gt;To illustrate, let’s use the mtcars data set to predict a car’s miles per gallon using its weight in pounds.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;The linear model’s formula is displayed in the upper right hand corner of the plot. The coefficient for &lt;span class=&#34;math inline&#34;&gt;\(wt\)&lt;/span&gt; is -5.3, this is the &lt;span class=&#34;math inline&#34;&gt;\(m\)&lt;/span&gt; in the &lt;span class=&#34;math inline&#34;&gt;\(y = mx + b\)&lt;/span&gt; equation. The coefficient is negative, meaning that as the weight of the car increases, we expect its fuel efficiency to get worse. But what about &lt;span class=&#34;math inline&#34;&gt;\(b\)&lt;/span&gt;, the intercept of the line?&lt;/p&gt;
 &lt;p&gt;The intercept of the best fit line is our “predicted” value of &lt;span class=&#34;math inline&#34;&gt;\(y\)&lt;/span&gt; when &lt;span class=&#34;math inline&#34;&gt;\(x\)&lt;/span&gt; equals 0. So, when the weight of a car is 0 pounds, we expect it to get 37.29 miles per gallon. This doesn’t make any sense! A car that weighs 0 pounds doesn’t get any miles per gallon, it doesn’t even exist!&lt;/p&gt;
 &lt;p&gt;In a lot of linear models, the intercept isn’t really worth interpreting. However, we can use the intercept to understand home field advantage using our NFL data.&lt;/p&gt;
@@ -2357,7 +2357,7 @@ nfl_data &amp;lt;- fread(data_link, verbose = FALSE)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Touchdown!&lt;/p&gt;
 &lt;p&gt;If we look at the intercept, the value is about 2.59. This means that if the two teams are basically evenly matched (i.e. &lt;span class=&#34;math inline&#34;&gt;\(x=0\)&lt;/span&gt; in &lt;span class=&#34;math inline&#34;&gt;\(y = mx+b\)&lt;/span&gt;), we can expect the home team to win by about 2.59 points (&lt;strong&gt;on average&lt;/strong&gt;).&lt;/p&gt;
 &lt;p&gt;Taking it one step further, here are the home field advantages for each decade.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-13-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2020-01-17-quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r.en_files/figure-html/unnamed-chunk-13-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;wrapping-up&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Wrapping Up&lt;/h2&gt;
@@ -2690,10 +2690,10 @@ nfl_data &lt;- fread(data_link, verbose = FALSE)</code></pre>
     
     <item>
       <title>7 Tips for Delivering a Great Data Science Presentation</title>
-      <link>/post/7-tips-for-delivering-a-great-data-science-presentation/</link>
+      <link>https://bgstieber.github.io/post/7-tips-for-delivering-a-great-data-science-presentation/</link>
       <pubDate>November 3, 2019</pubDate>
       
-      <guid>/post/7-tips-for-delivering-a-great-data-science-presentation/</guid>
+      <guid>https://bgstieber.github.io/post/7-tips-for-delivering-a-great-data-science-presentation/</guid>
       <description>&lt;p&gt;Delivering a great data science presentation can seem daunting. By no means am I a communications expert, but I have presented my fair share of talks to a diverse group of audiences. Through my experience, I’ve developed a few easy-to-remember tips to hopefully make your next data science presentation your best yet. These are tips that have worked for me, and I hope they’re helpful!&lt;/p&gt;
 &lt;p&gt;Without further ado, here are &lt;strong&gt;seven tips for delivering a great data science presentation&lt;/strong&gt;.&lt;/p&gt;
 &lt;div id=&#34;practice-practice-practice&#34; class=&#34;section level3&#34;&gt;
@@ -2909,10 +2909,10 @@ nfl_data &lt;- fread(data_link, verbose = FALSE)</code></pre>
     
     <item>
       <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
-      <link>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
+      <link>https://bgstieber.github.io/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
       <pubDate>October 29, 2019</pubDate>
       
-      <guid>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
       <description>&lt;p&gt;One of my favorite &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/&#34;&gt;data science blogs&lt;/a&gt; comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a &lt;a href=&#34;https://jamesmccaffrey.wordpress.com/2019/10/28/roulette-wheel-selection-for-multi-armed-bandit-problems/&#34;&gt;blog post&lt;/a&gt; on a method for allocating turns in a multi-armed bandit problem.&lt;/p&gt;
 &lt;p&gt;I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.&lt;/p&gt;
@@ -3097,9 +3097,9 @@ rw1 &amp;lt;- roulette_wheel(coins = 5000,
 &lt;/tbody&gt;
 &lt;/table&gt;
 &lt;p&gt;Let’s look at how the observed probabilities changed over time:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;And how did our plays for each machine accumulate through time?&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Boring!&lt;/p&gt;
 &lt;p&gt;Maybe if we run a smaller number of simulations, we might get a better sense of variation in our number of plays.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;set.seed(1)
@@ -3155,7 +3155,7 @@ rw2 &amp;lt;- roulette_wheel(coins = 100,
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2019-10-29-roulette-wheels-for-multi-armed-bandits-a-simulation-in-r.en_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;That shows our allocations a little bit better than the previous visualization.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;conclusion&#34; class=&#34;section level1&#34;&gt;
@@ -3422,10 +3422,10 @@ rw2 &lt;- roulette_wheel(coins = 100,
     
     <item>
       <title>Recommending Songs Using Cosine Similarity in R</title>
-      <link>/post/recommending-songs-using-cosine-similarity-in-r/</link>
+      <link>https://bgstieber.github.io/post/recommending-songs-using-cosine-similarity-in-r/</link>
       <pubDate>December 31, 2018</pubDate>
       
-      <guid>/post/recommending-songs-using-cosine-similarity-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/recommending-songs-using-cosine-similarity-in-r/</guid>
       <description>&lt;p&gt;Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even &lt;a href=&#34;https://www.redfin.com/blog/2013/09/the-end-of-search.html&#34;&gt;the homes we buy&lt;/a&gt; are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: &lt;strong&gt;cosine similarity&lt;/strong&gt;.&lt;/p&gt;
 &lt;p&gt;First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity. Finally, I’m going to use cosine similarity to build a recommendation engine for songs in R.&lt;/p&gt;
 &lt;div id=&#34;the-basics-recommendation-engine-vocabulary&#34; class=&#34;section level2&#34;&gt;
@@ -4063,10 +4063,10 @@ knitr::kable(calc_cos_sim(shots))</code></pre>
     
     <item>
       <title>Using R to Create Custom Color Palettes for Tableau</title>
-      <link>/post/using-r-to-create-custom-color-palettes-for-tableau/</link>
+      <link>https://bgstieber.github.io/post/using-r-to-create-custom-color-palettes-for-tableau/</link>
       <pubDate>October 31, 2018</pubDate>
       
-      <guid>/post/using-r-to-create-custom-color-palettes-for-tableau/</guid>
+      <guid>https://bgstieber.github.io/post/using-r-to-create-custom-color-palettes-for-tableau/</guid>
       <description>&lt;p&gt;Have you ever wanted to define custom color palettes in Tableau, but didn’t know how? In this post, I’m going to walk through how we can use &lt;code&gt;R&lt;/code&gt; to programmatically generate custom palettes in Tableau. Creating custom color palettes for Tableau has never been easier!&lt;/p&gt;
 &lt;p&gt;This is going to be a short post, with just a little bit of &lt;code&gt;R&lt;/code&gt; code.&lt;/p&gt;
 &lt;p&gt;At the end of the post, you’ll see how to use &lt;code&gt;R&lt;/code&gt; to generate custom color palettes to add to Tableau. We’ll show how to add palettes from the viridis color palette and ColorBrewer to Tableau.&lt;/p&gt;
@@ -4136,7 +4136,7 @@ create_tableau_palette(palette_name = &amp;quot;Color Brewer Set2 4&amp;quot;,
 &lt;div id=&#34;generating-viridis-palettes-for-tableau&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Generating Viridis Palettes for Tableau&lt;/h2&gt;
 &lt;p&gt;Let’s use this function to generate custom Tableau color palettes for the popular &lt;a href=&#34;https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html&#34;&gt;viridis palette&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-31-using-r-to-create-custom-color-palettes-for-tableau_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-31-using-r-to-create-custom-color-palettes-for-tableau_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We’re using the &lt;a href=&#34;https://purrr.tidyverse.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;purrr&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; package to do our “looping”.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;# need to store result for better printing, result is just a list of NULL
 x&amp;lt;-purrr::map(4:7,
@@ -4298,10 +4298,10 @@ x&lt;-purrr::map(4:7,
     
     <item>
       <title>Iterating on a 2016 Election Analysis</title>
-      <link>/post/iterating-on-a-2016-election-analysis/</link>
+      <link>https://bgstieber.github.io/post/iterating-on-a-2016-election-analysis/</link>
       <pubDate>October 3, 2018</pubDate>
       
-      <guid>/post/iterating-on-a-2016-election-analysis/</guid>
+      <guid>https://bgstieber.github.io/post/iterating-on-a-2016-election-analysis/</guid>
       <description>&lt;p&gt;Jake Low wrote a &lt;a href=&#34;https://beta.observablehq.com/@jake-low/how-well-does-population-density-predict-u-s-voting-outcome&#34;&gt;really interesting piece&lt;/a&gt; that presented a few data visualizations that went beyond the typical &lt;a href=&#34;https://www.nytimes.com/interactive/2018/upshot/election-2016-voting-precinct-maps.html&#34;&gt;2016 election maps&lt;/a&gt; we’ve all gotten used to seeing.&lt;/p&gt;
 &lt;p&gt;I liked a lot of things about Jake’s post, here are three I was particularly fond of:&lt;/p&gt;
 &lt;ul&gt;
@@ -4358,9 +4358,9 @@ results_16 &amp;lt;- read_csv(paste0(github_raw, repo, data_file)) %&amp;gt;%
 &lt;p&gt;First, we’re going to make the 2016 election map.&lt;/p&gt;
 &lt;p&gt;I’ll be making all of the maps in this post using &lt;code&gt;ggplot2&lt;/code&gt;. I’ve removed the code from this post, but if you look on my GitHub, you’ll notice some funky stuff going on with &lt;code&gt;scale_fill_gradientn&lt;/code&gt;. To make the map more visually salient, I’ve played around a bit with how the colors are scaled.&lt;/p&gt;
 &lt;p&gt;Counties that are red voted more for Trump, and counties that are blue voted more for Clinton.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-7-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Then we’ll take a look at population density. Again, I’ve hidden the code to make this map, but I’ve used &lt;code&gt;ggplot2&lt;/code&gt; to visualize the data, and I used one of the &lt;a href=&#34;https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html&#34;&gt;virdis&lt;/a&gt; color palettes (which is what Jake did as well).&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;If you look between the two maps, you might get a sense of the correlation between population density and the 2016 election results. It’s reasonable to expect that we might be able to do a decent job at predicting election results just using population density.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;predicting-2016-with-population-density&#34; class=&#34;section level4&#34;&gt;
@@ -4370,7 +4370,7 @@ results_16 &amp;lt;- read_csv(paste0(github_raw, repo, data_file)) %&amp;gt;%
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;results_and_pop_density &amp;lt;- results_16 %&amp;gt;% 
   inner_join(pop_density, by = c(&amp;#39;combined_fips&amp;#39; = &amp;#39;FIPS&amp;#39;)) %&amp;gt;%
   mutate(two_party_ratio = (votes_dem) / (votes_dem + votes_gop))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We’re going to fit a linear model which tries to predict the Two Party Vote Ratio &lt;span class=&#34;math inline&#34;&gt;\(\frac{N_{clinton}}{N_{clinton}+N_{trump}}\)&lt;/span&gt; using population density. Calculating the two party ratio in the way we have means that a county over 0.5 favored Clinton.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;model1 &amp;lt;- lm(two_party_ratio ~ I(log(population_density)),
              data = results_and_pop_density)
@@ -4381,7 +4381,7 @@ results_and_pop_density$resid_model1 &amp;lt;- resid(model1)&lt;/code&gt;&lt;/pr
 &lt;p&gt;I’m hiding the code used to generate the map, but what we’re visualizing isn’t actually what the model predicted. Instead, &lt;strong&gt;we’re visualizing the residuals&lt;/strong&gt;, which tell us about how good or bad the model’s prediction is. Calculating residuals is straightforward (we just see how far off our prediction was from the actual observed value):&lt;/p&gt;
 &lt;p&gt;&lt;span class=&#34;math display&#34;&gt;\[\text{residual} = \text{actual proportion} - \text{predicted proportion}\]&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;The larger the residual (in absolute value), the farther the model was from being right for that observation. Analyzing residuals and learning more about where your model is wrong can be one of the most fascinating parts of statistics and data science.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-12-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-12-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;In my opinion, visualizing the residuals from this simple model tells an even more interesting story than the election map above.&lt;/p&gt;
 &lt;p&gt;For example, look at the southwest corner of Texas, which had much higher rates of Clinton favorability than the model predicted. Additionally, this map also shows Trump’s appeal through the middle of the country. Much of the nation’s “breadbasket” is colored pink, indicating that these counties favored Trump much more than the model predicted.&lt;/p&gt;
 &lt;/div&gt;
@@ -4403,7 +4403,7 @@ results_pop_census$resid_model2 &amp;lt;- resid(model2, type = &amp;#39;response
 # join up to geographic data
 results_pop_census_map &amp;lt;- county_map_with_fips %&amp;gt;%
   inner_join(results_pop_census, by = c(&amp;#39;fips&amp;#39; = &amp;#39;combined_fips&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;A few things are &lt;strong&gt;noticeably different&lt;/strong&gt; between the two maps:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;The upper Midwest is considerably pinker than the previous map. Incorporating the 2012 election results demonstrates how conventional wisdom resulted in poor predictions for 2016.&lt;/li&gt;
@@ -4431,10 +4431,10 @@ results_pop_census_map &amp;lt;- county_map_with_fips %&amp;gt;%
     ylab(&amp;#39;Prediction Error (pink underestimated Trump, green underestimated Clinton)&amp;#39;)+
     ggtitle(&amp;#39;Counties with the Highest Prediction Errors&amp;#39;,
             subtitle = &amp;#39;Top 10 over- and under-predictions selected&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;In the above plot, we can see that three of the highest ten errors in favor of Clinton (the county performed better for Clinton than the model predicted) were from Texas. More analysis showed that five of the highest twenty five errors in favor of Clinton were in Texas. For Trump, Virginia, Kentucky, and Tennessee each had two counties in the top 10.&lt;/p&gt;
 &lt;p&gt;Finally, we can look at how wrong our new-and-improved model was across states. There are a few ways to summarize residuals over states (we could even build another model that predicted state results), but I’ll opt for the simplest route, and calculate &lt;strong&gt;the median error for each state&lt;/strong&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-19-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-10-03-iterating-on-a-2016-election-analysis_files/figure-html/unnamed-chunk-19-1.png&#34; width=&#34;864&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Simply calculating the median prediction error tells an interesting story about the 2016 election. We see the Midwest lighting up in pink, indicating areas where Trump out-performed the expectations of the model. We see areas out west where Clinton out-performed the expectations of the model. Finally, we see areas which are colored faintly, indicating that the model’s median prediction error was fairly close to 0.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;conclusion&#34; class=&#34;section level2&#34;&gt;
@@ -4591,10 +4591,10 @@ results_pop_census_map &lt;- county_map_with_fips %&gt;%
     
     <item>
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
-      <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
+      <link>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>August 6, 2018</pubDate>
       
-      <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
+      <guid>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>&lt;div id=&#34;introduction&#34; class=&#34;section level1&#34;&gt;
 &lt;h1&gt;Introduction&lt;/h1&gt;
 &lt;p&gt;In this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.&lt;/p&gt;
@@ -4718,7 +4718,7 @@ library(caret) # caret or carrot? :)&lt;/code&gt;&lt;/pre&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Just looking at the &lt;a href=&#34;https://www.itl.nist.gov/div898/handbook/eda/section3/scatterb.htm&#34;&gt;scatterplot matrix&lt;/a&gt; above, we can see that trying to classify flowers into the setosa species is a bit of a toy problem (the red points are well-separated from the blue and green). In fact, just by examining if the petal length of a flower is smaller than 2.45, we can determine if the flower is from the setosa species.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;table(&amp;#39;Petal Cut&amp;#39; = iris$Petal.Length &amp;gt;= 2.45,&amp;#39;Setosa&amp;#39; = iris$Species == &amp;#39;setosa&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;##          Setosa
@@ -4790,7 +4790,7 @@ iris_X_test_cs_sub &amp;lt;- iris_X_test_cs[, colnames(iris_X_test_cs) %in% vv]&
 lambda_1se_1 &amp;lt;- cv_glm1$lambda.1se # store &amp;quot;best&amp;quot; lambda for now
 
 plot(cv_glm1)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We can explore &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; a bit more to improve the model fit.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;cv_glm2 &amp;lt;- cv.glmnet(x = iris_X_train_cs_sub, y = iris_y_train,
                      alpha = 0, lambda = exp(seq(-10, log(lambda_1se_1), length.out = 500)),
@@ -4799,7 +4799,7 @@ plot(cv_glm1)&lt;/code&gt;&lt;/pre&gt;
 
 lambda_2 &amp;lt;- exp(-6.5)
 plot(cv_glm2)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-08-06-everything-i-know-about-machine-learning-i-learned-from-making-soup_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Cross-validation suggests a rather small value of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt;, indicating that the model’s fit doesn’t improve with a high degree of regularization. In the next section, we’ll use two values of &lt;span class=&#34;math inline&#34;&gt;\(\lambda\)&lt;/span&gt; to fit the model (&lt;span class=&#34;math inline&#34;&gt;\(\lambda_1\)&lt;/span&gt; = 0.0698, &lt;span class=&#34;math inline&#34;&gt;\(\lambda_2\)&lt;/span&gt; = 0.0015), and then investigate the results.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;tasting-the-soup&#34; class=&#34;section level2&#34;&gt;
@@ -5154,10 +5154,10 @@ glm2 &lt;- glm(iris_y_train ~ -1 + Sepal.Length+Sepal.Width+Petal.Length+Petal.W
     
     <item>
       <title>Golf, Tidy Data, and Using Data Analysis to Guide Strategy</title>
-      <link>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
+      <link>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</link>
       <pubDate>June 24, 2018</pubDate>
       
-      <guid>/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
+      <guid>https://bgstieber.github.io/post/golf-tidy-data-and-using-data-analysis-to-guide-strategy/</guid>
       <description>&lt;div id=&#34;introduction&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;I’m going to use this post to discuss some of the aspects of data science that interest me most (tidy data as well as using data to guide strategy). I’ll be discussing these topics through the lens of a data analysis of results from a few high school golf tournaments.&lt;/p&gt;
@@ -5554,7 +5554,7 @@ untidy_scores &amp;lt;- read_csv(paste0(gh, &amp;#39;/untidy_golf_scores.csv&amp
 &lt;h2&gt;Teeing Off: Exploring the Data&lt;/h2&gt;
 &lt;p&gt;We could either look at the scores on each hole or we could look at the score &lt;em&gt;relative to par&lt;/em&gt; for each hole. Scores will generally be higher depending on the par of the hole. Par 3’s are shorter than par 4’s which are shorter than par 5’s, and the longer the hole the more strokes (usually) it will take to complete. Since this represents an inherent “bias” in the score data, I think it’s better to analyze the score relative to par.&lt;/p&gt;
 &lt;p&gt;First, we’ll visualize the distribution of scores relative to par.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We’re able to see a few things pretty quickly from the heatmap above:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Holes 4 and 12 are clearly the hardest on the course, with over 50% of the field making double bogey or worse&lt;/li&gt;
@@ -5562,7 +5562,7 @@ untidy_scores &amp;lt;- read_csv(paste0(gh, &amp;#39;/untidy_golf_scores.csv&amp
 &lt;li&gt;About 50% of the field made a bogey on 13, which is a par 3&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Next, we’re going to take a look at the average score relative to par for each of the 18 holes played at PV. Each of the 18 holes played at least one stroke over par.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;The four hardest holes are (in order of difficulty): 12, 4, 7, and 1.&lt;/p&gt;
 &lt;p&gt;PV was my home course growing up, so here’s a little &lt;em&gt;local knowledge&lt;/em&gt; about each of those holes.&lt;/p&gt;
 &lt;div id=&#34;hole-12&#34; class=&#34;section level4&#34;&gt;
@@ -5582,7 +5582,7 @@ untidy_scores &amp;lt;- read_csv(paste0(gh, &amp;#39;/untidy_golf_scores.csv&amp
 &lt;p&gt;1 is a shorter par 5 with a daunting tee shot. There’s OB on the left side, and trees and fescue along the right side. On top of that, a golfer must steady their first tee jitters and focus on hitting a solid tee shot in front of the “gallery” of other players, coaches, and spectators. After hitting the tee shot, the fun doesn’t end. The approach into the green is challenging, as trees surround the green and the hole narrows all the way into the green&lt;/p&gt;
 &lt;p&gt;Each of the four most difficult holes requires a well-struck tee shot. On the 12th, it’s important to hit a long and straight shot. The 4th and 1st holes require precision and steady nerves to avoid trouble and hit a narrow fairway. The 7th requires a controlled and well-executed tee shot that is shaped right to left.&lt;/p&gt;
 &lt;p&gt;The next visualization is a &lt;a href=&#34;http://datavizproject.com/data-type/lollipop-chart/&#34;&gt;lollipop chart&lt;/a&gt;, which is a great way to avoid the “visually aggressive” &lt;a href=&#34;https://en.wikipedia.org/wiki/Moir%C3%A9_pattern&#34;&gt;moire effect&lt;/a&gt; that bar charts can sometimes fall victim to without losing the perceptually sound concept of &lt;a href=&#34;https://pdfs.semanticscholar.org/565d/843c2c0e60915709268ac4224894469d82d5.pdf&#34;&gt;position along a common scale&lt;/a&gt;. &lt;a href=&#34;https://juliasilge.com&#34;&gt;Julia Silge&lt;/a&gt; uses this chart type to great effect in some of her &lt;a href=&#34;https://juliasilge.com/blog/gender-pronouns/&#34;&gt;blog posts&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We took the same data that was displayed in the previous chart, but augmented it slightly to tell a different story. The orange lollipops on the chart show the holes that have higher scores relative to par than average. Three of the four hardest holes are on the front nine, occurring in the first seven holes of the course. We can also see how much more difficult holes 1, 4, 7, and 12 are than the rest (the “sticks” of the lollipops rise much higher than the other holes which played harder than average).&lt;/p&gt;
 &lt;p&gt;The easiest holes on the course can be identified as well. Hole 11 stands out as being the easiest hole at PV. Hole 11 is a straightforward par 5 with almost no trouble off the tee and a fairly generous fairway all the way to the green. The hole typically plays downwind (it’s routed in the opposite direction of 12), allowing longer hitters the option of trying to reach it in two.&lt;/p&gt;
 &lt;/div&gt;
@@ -5667,7 +5667,7 @@ dummy_table_boot %&amp;gt;% head&lt;/code&gt;&lt;/pre&gt;
 ## 5      3 sectionals    1   1.262038      3
 ## 6      3  regionals    1   1.313146      3&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We can use these results to visualize the distributions of predictions.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-15-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-15-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;We see that for both regional and sectional tournaments, holes 1, 4, 7, and 12 were much more difficult than the rest. We can also see that scores relative to par were slightly higher for regional tournaments, and that scores tended to vary a bit more in regional tournaments (the boxes for regionals tend to be a bit longer).&lt;/p&gt;
 &lt;p&gt;As I’ll mention in the conclusion of this post, I think we could dive a bit deeper into the mixed-effects models and potentially investigate interaction effects, or build some more interesting models using feature engineering, but this is as far as I want to go for this post.&lt;/p&gt;
 &lt;/div&gt;
@@ -5688,7 +5688,7 @@ dummy_table_boot %&amp;gt;% head&lt;/code&gt;&lt;/pre&gt;
   scale_colour_brewer(palette = &amp;#39;Set1&amp;#39;,
                       name = &amp;#39;&amp;#39;)+
   ggtitle(&amp;#39;Final Score Percentile Plot by Tournament Type&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-16-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Breaking 90 is generally a sign of a fairly accomplished high school golfer. In the plot above, we can see that the 90 mark is right around the 30th percentile for both the regional and sectional tournaments. This means that about 30% of the competitors scored 90 or lower. One other interesting insight from this chart is that the performance between the regional and sectional tournament is fairly similar (the scores by percentile are pretty close) except for between the 50th and 75th percentiles (the red dots tend to rise a bit above the blue). It could be interesting to dig into this divergence a bit more in a follow-up analysis.&lt;/p&gt;
 &lt;p&gt;To explore the difference between those that broke 90 (30% of the field) from those that didn’t, we’ll fit a simple linear model. We’ll use the results of the model to make predictions on a dummy data set and then look at the differences between predicted scores relative to par for each hole for the top 30% and the bottom 70%. We use a linear model to give our analysis a bit more precision than using simple averages across the data. We could also return to this analysis and investigate the coefficients or add complexity to the model if appropriate.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;tidy_scores3 &amp;lt;- tidy_scores2 %&amp;gt;%
@@ -5713,7 +5713,7 @@ cbind(dummy_table2,
   ggtitle(&amp;#39;Where do the Better Golfers Shine?&amp;#39;,
           subtitle = paste0(&amp;#39;The golfers finishing in the top 30% tended to&amp;#39;,
                             &amp;#39; perform better on the more difficult holes.&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-06-24-golf-tidy-data-and-using-data-analysis-to-guide-strategy_files/figure-html/unnamed-chunk-17-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;The chart above demonstrates two clear reasons why the top 30% fared better than the rest:&lt;/p&gt;
 &lt;ol style=&#34;list-style-type: decimal&#34;&gt;
 &lt;li&gt;They played the hardest holes better
@@ -6323,10 +6323,10 @@ cbind(dummy_table2,
     
     <item>
       <title>An Introduction to the kmeans Algorithm</title>
-      <link>/post/an-introduction-to-the-kmeans-algorithm/</link>
+      <link>https://bgstieber.github.io/post/an-introduction-to-the-kmeans-algorithm/</link>
       <pubDate>May 28, 2018</pubDate>
       
-      <guid>/post/an-introduction-to-the-kmeans-algorithm/</guid>
+      <guid>https://bgstieber.github.io/post/an-introduction-to-the-kmeans-algorithm/</guid>
       <description>&lt;p&gt;This post will provide an &lt;code&gt;R&lt;/code&gt; code-heavy, math-light introduction to selecting the &lt;span class=&#34;math inline&#34;&gt;\(k\)&lt;/span&gt; in &lt;strong&gt;k&lt;/strong&gt; means. It presents the main idea of kmeans, demonstrates how to fit a kmeans in &lt;code&gt;R&lt;/code&gt;, provides some components of the kmeans fit, and displays some methods for selecting &lt;code&gt;k&lt;/code&gt;. In addition, the post provides some helpful functions which may make fitting kmeans a bit easier.&lt;/p&gt;
 &lt;p&gt;kmeans clustering is an example of &lt;a href=&#34;https://en.wikipedia.org/wiki/Unsupervised_learning&#34;&gt;unsupervised learning&lt;/a&gt;, where we do not have an output we’re explicitly trying to predict. We may have reasons to believe that there are latent groups within a dataset, so a clustering method can be a useful way to explore and describe pockets of similar observations within a dataset.&lt;/p&gt;
 &lt;div id=&#34;the-algorithm&#34; class=&#34;section level2&#34;&gt;
@@ -6394,7 +6394,7 @@ cbind(dummy_table2,
                          iter.max = 25)[c(&amp;#39;tot.withinss&amp;#39;,&amp;#39;betweenss&amp;#39;)]))
 
 plot(2:14, unlist(ss_kmeans[,1]), xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;Within Cluster SSE&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-3-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;When we look at the scree plot, we’re looking for the “elbow”. We can see the SSE dropping, but at some point it discontinues its rapid dropping. At what cluster does it stop dropping abruptly?&lt;/p&gt;
 &lt;p&gt;Stated more verbosely from &lt;a href=&#34;https://en.wikipedia.org/wiki/Determining_the_number_of_clusters_in_a_data_set&#34;&gt;Wikipedia&lt;/a&gt;:&lt;/p&gt;
 &lt;blockquote&gt;
@@ -6406,7 +6406,7 @@ plot(2:14, unlist(ss_kmeans[,1]), xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp
 var_explained &amp;lt;- unlist(ss_kmeans[,2]) / tot.ss
 
 plot(2:14, var_explained, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;% of Total Variation Explained&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-4-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Where does the elbow occur in the above plot? That’s pretty subjective (a common theme in unsupervised learning), but for our task we would prefer to have &lt;span class=&#34;math inline&#34;&gt;\(\leq 10\)&lt;/span&gt; clusters, probably.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;visualize-aic&#34; class=&#34;section level2&#34;&gt;
@@ -6426,7 +6426,7 @@ plot(2:14, var_explained, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;% o
            kmeansAIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
 
 plot(2:14, aic_k, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;AIC from kmeans&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-6-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Look familiar? It is remarkably similar to looking at the SSE. This is because the main component in calculating AIC is the within-cluster sum of squared errors. Once again, we’re looking for an elbow in the plot, indicating that the decrease in AIC is not happening so rapidly.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;visualize-bic&#34; class=&#34;section level2&#34;&gt;
@@ -6444,7 +6444,7 @@ plot(2:14, aic_k, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;AIC from km
            kmeansBIC(kmeans(b_housing, centers = k, nstart = 20, iter.max = 25)))
 
 plot(2:14, aic_k, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;BIC from kmeans&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-8-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;p&gt;Once again, the plots are rather similar for this toy example.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;wrap-it-all-together-in-kmeans2&#34; class=&#34;section level2&#34;&gt;
@@ -6493,7 +6493,7 @@ plot(2:14, aic_k, xlab = &amp;#39;Clusters&amp;#39;, ylab = &amp;#39;BIC from km
 
 
 kmeans2(data = b_housing, center_range = 2:15, iter.max = 20, nstart = 25)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-9-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;use-a-package-to-determine-k&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Use a package to determine &lt;code&gt;k&lt;/code&gt;&lt;/h2&gt;
@@ -6504,13 +6504,13 @@ best.clust &amp;lt;- NbClust(data = b_housing,
                       min.nc = 2, 
                       max.nc = 15, 
                       method = &amp;#39;kmeans&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-1.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;## *** : The Hubert index is a graphical method of determining the number of clusters.
 ##                 In the plot of Hubert index, we seek a significant knee that corresponds to a 
 ##                 significant increase of the value of the measure i.e the significant peak in Hubert
 ##                 index second differences plot. 
 ## &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-2.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-10-2.png&#34; width=&#34;768&#34; /&gt;&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;## *** : The D index is a graphical method of determining the number of clusters. 
 ##                 In the plot of D index, we seek a significant knee (the significant peak in Dindex
 ##                 second differences plot) that corresponds to a significant increase of the value of
@@ -6606,7 +6606,7 @@ best.clust &amp;lt;- NbClust(data = b_housing,
 opt.kmeans &amp;lt;- kmeans(b_housing, centers = 4, nstart = 50, iter.max = 50)
 
 kmeans_viz(opt.kmeans)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-11-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-28-an-introduction-to-the-kmeans-algorithm_files/figure-html/unnamed-chunk-11-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;using-kmeans-to-predict&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Using &lt;code&gt;kmeans&lt;/code&gt; to predict&lt;/h2&gt;
@@ -7016,10 +7016,10 @@ system.time(
     
     <item>
       <title>My First Post</title>
-      <link>/post/my-first-post/</link>
+      <link>https://bgstieber.github.io/post/my-first-post/</link>
       <pubDate>May 26, 2018</pubDate>
       
-      <guid>/post/my-first-post/</guid>
+      <guid>https://bgstieber.github.io/post/my-first-post/</guid>
       <description>&lt;div id=&#34;welcome-to-my-blog&#34; class=&#34;section level1&#34;&gt;
 &lt;h1&gt;Welcome to my blog!&lt;/h1&gt;
 &lt;p&gt;I plan to use this website to present data explorations and analyses in a way that’s understandable to a broad audience. I hope to demonstrate the utility of applying ideas like &lt;a href=&#34;https://en.wikipedia.org/wiki/Machine_learning&#34;&gt;machine learning&lt;/a&gt;, &lt;a href=&#34;https://en.wikipedia.org/wiki/Data_visualization&#34;&gt;data visualization&lt;/a&gt;, and &lt;a href=&#34;https://en.wikipedia.org/wiki/Exploratory_data_analysis&#34;&gt;exploratory data analysis&lt;/a&gt; to day-to-day life to improve decision-making processes.&lt;/p&gt;
@@ -7030,7 +7030,7 @@ system.time(
 &lt;p&gt;I’m a big believer in treating data analysis as an iterative process, and I hope this blog will reinforce the idea that nearly anyone can learn the skills to do data analysis. I’m going to try as hard as I can to avoid the buzzwords and esoteric language that unnecessarily obfuscate data science discussions, so that this blog is accessible to an audience with varying levels of mathematical and statistical sophistication. That being said, I’ll still try to sneak a few data science nuggets for the hardcore data nerds out there!&lt;/p&gt;
 &lt;p&gt;I’ll mostly be using the &lt;a href=&#34;https://www.r-project.org/about.html&#34;&gt;&lt;strong&gt;&lt;code&gt;R&lt;/code&gt;&lt;/strong&gt; programming language&lt;/a&gt; to extract and manipulate data (you’ll find out I’m a huge &lt;a href=&#34;https://www.crummy.com/software/BeautifulSoup/bs4/doc/&#34;&gt;&lt;strong&gt;&lt;code&gt;tidyverse&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; fan), but you may see me using a bit of &lt;a href=&#34;https://www.python.org/&#34;&gt;&lt;strong&gt;&lt;code&gt;Python&lt;/code&gt;&lt;/strong&gt;&lt;/a&gt; as well (usually &lt;a href=&#34;http://scikit-learn.org/stable/&#34;&gt;scikit-learn&lt;/a&gt; and some web scraping with &lt;a href=&#34;https://www.crummy.com/software/BeautifulSoup/bs4/doc/&#34;&gt;BeautifulSoup&lt;/a&gt;).&lt;/p&gt;
 &lt;p&gt;Thanks for checking my blog out!&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;/post/2018-05-26-my-first-post_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bgstieber.github.io/post/2018-05-26-my-first-post_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;
 &lt;/div&gt;
 </description>
       <content:encoded><div id="welcome-to-my-blog" class="section level1">
@@ -7051,10 +7051,10 @@ system.time(
     
     <item>
       <title>About me</title>
-      <link>/about/</link>
+      <link>https://bgstieber.github.io/about/</link>
       <pubDate>January 1, 0001</pubDate>
       
-      <guid>/about/</guid>
+      <guid>https://bgstieber.github.io/about/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Work:&lt;/strong&gt; I currently work as a Senior Analyst in the healthcare industry. Prior to that, I was a Senior Data Analyst in the non-profit/fundraising sector. I got my start in data through working in analytics and reporting for a private financing company. On the side, I’ve been a volunteer data scientist for a few different organizations.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Education:&lt;/strong&gt; I graduated with an MS in Statistics from the &lt;a href=&#34;https://www.wisc.edu/&#34;&gt;University of Wisconsin&lt;/a&gt; in 2017 (go Badgers! 👐). Prior to that, I graduated with a BS in Mathematical Statistics and Mathematical Economics from &lt;a href=&#34;https://www.stcloudstate.edu/&#34;&gt;St. Cloud State University&lt;/a&gt; in 2015 (go Huskies! 🐺).&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Personal:&lt;/strong&gt; I live in &lt;a href=&#34;http://www.cityofmadison.com/&#34;&gt;Madison, WI&lt;/a&gt;. I like to spend my spare time reading, playing guitar, playing golf, biking, and watching whatever Wisconsin sports team is on TV.&lt;/p&gt;
@@ -7070,10 +7070,10 @@ system.time(
     
     <item>
       <title>Blogroll</title>
-      <link>/blogroll/</link>
+      <link>https://bgstieber.github.io/blogroll/</link>
       <pubDate>January 1, 0001</pubDate>
       
-      <guid>/blogroll/</guid>
+      <guid>https://bgstieber.github.io/blogroll/</guid>
       <description>&lt;div id=&#34;blogs-im-reading&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Blogs I’m reading:&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.r-bloggers.com/&#34;&gt;R-bloggers&lt;/a&gt;

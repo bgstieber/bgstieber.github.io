@@ -2,29 +2,29 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Machine Learning on Brad Stieber</title>
-    <link>/tags/machine-learning/</link>
+    <link>https://bgstieber.github.io/tags/machine-learning/</link>
     <description>Recent content in Machine Learning on Brad Stieber</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Fri, 17 Jan 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://bgstieber.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Quantifying Home Field Advantage in the NFL Using Linear Models in R</title>
-      <link>/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</link>
+      <link>https://bgstieber.github.io/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</link>
       <pubDate>Fri, 17 Jan 2020 00:00:00 +0000</pubDate>
       
-      <guid>/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/quantifying-home-field-advantage-in-the-nfl-using-linear-models-in-r/</guid>
       <description>If you pay attention to NFL football, you’re probably used to hearing that homefield advantage is worth about 3 points. I’ve always been interested in this number, and how it was derived. So, using some data from FiveThirtyEight, along with some linear modeling in R, I attempted to quantify home field advantage. My analysis shows that home field advantage (how much we expect the home team to win by, if the teams are evenly matched) is about 2.</description>
     </item>
     
     <item>
       <title>Roulette Wheels for Multi-Armed Bandits: A Simulation in R</title>
-      <link>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
+      <link>https://bgstieber.github.io/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</link>
       <pubDate>Tue, 29 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/roulette-wheels-for-multi-armed-bandits-a-simulation-in-r/</guid>
       <description>One of my favorite data science blogs comes from James McCaffrey, a software engineer and researcher at Microsoft. He recently wrote a blog post on a method for allocating turns in a multi-armed bandit problem.
 I really liked his post, and decided to take a look at the algorithm he described and code up a function to do the simulation in R.
 Note: this is strictly an implementation of Dr. McCaffrey’s ideas from his blog post, and should not be taken as my own.</description>
@@ -32,20 +32,20 @@ Note: this is strictly an implementation of Dr. McCaffrey’s ideas from his bl
     
     <item>
       <title>Recommending Songs Using Cosine Similarity in R</title>
-      <link>/post/recommending-songs-using-cosine-similarity-in-r/</link>
+      <link>https://bgstieber.github.io/post/recommending-songs-using-cosine-similarity-in-r/</link>
       <pubDate>Mon, 31 Dec 2018 00:00:00 +0000</pubDate>
       
-      <guid>/post/recommending-songs-using-cosine-similarity-in-r/</guid>
+      <guid>https://bgstieber.github.io/post/recommending-songs-using-cosine-similarity-in-r/</guid>
       <description>Recommendation engines have a huge impact on our online lives. The content we watch on Netflix, the products we purchase on Amazon, and even the homes we buy are all served up using these algorithms. In this post, I’ll run through one of the key metrics used in developing recommendation engines: cosine similarity.
 First, I’ll give a brief overview of some vocabulary we’ll need to understand recommendation systems. Then, I’ll look at the math behind cosine similarity.</description>
     </item>
     
     <item>
       <title>Everything I Know About Machine Learning I Learned from Making Soup</title>
-      <link>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
+      <link>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
+      <guid>https://bgstieber.github.io/post/everything-i-know-about-machine-learning-i-learned-from-making-soup/</guid>
       <description>IntroductionIn this post, I’m going to make the claim that we can simplify some parts of the machine learning process by using the analogy of making soup. I think this analogy can improve how a data scientist explains machine learning to a broad audience, and it provides a helpful framework throughout the model building process.
 Relying on some insight from the CRISP-DM framework, my own experience as an amateur chef, and the well-known iris data set, I’m going to explain why I think that the soup making and machine learning connection is a pretty decent first approximation you could use to understand the machine learning process.</description>
     </item>
